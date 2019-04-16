@@ -401,15 +401,15 @@ class Utility_forms{
 	}
 	
 	
-	private $hide_save_button = true;
+	//private $hide_save_button;
 	
-	public function set_hide_save_button($bool_state = true){
-		$this->hide_save_button = $bool_state;
-	}
+	//public function set_hide_save_button($bool_state){
+		//$this->hide_save_button = $bool_state;
+	//}
 	
-	private function get_hide_save_button(){
-		return $this->hide_save_button;
-	}
+	//private function get_hide_save_button(){
+		//return $this->hide_save_button;
+	//}
 	
 	/**
 	 * Form Close Tag
@@ -418,6 +418,7 @@ class Utility_forms{
 	 * 
 	 * @return String
 	 */
+	
 	
 	private function form_close_tag(){
 			
@@ -428,11 +429,15 @@ class Utility_forms{
 			if($this->use_form_tag == true){
 				
 				$return_string .= form_close();
-				if(!$this->hide_save_button){
-				$return_string .= "<div class='form-group'>
-				<div class='col-xs-12'>
+			
+				
+				//added
+				if($this->view_or_edit_mode != 'view')
+				{
+					$return_string .= "<div class='form-group'>
+				    <div class='col-xs-12'>
 					<button type='submit' class='btn btn-default' id='btnCreate'><i class='fa fa-send'></i> Save</button>
-				</div>";
+				   </div>";
 				}
 			$return_string .= "</div>";	
 		}
@@ -450,7 +455,7 @@ class Utility_forms{
  */	
 
 private function create_select_field($fields = array(),$cnt = 0){
-		
+		//print_r($fields);
 		/**
 		 * Additonal classes are other classes to the element other 
 		 * than the hard coded form-control class. The are part of the properties element
@@ -536,6 +541,8 @@ private function create_select_field($fields = array(),$cnt = 0){
 		
 		return $output_string;
 	}
+
+
 	
 	private function create_input_field($fields = array(),$cnt = 0){
 		
@@ -914,9 +921,10 @@ private function create_select_field($fields = array(),$cnt = 0){
 	}
 	
 	
-	function set_selected_fields($selected_list_fields){
+	function set_selected_fields($selected_list_fields,$fields_not_selected){
 		
-		$this->selected_list_fields = array("lead_bio_fields_id");
+		//$this->selected_list_fields = array("lead_bio_fields_id");
+		$this->selected_list_fields = array($fields_not_selected);
 		$this->selected_list_fields = array_merge($this->selected_list_fields,$selected_list_fields);
 	}
 	
@@ -1068,21 +1076,21 @@ private function create_select_field($fields = array(),$cnt = 0){
 		return $results;
 	}	
 	
-	private $element_type = array();
+	private $dropdown_element_type = array();
 	
-	public function set_element_type($element_type = array()){
-		$this->element_type[] = $element_type;
+	public function set_dropdown_element_type($dropdown_element_type  = array()){
+		$this->dropdown_element_type [] = $dropdown_element_type ;
 	}
 	
-	public function get_element_type(){
-		return $this->element_type;
+	public function get_dropdown_element_type(){
+		return $this->dropdown_element_type;
 	}
 	
 	private function build_single_form_fields(){
 
 	$this->get_view_or_edit_mode();
 
-	$this->get_element_type();
+	$this->get_dropdown_element_type();
 		
 	$results = $this->db_results();
 		
@@ -1094,10 +1102,15 @@ private function create_select_field($fields = array(),$cnt = 0){
 		
 	//print_r($elem);
 	//print_r($this->selected_list_fields);
-	$fields_with_type = array_column($this->element_type, '0');
+	$fields_with_type = array_column($this->dropdown_element_type , '0');
 	//echo "++++++++++++";
 	//print_r($this->element_type);
+	//print_r($fields_with_type);
 	
+	$fields_options = array_column($this->dropdown_element_type , '1');
+	
+	//print_r($fields_options[0]);
+	$cnt = 0;
 	foreach($elem as $key=>$value){
 		if($this->view_or_edit_mode == 'view'){
 			
@@ -1113,17 +1126,28 @@ private function create_select_field($fields = array(),$cnt = 0){
 			if(in_array($this->selected_list_fields[$key], $fields_with_type)){
 				
 				$element = "select";
-				// foreach($this->element_type[0] as $inner_key=>$inner_value) {
-					// $element = $inner_key;
-				// }
-					
-					
+				
+								
+				//$fields[]['options']['properties'] = array('selected'=>'selected');
+				
+				$options = array();
+				
+				foreach($fields_options[$cnt] as $option_key=>$option_value){
+					if($option_key == $value){
+						$options[$option_key] = array('option'=>$option_value['option'],'properties'=>array('selected'=>'selected'));
+					}else{
+						$options[$option_key] = array('option'=>$option_key);
+					}
+				}
+									
 				$fields[] = array(
 						'element' => $element,
 						'label' => $key,
 						'properties'=>array('class'=>'','value'=>$value,'id'=>'','style'=>'margin-top:8px;'),
+						'options'=>$options
 						
 					);
+					$cnt++;
 					
 			}else{
 					
@@ -1203,15 +1227,15 @@ private function create_select_field($fields = array(),$cnt = 0){
 		$edit= "#";
 		$delete = "#";
 		
+		
 		$this->get_list_action();
 		$this->get_add_form();
 		
 		if(!empty($this->list_action)){
 			extract($this->list_action);
 		}
-		
 		//print_r($view);
-			
+					
 		$list_array = $this->db_results();	
 		
 		$output = $this->open_panel();
