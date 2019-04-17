@@ -7,7 +7,7 @@
 					<li><a target="__blank" href="<?=base_url();?>admin/view_progress_measures">Assessment progress measure</a></li>
 					<li><a target="__blank" href="<?=base_url();?>admin/view_compassion_connect_progress_measures">Connect Progress Measures</a></li>
 					<li><a target="__blank" href="<?=base_url();?>admin/view_assessment_milestones">Assessment Milestones</a></li>
-					<li><a target="__blank" href="#">Assessment Review Status</a></li>
+					<!-- <li><a target="__blank" href="#">Assessment Review Status</a></li> -->
 				</ul>
 			</li>
 		</ul>
