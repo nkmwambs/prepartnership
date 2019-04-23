@@ -22,6 +22,7 @@ class Admin extends CI_Controller {
 	function __construct(){
 		parent::__construct();
 		$this->load->database();
+		//Testing push in git
 	}
 	 
 	public function index(){
