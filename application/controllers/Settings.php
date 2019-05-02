@@ -34,15 +34,12 @@ class Settings extends CI_Controller
 		return new Utility_forms();
 	}
 		
-function assessment_settings($param1="",$param2=""){
+function assessment_settings($param1="list_lead_bio"){
         if ($this->session->userdata('user_login') != 1)
             redirect(base_url() . 'index.php?login', 'refresh');
 		
-		
-		$page_data['lead_bio_fields_output'] = $this->list_lead_bio('lead_bio_fields_output');
-		$page_data['connenct_progress_measures']=$this->view_compassion_connect_progress_measures();
-		$page_data['progress_measures']=$this->view_progress_measures();
-		$page_data['assessment_milestones']=$this->view_assessment_milestones();
+
+		$page_data['output']= $this->$param1();
 		
         $page_data['page_name']                 = 'assessment_settings';
 		$page_data['view_type'] = "settings";
@@ -144,7 +141,7 @@ private function view_assessment_milestones()
 }
 
 	
-private function list_lead_bio($view_output_variable){
+public function list_lead_bio(){
 		
 		$build_list = $this->load_library();
 		
@@ -158,7 +155,7 @@ private function list_lead_bio($view_output_variable){
 		$build_list->set_panel_title("Lead Bio Fields");
 		
 		$action = array(
-			'add' 	=> array('href'=>'settings/add_lead_bio_fields/'.$view_output_variable),
+			'add' 	=> array('href'=>'settings/add_lead_bio_fields'),
 			'view' 	=> array('href'=>'settings/view_single_lead_bio'),
 			'edit' 	=> array('href'=>'settings/edit_lead_bio_fields'),
 			'delete'=> array('href'=>'settings/delete_lead_bio_fields')

@@ -68,9 +68,46 @@
                     </a>
                 </li>
                  <li class="<?php if ($page_name == 'assessment_settings') echo 'active'; ?> assessment_settings">
-                    <a href="<?php echo base_url(); ?>settings/assessment_settings">
+                    <a href="#">
                         <span><i class="fa fa-gears"></i> <?php echo get_phrase('assessment_settings'); ?></span>
                     </a>
+                    <ul>
+                    	<li class="<?php if ($page_name == 'assessment_settings') echo 'active'; ?>">
+                    		<a href="<?=base_url();?>settings/assessment_settings/list_lead_bio">
+                    			<span>
+                    				<i class="fa fa-globe"></i>
+                    					<?=get_phrase('lead_bio_fields');?>
+                    			</span>	
+                    		</a>
+                    	</li>
+                    	
+                    	<li class="<?php if ($page_name == 'assessment_settings') echo 'active'; ?>">
+                    		<a href="<?=base_url();?>settings/assessment_settings/view_assessment_milestones">
+                    			<span>
+                    				<i class="fa fa-list"></i>
+                    					<?=get_phrase('assessment_milestones');?>
+                    			</span>	
+                    		</a>
+                    	</li>
+                    	
+                    	<li class="<?php if ($page_name == 'assessment_settings') echo 'active'; ?>">
+                    		<a href="<?=base_url();?>settings/assessment_settings/view_compassion_connect_progress_measures">
+                    			<span>
+                    				<i class="fa fa-line-chart"></i>
+                    					<?=get_phrase('connect_progress_measures');?>
+                    			</span>	
+                    		</a>
+                    	</li>
+                    	
+                    	<li class="<?php if ($page_name == 'assessment_settings') echo 'active'; ?>">
+                    		<a href="<?=base_url();?>settings/assessment_settings/view_progress_measures">
+                    			<span>
+                    				<i class="fa fa-bar-chart"></i>
+                    					<?=get_phrase('assessment_progress_measures');?>
+                    			</span>	
+                    		</a>
+                    	</li>
+                    </ul>
                 </li>
                 <li class="<?php if ($page_name == 'user_profiles') echo 'active'; ?> <?=get_access('user_profiles','settings');?>">
                     <a href="<?php echo base_url(); ?>settings/user_profiles">
