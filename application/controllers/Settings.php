@@ -141,7 +141,7 @@ private function view_assessment_milestones()
 }
 
 	
-public function list_lead_bio(){
+private function list_lead_bio(){
 		
 		$build_list = $this->load_library();
 		
@@ -233,11 +233,145 @@ public function add_lead_bio_fields()
 		$this->load_view($build_form,$fields);
 
 }
+public	function add_compassion_connect_progress_measure(){
+		
+		$build_form = $this->load_library();
+		
+		$fields[] = array(
+			'label'=>'Lead Score Criteria Parameter',
+			'element'=>'input',
+			'properties'=>array('id'=>'','class'=>'')
+		);
+		
+		$fields[] = array(
+			'label'=>'Connect Lead Score Stage',
+			'element'=>'select',
+			'properties'=>array('id'=>'','class'=>''),
+			'options'=>array(
+				'1'=>array('option'=>'Stage 1'),
+				'2'=>array('option'=>'Stage 2')
+			)
+		);
+		
+		$build_form->set_panel_title('Connect Lead Score Parameters');
+		$build_form->set_view_or_edit_mode('add');
+		
+		$this->load_view($build_form, $fields);
+}
+
+public function add_assessment_progress_measure(){
+
+		$build_form = $this->load_library();
+		
+		$fields[] = array(
+			'label'=>'Progress Measure Title',
+			'element'=>'input',
+			'properties'=>array('id'=>'','class'=>'')
+		);
+		
+		$fields[] = array(
+			'label'=>'Verification Tools',
+			'element'=>'input',
+			'properties'=>array('id'=>'','class'=>'')
+		);
+		
+		$fields[] = array(
+			'label'=>'Method of assessment',
+			'element'=>'input',
+			'properties'=>array('id'=>'','class'=>'')
+		);
+		
+		$fields[] = array(
+			'label'=>'Weight',
+			'element'=>'select',
+			'properties'=>array('id'=>'','class'=>''),
+			'options' => array(
+				'1'=>array('option'=>1),
+				'2'=>array('option'=>2),
+				'3'=>array('option'=>3),
+				'4'=>array('option'=>4),
+				'5'=>array('option'=>5),
+				'6'=>array('option'=>6),
+				'7'=>array('option'=>7),
+				'8'=>array('option'=>8),
+				'9'=>array('option'=>9),
+				'10'=>array('option'=>10),
+			)
+		);
+		
+		$fields[] = array(
+			'label'=>'Connect Mapping',
+			'element'=>'select',
+			'properties'=>array('id'=>'','class'=>''),
+			'options' => array(
+				'0'=>array('option'=>'No Connect Match'),
+				'1'=>array('option'=>'Lead Score Criteria - Stage 1: Statement Of Faith Compatibility'),
+				'2'=>array('option'=>'Lead Score Criteria - Stage 1: Commitment To Child Ministry'),
+				'3'=>array('option'=>'Lead Score Criteria - Stage 1: Strategic Location for Compassion'),
+				'4'=>array('option'=>'Lead Score Criteria - Stage 2 - Stage 1: Denomination'),
+				'5'=>array('option'=>'Lead Score Criteria - Stage 2: Legal Registration'),
+				'6'=>array('option'=>'Lead Score Criteria - Stage 2: Physical Environment'),
+				'7'=>array('option'=>'Lead Score Criteria - Stage 2: Child Enrollment Capacity'),
+				'8'=>array('option'=>'Lead Score Criteria - Stage 2: Commitment To Christian Staff'),
+				'9'=>array('option'=>'Lead Score Criteria - Stage 2: Understands Context'),
+				'10'=>array('option'=>'Lead Score Criteria - Stage 2: Commitment To Ongoing Learning')
+				
+			)
+		);
+		$build_form->set_view_or_edit_mode('add');
+		$build_form->set_panel_title('Assessment Progress Measure');
+		
+		$this->load_view($build_form, $fields);
+	}
+
+public function add_assessment_milestone()
+{
+		
+		$build_form = $this->load_library();
+		
+		$fields[] = array(
+				'label'		=> 'Assessment Milestone Name:',
+				'element'	=> 'input',
+				'properties'=> array('id'=>'','class'=>'')
+		);
+		
+		$fields[] = array(
+				'label'		=> 'Period Needed to Complete(in months)',
+				'element'	=> 'select',
+				'properties'=> array('id'=>'','class'=>''),
+				'options'	=> array(
+					'1'	=> array('option'=>'1'),
+					'2'	=> array('option'=>'2'),
+					'3'	=> array('option'=>'3'),
+					'4'	=> array('option'=>'4'),
+					'5'	=> array('option'=>'5'),
+					'6'	=> array('option'=>'6'),
+					'7'	=> array('option'=>'7'),
+					'8'	=> array('option'=>'8'),
+					'9'	=> array('option'=>'9'),
+					'10'=> array('option'=>'10'),
+					'11'=> array('option'=>'11'),
+					'12'=> array('option'=>'12')
+				)
+				
+			);
+		
+		$fields[] = array(
+				'label'		=> 'User Customized Review Status',
+				'element'	=> 'input',
+				'properties'=> array('id'=>'','class'=>''),
+		);
+	    $build_form->set_view_or_edit_mode('add');
+		$build_form->set_panel_title('Add Milestone');
+		$build_form->set_form_id('frm_add_milestone');
+		
+		$this->load_view($build_form,$fields,'single_form');
+}
 private function load_view($build_form,$fields,$form_type='multi_form'){
 	
 		$build_form->set_form_fields($fields);
 		
-		$page_data[$this->uri->segment(3)] = $build_form->render_form($form_type);
+		$page_data['output'] = $build_form->render_form($form_type);
 		$page_data['page_name']                 = 'assessment_settings';
 		$page_data['view_type'] = "settings";
         $page_data['page_title']                = get_phrase('assessment_settings');
