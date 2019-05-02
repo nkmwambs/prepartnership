@@ -367,6 +367,7 @@ public function add_assessment_milestone()
 		
 		$this->load_view($build_form,$fields,'single_form');
 }
+
 private function load_view($build_form,$fields,$form_type='multi_form'){
 	
 		$build_form->set_form_fields($fields);
@@ -377,6 +378,83 @@ private function load_view($build_form,$fields,$form_type='multi_form'){
         $page_data['page_title']                = get_phrase('assessment_settings');
         $this->load->view('backend/index', $page_data);		
 	}
+public function view_single_lead_bio($table_name,$record_id){
+		$build_form = $this->load_library();
+		
+		
+		$selected_columns = array("Field Name"=>"lead_bio_fields_name",
+		'Data Type'=>"datatype_name","Is Field Unique?"=>"is_field_unique","Is Field Null?"=>"is_field_null",
+		'default_value');
+	
+		$build_form->set_selected_fields($selected_columns,'lead_bio_fields_id');
+		
+		$join_array = array('datatype'=>array('lead_bio_fields.datatype_id','datatype.datatype_id'));
+		
+		$build_form->set_table_join($join_array);
+		
+		$build_form->set_view_or_edit_mode('view');
+		
+		$build_form->set_panel_title('View Leads Bio Field');
+		
+		$this->view_record_by_id($build_form,$table_name,$record_id);
+}
+public function view_single_assessment_milestones($table_name,$record_id)
+{
+	
+	$build_form = $this->load_library();
+	
+	$selected_columns = array("Milestone Name"=>"milestone_name",
+	'When'=>"assessment_period_in_days","Review Status"=>"assessment_review_status","User Customized Review Status"=>"user_customized_review_status");
+
+	$build_form->set_selected_fields($selected_columns,"assessment_milestones_id");	
+		
+	$build_form->set_selected_fields($selected_columns,"assessment_milestones_id");
+	
+	//$join_array = array('datatype'=>array('lead_bio_fields.datatype_id','datatype.datatype_id'));
+	
+	//$build_form->set_table_join($join_array);
+	
+	$build_form->set_view_or_edit_mode('view');
+	
+	$build_form->set_panel_title("Assessment Milestone Details");
+	
+	$this->view_record_by_id($build_form,$table_name,$record_id);
+}
+public function view_single_connect_progress_measure($table_name,$record_id)
+{
+	$build_form = $this->load_library();
+	
+	
+	$selected_columns = array("Lead Score Criteria Parameter"=>"lead_score_parameter",
+	'Lead Score Stage'=>"lead_score_stage");
+
+	$build_form->set_selected_fields($selected_columns,"compassion_connect_mapping_id");
+	
+	//$join_array = array('datatype'=>array('lead_bio_fields.datatype_id','datatype.datatype_id'));
+	
+	//$build_form->set_table_join($join_array);
+	
+	$build_form->set_view_or_edit_mode('view');
+	
+	$build_form->set_panel_title('View Progress Measure');
+	
+	$this->view_record_by_id($build_form,$table_name,$record_id);
+}
+private function view_record_by_id($build_form,$table_name,$record_id)
+{
+	$build_form->set_where_clause(array($table_name."_id"=>$record_id));
+	
+	$build_form->set_db_table($table_name);
+	
+	//$build_form->set_hide_save_button($display_save_btn);
+
+	$page_data['output'] = $build_form->render_form('single_view_form');
+	$page_data['view_type']	= "settings";
+	$page_data['page_name']	= "assessment_settings";
+	$page_data['page_title']	= "assessment_settings";
+	$this->load->view('backend/index',$page_data);
+}
+
 	 /*****SITE/SYSTEM SETTINGS*********/
     function system_settings($param1 = '', $param2 = '', $param3 = '')
     {
