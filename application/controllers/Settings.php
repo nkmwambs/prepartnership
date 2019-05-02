@@ -63,7 +63,7 @@ private  function view_compassion_connect_progress_measures()
 	$build_list->set_panel_title("Compassion Connect Progress Measures");
 	
 	$action = array(
-		'add' 	=> array('href'=>'settings/add_compassion_connect_progress_measure/'.$view_output_variable),
+		'add' 	=> array('href'=>'settings/add_compassion_connect_progress_measure'),
 		'view' 	=> array('href'=>'settings/view_single_connect_progress_measure'),
 		'edit' 	=> array('href'=>'settings/edit_connect_progress_measure'),
 		'delete'=> array('href'=>'settings/delete_connect_compassion_progress_measure')
@@ -78,7 +78,7 @@ private  function view_compassion_connect_progress_measures()
     return $build_list->render_item_list();
 
 }
-private function view_progress_measures($view_output_variable)
+private function view_progress_measures()
 {
 	
 	$build_list = $this->load_library();
@@ -94,7 +94,7 @@ private function view_progress_measures($view_output_variable)
 	$build_list->set_panel_title("Assessment Progress Measure");
 	
 	$action = array(
-		'add' 	=> array('href'=>'settings/add_assessment_progress_measure/'.$view_output_variable),
+		'add' 	=> array('href'=>'settings/add_assessment_progress_measure'),
 		'view' 	=> array('href'=>'settings/view_single_assessment_progress_measure'),
 		'edit' 	=> array('href'=>'settings/edit_assessment_progress_measure'),
 		'delete'=> array('href'=>'settings/delete_assessment_progress_measure')
@@ -111,7 +111,7 @@ private function view_progress_measures($view_output_variable)
 	return $build_list->render_item_list();
 
 }
-private function view_assessment_milestones($view_output_variable)
+private function view_assessment_milestones()
 {
 	
 	$build_list = $this->load_library();
@@ -125,7 +125,7 @@ private function view_assessment_milestones($view_output_variable)
 	$build_list->set_panel_title("Assessment Milestones");
 	
 	$action = array(
-		'add' 	=> array('href'=>'settings/add_assessment_milestone/'.$view_output_variable),
+		'add' 	=> array('href'=>'settings/add_assessment_milestone'),
 		'view' 	=> array('href'=>'settings/view_single_assessment_milestones'),
 		'edit' 	=> array('href'=>'settings/edit_assessment_milestone'),
 		'delete'=> array('href'=>'settings/delete_assessment_milestone')
