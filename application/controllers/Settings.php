@@ -20,26 +20,232 @@ class Settings extends CI_Controller
 		$this->load->database();
         $this->load->library('session');
 		$this->session->set_userdata('view_type','settings');
+		
+		//set_use_datatable
 
        /*cache control*/
 		$this->output->set_header('Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0');
 		$this->output->set_header('Pragma: no-cache');
 
     }
+	
+	private function load_library(){
+		$this->load->library('utility_forms');
+		return new Utility_forms();
+	}
 		
-	  function assessment_settings($param1="",$param2=""){
+function assessment_settings($param1="",$param2=""){
         if ($this->session->userdata('user_login') != 1)
             redirect(base_url() . 'index.php?login', 'refresh');
 		
 		
-		$page_data['lead_bio_fields_output'] = $this->list_lead_bio();
+		$page_data['lead_bio_fields_output'] = $this->list_lead_bio('lead_bio_fields_output');
+		$page_data['connenct_progress_measures']=$this->view_compassion_connect_progress_measures();
+		$page_data['progress_measures']=$this->view_progress_measures();
+		$page_data['assessment_milestones']=$this->view_assessment_milestones();
 		
         $page_data['page_name']                 = 'assessment_settings';
 		$page_data['view_type'] = "settings";
         $page_data['page_title']                = get_phrase('assessment_settings');
         $this->load->view('backend/index', $page_data);	
 	}
+private  function view_compassion_connect_progress_measures()
+{
+	
+	$build_list = $this->load_library();
+	
+	$build_list->set_use_datatable(false);
+	
+	$selected_columns = array("Lead Score Criteria Parameter"=>"lead_score_parameter",
+	'Lead Score Stage'=>"lead_score_stage");
 
+	$build_list->set_selected_fields($selected_columns,"compassion_connect_mapping_id");	
+	$build_list->set_panel_title("Compassion Connect Progress Measures");
+	
+	$action = array(
+		'add' 	=> array('href'=>'settings/add_compassion_connect_progress_measure/'.$view_output_variable),
+		'view' 	=> array('href'=>'settings/view_single_connect_progress_measure'),
+		'edit' 	=> array('href'=>'settings/edit_connect_progress_measure'),
+		'delete'=> array('href'=>'settings/delete_connect_compassion_progress_measure')
+	);
+	
+	$build_list->set_list_action($action);
+	
+	$build_list->set_db_table("compassion_connect_mapping");
+	
+	$build_list->set_add_form();
+	
+    return $build_list->render_item_list();
+
+}
+private function view_progress_measures($view_output_variable)
+{
+	
+	$build_list = $this->load_library();
+	
+	$build_list->set_use_datatable(false);
+	
+	$selected_columns = array("Progress Measure"=>"Progress_Measure_title",
+	'Tools Of Verification'=>"verification_tool","Progress Measure Weight"=>"weight","CC Mapping"=>"compassion_connect_mapping");
+
+	$build_list->set_selected_fields($selected_columns,"assessment_progress_measure_id");		
+
+			
+	$build_list->set_panel_title("Assessment Progress Measure");
+	
+	$action = array(
+		'add' 	=> array('href'=>'settings/add_assessment_progress_measure/'.$view_output_variable),
+		'view' 	=> array('href'=>'settings/view_single_assessment_progress_measure'),
+		'edit' 	=> array('href'=>'settings/edit_assessment_progress_measure'),
+		'delete'=> array('href'=>'settings/delete_assessment_progress_measure')
+	);
+	
+	$build_list->set_list_action($action);
+	
+	$build_list->set_use_datatable(false);
+	
+	$build_list->set_db_table("assessment_progress_measure");
+	
+	$build_list->set_add_form();
+	
+	return $build_list->render_item_list();
+
+}
+private function view_assessment_milestones($view_output_variable)
+{
+	
+	$build_list = $this->load_library();
+	
+	$build_list->set_use_datatable(false);
+	
+	$selected_columns = array("Milestone Name"=>"milestone_name",
+	'When'=>"assessment_period_in_days","Review Status"=>"assessment_review_status","User Customized Review Status"=>"user_customized_review_status");
+
+	$build_list->set_selected_fields($selected_columns,"assessment_milestones_id");	
+	$build_list->set_panel_title("Assessment Milestones");
+	
+	$action = array(
+		'add' 	=> array('href'=>'settings/add_assessment_milestone/'.$view_output_variable),
+		'view' 	=> array('href'=>'settings/view_single_assessment_milestones'),
+		'edit' 	=> array('href'=>'settings/edit_assessment_milestone'),
+		'delete'=> array('href'=>'settings/delete_assessment_milestone')
+	);
+	
+	$build_list->set_list_action($action);
+	
+	$build_list->set_use_datatable(false);
+	
+	$build_list->set_db_table("assessment_milestones");
+	
+	$build_list->set_add_form();
+	
+	return $build_list->render_item_list();
+	
+}
+
+	
+private function list_lead_bio($view_output_variable){
+		
+		$build_list = $this->load_library();
+		
+		$selected_columns = array("Field Name"=>"lead_bio_fields_name",
+		'Data Type'=>"datatype_name","Is Field Unique?"=>"is_field_unique","Is Field Null?"=>"is_field_null",
+		'default_value');
+	
+		$build_list->set_selected_fields($selected_columns,'lead_bio_fields_id');		
+	
+				
+		$build_list->set_panel_title("Lead Bio Fields");
+		
+		$action = array(
+			'add' 	=> array('href'=>'settings/add_lead_bio_fields/'.$view_output_variable),
+			'view' 	=> array('href'=>'settings/view_single_lead_bio'),
+			'edit' 	=> array('href'=>'settings/edit_lead_bio_fields'),
+			'delete'=> array('href'=>'settings/delete_lead_bio_fields')
+		);
+		
+		$build_list->set_list_action($action);
+		
+		$join_array = array('datatype'=>array('lead_bio_fields.datatype_id','datatype.datatype_id'));
+		
+		$build_list->set_table_join($join_array);
+		
+		$build_list->set_db_table("lead_bio_fields");
+		
+		$build_list->set_add_form();
+		
+		
+		return $build_list->render_item_list();
+
+	}
+	
+public function add_lead_bio_fields()
+{
+		//$output = $this->uri->segment(1);
+		$build_form = $this->load_library();
+		
+		$fields[] = array(
+				'label'		=> 'Field Name',
+				'element'	=> 'input',
+				'properties'=> array('id'=>'','class'=>'')
+		);
+		
+		$fields[] = array(
+				'label'		=> 'Data Type',
+				'element'	=> 'select',
+				'properties'=> array('id'=>'','class'=>''),
+				'options'	=> array(
+					'1'	=> array('option'=>'Whole Number'),
+					'2'	=> array('option'=>'Decimal Number'),
+					'3'	=> array('option'=>'Date & Time'),
+					'4'	=> array('option'=>'Text')
+				)
+			);
+		
+		$fields[] = array(
+				'label'		=> 'Field Unique?',
+				'element'	=> 'select',
+				'properties'=> array('id'=>'','class'=>''),
+				'options'	=> array(
+					'1'=>array('option'=>'Yes'),
+					'0'=>array('option'=>'No')
+				)
+		);
+		
+		$fields[] = array(
+				'label'		=> 'Can be Null?',
+				'element'	=> 'select',
+				'properties'=> array('id'=>'','class'=>''),
+				'options'	=> array(
+					'1'=>array('option'=>'Yes'),
+					'0'=>array('option'=>'No')
+				)
+		);
+		
+		$fields[] = array(
+				'label'		=> 'Default Value',
+				'element'	=> 'input',
+				'properties'=> array('id'=>'','class'=>'')
+		);
+		
+		$build_form->set_view_or_edit_mode('add');
+		$build_form->set_panel_title('Leads Bio Information');
+		$build_form->set_form_id('frm_bio');
+		
+		
+		$this->load_view($build_form,$fields);
+
+}
+private function load_view($build_form,$fields,$form_type='multi_form'){
+	
+		$build_form->set_form_fields($fields);
+		
+		$page_data[$this->uri->segment(3)] = $build_form->render_form($form_type);
+		$page_data['page_name']                 = 'assessment_settings';
+		$page_data['view_type'] = "settings";
+        $page_data['page_title']                = get_phrase('assessment_settings');
+        $this->load->view('backend/index', $page_data);		
+	}
 	 /*****SITE/SYSTEM SETTINGS*********/
     function system_settings($param1 = '', $param2 = '', $param3 = '')
     {
@@ -441,47 +647,7 @@ class Settings extends CI_Controller
 			
 	
 	}
-private function load_library(){
-		$this->load->library('utility_forms');
-		return new Utility_forms();
-	}
-	
-private function list_lead_bio(){
-		
-		$build_list = $this->load_library();
-		
-		$selected_columns = array("Field Name"=>"lead_bio_fields_name",
-		'Data Type'=>"datatype_name","Is Field Unique?"=>"is_field_unique","Is Field Null?"=>"is_field_null",
-		'default_value');
-	
-		$build_list->set_selected_fields($selected_columns,'lead_bio_fields_id');		
-	
-				
-		$build_list->set_panel_title("Lead Bio Fields");
-		
-		$action = array(
-			'add' 	=> array('href'=>'admin/add_lead_bio_fields'),
-			'view' 	=> array('href'=>'admin/view_single_lead_bio'),
-			'edit' 	=> array('href'=>'admin/edit_lead_bio_fields'),
-			'delete'=> array('href'=>'admin/delete_lead_bio_fields')
-		);
-		
-		$build_list->set_list_action($action);
-		
-		$join_array = array('datatype'=>array('lead_bio_fields.datatype_id','datatype.datatype_id'));
-		
-		$build_list->set_table_join($join_array);
-		
-		$build_list->set_db_table("lead_bio_fields");
-		
-		$build_list->set_add_form();
-		
-		
-		return $build_list->render_item_list();
-		// $page_data['view_type']	= "settings";
-		// $page_data['page_name']	= "assessment_settings";
-		// $page_data['page_title']	= "assessment_settings";
-		// $this->load->view('backend/index',$page_data);
-	}
+
+
 	
 }	
