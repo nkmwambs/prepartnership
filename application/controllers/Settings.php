@@ -63,7 +63,7 @@ private  function view_compassion_connect_progress_measures()
 	$build_list->set_panel_title("Compassion Connect Progress Measures");
 	
 	$action = array(
-		'add' 	=> array('href'=>'settings/add_compassion_connect_progress_measure/'.$view_output_variable),
+		'add' 	=> array('href'=>'settings/add_compassion_connect_progress_measure'),
 		'view' 	=> array('href'=>'settings/view_single_connect_progress_measure'),
 		'edit' 	=> array('href'=>'settings/edit_connect_progress_measure'),
 		'delete'=> array('href'=>'settings/delete_connect_compassion_progress_measure')
