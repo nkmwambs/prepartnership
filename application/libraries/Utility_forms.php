@@ -724,7 +724,8 @@ private function create_select_field($fields = array(),$cnt = 0){
 	private function jquery_script(){
 		
 		$output_string = '<script>
-				
+		       
+			  
 				function go_back(){
 					window.history.back();
 				}
@@ -830,13 +831,21 @@ private function create_select_field($fields = array(),$cnt = 0){
 								$("#overlay").css("display","block");
 							},
 							success:function(resp){
-								alert(resp);
+								//alert(resp);
 								
-								if(go_back_on_post){
+								if(go_back_on_post && resp){
 									go_back();
 								}
+								if((go_back_on_post && !resp)||(!go_back_on_post && !resp)){
+									$("#overlay").css("display","none");
+									alert("Data was not saved");
+								}
+								if(!go_back_on_post && resp){
+									$("#overlay").css("display","none");
+									alert("Data saved successfully");
+								}
 								
-								$("#overlay").css("display","none");
+								
 								
 								
 							},
@@ -852,6 +861,7 @@ private function create_select_field($fields = array(),$cnt = 0){
 		
 		return $output_string;
 	}
+
 
 	private function style_script(){
 		$output_string = '<style>
@@ -1413,4 +1423,6 @@ private function create_select_field($fields = array(),$cnt = 0){
 			
 	}
 	
+	
 }
+

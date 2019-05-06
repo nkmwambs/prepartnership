@@ -184,13 +184,13 @@ public function add_lead_bio_fields()
 		$fields[] = array(
 				'label'		=> 'Field Name',
 				'element'	=> 'input',
-				'properties'=> array('id'=>'','class'=>'')
+				'properties'=> array('id'=>'','class'=>'', 'name'=>'lead_bio_fields_name[]')
 		);
 		
 		$fields[] = array(
 				'label'		=> 'Data Type',
 				'element'	=> 'select',
-				'properties'=> array('id'=>'','class'=>''),
+				'properties'=> array('id'=>'','class'=>'','name'=>'datatype_id[]'),
 				'options'	=> array(
 					'1'	=> array('option'=>'Whole Number'),
 					'2'	=> array('option'=>'Decimal Number'),
@@ -202,32 +202,33 @@ public function add_lead_bio_fields()
 		$fields[] = array(
 				'label'		=> 'Field Unique?',
 				'element'	=> 'select',
-				'properties'=> array('id'=>'','class'=>''),
+				'properties'=> array('id'=>'','class'=>'','name'=>'is_field_unique[]'),
 				'options'	=> array(
-					'1'=>array('option'=>'Yes'),
-					'0'=>array('option'=>'No')
+					'yes'=>array('option'=>'Yes'),
+					'no'=>array('option'=>'No')
 				)
 		);
 		
 		$fields[] = array(
-				'label'		=> 'Can be Null?',
+				'label'		=> 'Optional?',
 				'element'	=> 'select',
-				'properties'=> array('id'=>'','class'=>''),
+				'properties'=> array('id'=>'','class'=>'','name'=>'is_field_null[]'),
 				'options'	=> array(
-					'1'=>array('option'=>'Yes'),
-					'0'=>array('option'=>'No')
+					'yes'=>array('option'=>'Yes'),
+					'no'=>array('option'=>'No')
 				)
 		);
 		
 		$fields[] = array(
 				'label'		=> 'Default Value',
 				'element'	=> 'input',
-				'properties'=> array('id'=>'','class'=>'')
+				'properties'=> array('id'=>'','class'=>'', 'name'=>'default_value[]')
 		);
 		
 		$build_form->set_view_or_edit_mode('add');
 		$build_form->set_panel_title('Leads Bio Information');
 		$build_form->set_form_id('frm_bio');
+		$build_form->set_form_action(base_url().'Settings/create_new_multiple_records/lead_bio_fields');
 		
 		
 		$this->load_view($build_form,$fields);
@@ -332,13 +333,13 @@ public function add_assessment_milestone()
 		$fields[] = array(
 				'label'		=> 'Assessment Milestone Name:',
 				'element'	=> 'input',
-				'properties'=> array('id'=>'','class'=>'')
+				'properties'=> array('id'=>'','class'=>'','name'=>'milestone_name')
 		);
 		
 		$fields[] = array(
 				'label'		=> 'Period Needed to Complete(in months)',
 				'element'	=> 'select',
-				'properties'=> array('id'=>'','class'=>''),
+				'properties'=> array('id'=>'','class'=>'','name'=>'assessment_period_in_days'),
 				'options'	=> array(
 					'1'	=> array('option'=>'1'),
 					'2'	=> array('option'=>'2'),
@@ -357,15 +358,56 @@ public function add_assessment_milestone()
 			);
 		
 		$fields[] = array(
+				'label'		=> 'Assessment Review Status',
+				'element'	=> 'input',
+				'properties'=> array('id'=>'','class'=>'','name'=>'assessment_review_status'),
+		);
+		
+			$fields[] = array(
 				'label'		=> 'User Customized Review Status',
 				'element'	=> 'input',
-				'properties'=> array('id'=>'','class'=>''),
+				'properties'=> array('id'=>'','class'=>'','name'=>'user_customized_review_status'),
 		);
 	    $build_form->set_view_or_edit_mode('add');
 		$build_form->set_panel_title('Add Milestone');
 		$build_form->set_form_id('frm_add_milestone');
+		$build_form->set_form_action(base_url().'settings/create_new_single_record/assessment_milestones');
 		
 		$this->load_view($build_form,$fields,'single_form');
+}
+
+public function create_new_single_record($table_name){
+	$form_input=$this->input->post();
+	
+	if($this->db->insert($table_name,$form_input))
+	{
+		echo true;
+	}
+	else {
+		echo false;
+	}
+}
+public function create_new_multiple_records($table_name)
+{
+	$form_input=$this->input->post();
+	$build_final_post=array();
+	foreach ($form_input as $field_name => $field_values_array) {
+		$i=0;
+		foreach ($field_values_array as $field_values) {
+			
+			$build_final_post[$i][$field_name]=$field_values;
+			$i++;
+		}
+		
+	}
+	
+	if($this->db->insert_batch($table_name,$build_final_post))
+	{
+		echo true;
+	}
+	else {
+		echo false;
+	}
 }
 
 private function load_view($build_form,$fields,$form_type='multi_form'){
