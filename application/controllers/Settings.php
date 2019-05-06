@@ -657,13 +657,6 @@ private function view_record_by_id($build_form,$table_name,$record_id)
             $this->db->where('type' , 'phone');
             $this->db->update('settings' , $data);
 
-            $data['description'] = $this->input->post('paypal_email');
-            $this->db->where('type' , 'paypal_email');
-            $this->db->update('settings' , $data);
-
-            $data['description'] = $this->input->post('currency');
-            $this->db->where('type' , 'currency');
-            $this->db->update('settings' , $data);
 
             $data['description'] = $this->input->post('system_email');
             $this->db->where('type' , 'system_email');
@@ -681,28 +674,25 @@ private function view_record_by_id($build_form,$table_name,$record_id)
             $this->db->where('type' , 'text_align');
             $this->db->update('settings' , $data);
 			
-			$data['description'] = $this->input->post('system_start_date');
-            $this->db->where('type' , 'system_start_date');
-            $this->db->update('settings' , $data);
 			
 			$data['description'] = $this->input->post('sidebar-collapsed');
             $this->db->where('type' , 'sidebar-collapsed');
             $this->db->update('settings' , $data);
 			
             $this->session->set_flashdata('flash_message' , get_phrase('data_updated')); 
-            redirect(base_url() . 'index.php?settings/system_settings/', 'refresh');
+            redirect(base_url() . 'settings/system_settings/', 'refresh');
         }
         if ($param1 == 'upload_logo') {
             move_uploaded_file($_FILES['userfile']['tmp_name'], 'uploads/logo.png');
             $this->session->set_flashdata('flash_message', get_phrase('settings_updated'));
-            redirect(base_url() . 'index.php?settings/system_settings/', 'refresh');
+            redirect(base_url() . 'settings/system_settings/', 'refresh');
         }
         if ($param1 == 'change_skin') {
             $data['description'] = $param2;
             $this->db->where('type' , 'skin_colour');
             $this->db->update('settings' , $data);
             $this->session->set_flashdata('flash_message' , get_phrase('theme_selected')); 
-            redirect(base_url() . 'index.php?settings/system_settings/', 'refresh'); 
+            redirect(base_url() . 'settings/system_settings/', 'refresh'); 
         }
 
         $page_data['page_name']  = 'system_settings';
@@ -774,7 +764,7 @@ private function view_record_by_id($build_form,$table_name,$record_id)
     function manage_language($param1 = '', $param2 = '', $param3 = '')
     {
         if ($this->session->userdata('user_login') != 1)
-			redirect(base_url() . 'index.php?login', 'refresh');
+			redirect(base_url() . 'login', 'refresh');
 		
 		if ($param1 == 'edit_phrase') {
 			$page_data['edit_profile'] 	= $param2;	
@@ -788,7 +778,7 @@ private function view_record_by_id($build_form,$table_name,$record_id)
 				$this->db->where('phrase_id' , $i);
 				$this->db->update('language' , array($language => $this->input->post('phrase'.$i)));
 			}
-			redirect(base_url() . 'index.php?settings/manage_language/edit_phrase/'.$language, 'refresh');
+			redirect(base_url() . 'settings/manage_language/edit_phrase/'.$language, 'refresh');
 		}
 		if ($param1 == 'do_update') {
 			$language        = $this->input->post('language');
@@ -796,13 +786,13 @@ private function view_record_by_id($build_form,$table_name,$record_id)
 			$this->db->where('phrase_id', $param2);
 			$this->db->update('language', $data);
 			$this->session->set_flashdata('flash_message', get_phrase('settings_updated'));
-			redirect(base_url() . 'index.php?settings/manage_language/', 'refresh');
+			redirect(base_url() . 'settings/manage_language/', 'refresh');
 		}
 		if ($param1 == 'add_phrase') {
 			$data['phrase'] = $this->input->post('phrase');
 			$this->db->insert('language', $data);
 			$this->session->set_flashdata('flash_message', get_phrase('settings_updated'));
-			redirect(base_url() . 'index.php?settings/manage_language/', 'refresh');
+			redirect(base_url() . 'settings/manage_language/', 'refresh');
 		}
 		if ($param1 == 'add_language') {
 			$language = $this->input->post('language');
@@ -815,7 +805,7 @@ private function view_record_by_id($build_form,$table_name,$record_id)
 			$this->dbforge->add_column('language', $fields);
 			
 			$this->session->set_flashdata('flash_message', get_phrase('settings_updated'));
-			redirect(base_url() . 'index.php?settings/manage_language/', 'refresh');
+			redirect(base_url() . 'settings/manage_language/', 'refresh');
 		}
 		if ($param1 == 'delete_language') {
 			$language = $param2;
@@ -823,7 +813,7 @@ private function view_record_by_id($build_form,$table_name,$record_id)
 			$this->dbforge->drop_column('language', $language);
 			$this->session->set_flashdata('flash_message', get_phrase('settings_updated'));
 			
-			redirect(base_url() . 'index.php?settings/manage_language/', 'refresh');
+			redirect(base_url() . 'settings/manage_language/', 'refresh');
 		}
 		$page_data['page_name']        = 'manage_language';
 		$page_data['view_type']        = 'settings';

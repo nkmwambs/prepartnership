@@ -53,7 +53,7 @@
             </a>
             <ul>
                 <li class="<?php echo get_access('general_settings','settings');?> <?php if ($page_name == 'system_settings') echo 'active'; ?> general_settings">
-                    <a href="<?php echo base_url(); ?>index.php?settings/system_settings">
+                    <a href="<?php echo base_url(); ?>settings/system_settings">
                         <span><i class="fa fa-cog"></i> <?php echo get_phrase('general_settings'); ?></span>
                     </a>
                 </li>
@@ -63,7 +63,7 @@
                     </a>
                 </li> -->
                 <li class="<?php echo get_access('language_settings','settings');?> <?php if ($page_name == 'manage_language') echo 'active'; ?> language_settings">
-                    <a href="<?php echo base_url(); ?>index.php?settings/manage_language">
+                    <a href="<?php echo base_url(); ?>settings/manage_language">
                         <span><i class="fa fa-info"></i> <?php echo get_phrase('language_settings'); ?></span>
                     </a>
                 </li>
