@@ -143,6 +143,8 @@ class Utility_forms{
 		
 		$this->CI->load->helper('url');
 		$this->CI->load->helper('form');
+		
+		$this->CI->load->helper('multi_language');
 	}
 	
 	/**
@@ -633,7 +635,7 @@ private function create_select_field($fields = array(),$cnt = 0){
 		foreach($this->fields as $fields){
 			$label = isset($fields['label'])?$fields['label']:'Label Not Provided';
 			$output_string .= "<div class='form-group'>
-				<label class='control-label col-xs-4'>".$label."</label>
+				<label class='control-label col-xs-4'>".get_phrase($label)." <i style='cursor:pointer;' title='".get_tooltip($label)."' class='fa fa-question-circle'></i></label>
 				<div class='col-xs-8'>";
 					
 					$additional_classes = "";
@@ -685,7 +687,7 @@ private function create_select_field($fields = array(),$cnt = 0){
 			<thead><tr>
 			<th>Action</th>";
 				foreach($this->fields as $headers){
-					$output_string .= "<th>".$headers['label']."</th>";
+					$output_string .= "<th>".get_phrase($headers['label'])." <i style='cursor:pointer;' title='".get_tooltip($headers['label'])."' class='fa fa-question-circle'></i></th>";
 				}
 		$output_string .= "</tr></thead>
 		<tbody>";
@@ -809,9 +811,36 @@ private function create_select_field($fields = array(),$cnt = 0){
 						}
 					});		
 				}
+					//Remove the red color on required field input fields
+					$("[required=required],.required").on("change",function(ev){
+						if($.trim($(this).val()).length>0)
+						{
+						 $(this).css("border","1px solid gray");	
+						}
 					
+					});
 									
 					$("#btnCreate").on("click",function(ev){
+						
+						var required_fields=$("[required=required],.required");
+						
+						if(required_fields.length>0){
+							var counter=0;
+							required_fields.each(function(index,element)
+							{
+								if($(element).val().length==0)
+								{
+								 
+								 $(element).css("border","1px solid red");
+								 counter++;
+								 	
+								}
+															
+							});
+							if(counter>0) return false;
+							
+						}
+						
 						
 						var go_back_on_post = true;
 						var go_back_after_post = "'.$this->get_go_back_on_post().'";
@@ -1283,7 +1312,7 @@ private function create_select_field($fields = array(),$cnt = 0){
 
 									foreach($header_elem as $key=>$value){
 										
-										$output .= "<th>".ucwords(str_replace("_", " ", $key))."</th>";
+										$output .= "<th>".get_phrase($key)." <i style='cursor:pointer;' title='".get_tooltip($key)."' class='fa fa-question-circle'></i></th>";
 									}
 								$output.="</tr></thead>
 								<tbody>";

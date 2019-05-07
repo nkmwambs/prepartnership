@@ -51,6 +51,23 @@ if ( ! function_exists('get_phrase'))
 	}
 }
 
+if ( ! function_exists('get_tooltip'))
+{
+	function get_tooltip($phrase){
+		$CI	=&	get_instance();
+		$CI->load->database();
+		$tooltip_obj=$CI->db->get_where('language',array('phrase'=>$phrase));
+		if($tooltip_obj->num_rows()>0)
+		{
+			return $tooltip_obj->row()->tooltip;
+		}
+		else{
+			return '';
+		}
+		
+	}
+}
+
 // ------------------------------------------------------------------------
 /* End of file language_helper.php */
 /* Location: ./system/helpers/language_helper.php */
