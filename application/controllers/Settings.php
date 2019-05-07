@@ -115,7 +115,7 @@ private function view_assessment_milestones()
 	
 	$build_list->set_use_datatable(false);
 	
-	$selected_columns = array("Milestone Name"=>"milestone_name",
+	$selected_columns = array("Milestone Name"=>"milestone_name","Insert Milestone After"=>"insert_after",
 	'When'=>"assessment_period_in_days","Review Status"=>"assessment_review_status","User Customized Review Status"=>"user_customized_review_status");
 
 	$build_list->set_selected_fields($selected_columns,"assessment_milestones_id");	
@@ -184,13 +184,13 @@ public function add_lead_bio_fields()
 		$fields[] = array(
 				'label'		=> 'Field Name',
 				'element'	=> 'input',
-				'properties'=> array('id'=>'','class'=>'')
+				'properties'=> array('id'=>'','class'=>'','required'=>'required', 'name'=>'lead_bio_fields_name[]')
 		);
 		
 		$fields[] = array(
 				'label'		=> 'Data Type',
 				'element'	=> 'select',
-				'properties'=> array('id'=>'','class'=>''),
+				'properties'=> array('id'=>'','class'=>'','required'=>'required','name'=>'datatype_id[]'),
 				'options'	=> array(
 					'1'	=> array('option'=>'Whole Number'),
 					'2'	=> array('option'=>'Decimal Number'),
@@ -202,32 +202,33 @@ public function add_lead_bio_fields()
 		$fields[] = array(
 				'label'		=> 'Field Unique?',
 				'element'	=> 'select',
-				'properties'=> array('id'=>'','class'=>''),
+				'properties'=> array('id'=>'','class'=>'','name'=>'is_field_unique[]'),
 				'options'	=> array(
-					'1'=>array('option'=>'Yes'),
-					'0'=>array('option'=>'No')
+					'yes'=>array('option'=>'Yes'),
+					'no'=>array('option'=>'No')
 				)
 		);
 		
 		$fields[] = array(
-				'label'		=> 'Can be Null?',
+				'label'		=> 'Optional?',
 				'element'	=> 'select',
-				'properties'=> array('id'=>'','class'=>''),
+				'properties'=> array('id'=>'','class'=>'is_field_null','name'=>'is_field_null[]'),
 				'options'	=> array(
-					'1'=>array('option'=>'Yes'),
-					'0'=>array('option'=>'No')
+					'yes'=>array('option'=>'Yes'),
+					'no'=>array('option'=>'No')
 				)
 		);
 		
 		$fields[] = array(
 				'label'		=> 'Default Value',
 				'element'	=> 'input',
-				'properties'=> array('id'=>'','class'=>'')
+				'properties'=> array('id'=>'','class'=>'default_value', 'name'=>'default_value[]')
 		);
 		
 		$build_form->set_view_or_edit_mode('add');
 		$build_form->set_panel_title('Leads Bio Information');
 		$build_form->set_form_id('frm_bio');
+		$build_form->set_form_action(base_url().'Settings/create_new_multiple_records/lead_bio_fields');
 		
 		
 		$this->load_view($build_form,$fields);
@@ -332,13 +333,27 @@ public function add_assessment_milestone()
 		$fields[] = array(
 				'label'		=> 'Assessment Milestone Name:',
 				'element'	=> 'input',
-				'properties'=> array('id'=>'','class'=>'')
+				'properties'=> array('id'=>'','class'=>'','name'=>'milestone_name')
 		);
+		$milestones=$this->db->select(array('assessment_milestones_id','milestone_name'))->get('assessment_milestones')->result_object();
+		$option=array('0'	=> array('option'=>'Initial Assessment'));
+		foreach ($milestones as $milestone) {
+			$option=array_merge($option,array($milestone->assessment_milestones_id=>array('option'=>$milestone->milestone_name)));
+			
+		}
+		$fields[] = array(
+				'label'		=> 'Insert Milestone After',
+				'element'	=> 'select',
+				'properties'=> array('id'=>'','class'=>'','name'=>'insert_after'),
+				'options'	=>$option
+				
+			);
+		
 		
 		$fields[] = array(
 				'label'		=> 'Period Needed to Complete(in months)',
 				'element'	=> 'select',
-				'properties'=> array('id'=>'','class'=>''),
+				'properties'=> array('id'=>'','class'=>'','name'=>'assessment_period_in_days'),
 				'options'	=> array(
 					'1'	=> array('option'=>'1'),
 					'2'	=> array('option'=>'2'),
@@ -357,15 +372,80 @@ public function add_assessment_milestone()
 			);
 		
 		$fields[] = array(
+				'label'		=> 'Assessment Review Status',
+				'element'	=> 'input',
+				'properties'=> array('id'=>'','class'=>'','name'=>'assessment_review_status'),
+		);
+		
+			$fields[] = array(
 				'label'		=> 'User Customized Review Status',
 				'element'	=> 'input',
-				'properties'=> array('id'=>'','class'=>''),
+				'properties'=> array('id'=>'','class'=>'','name'=>'user_customized_review_status'),
 		);
 	    $build_form->set_view_or_edit_mode('add');
 		$build_form->set_panel_title('Add Milestone');
 		$build_form->set_form_id('frm_add_milestone');
+		$build_form->set_form_action(base_url().'settings/create_assessment_milestone/assessment_milestones');
 		
 		$this->load_view($build_form,$fields,'single_form');
+}
+public function create_assessment_milestone($table_name){
+	
+	//insert the new record with insert of key of -1(temp key)
+	$form_input= $this->input->post();
+	$form_input['insert_after']=-1;
+	$this->db->trans_start();
+	$this->db->insert($table_name, $form_input);
+	
+	//get last Id inserted
+	$inserted_id=$this->db->insert_id();
+	$insert_after_from_form= $this->input->post('insert_after');
+	
+	// //Update a milestone that has its insert after key = to the posted insert_after to the value the last insert id
+	$this->db->where(array('insert_after'=>$insert_after_from_form));
+	$data_existing_milestone['insert_after']  = $inserted_id;
+	$this->db->update($table_name,$data_existing_milestone);
+	
+	//Update the newly inserted record to have its insert after key=the posted insert after
+	$this->db->where(array('assessment_milestones_id'=>$inserted_id));
+	$data_new_milestone['insert_after']  = $insert_after_from_form;
+	$this->db->update($table_name,$data_new_milestone);
+	
+	echo $this->db->trans_complete()?1:0;
+}
+
+public function create_new_single_record($table_name){
+	$form_input=$this->input->post();
+	
+	if($this->db->insert($table_name,$form_input))
+	{
+		echo true;
+	}
+	else {
+		echo false;
+	}
+}
+public function create_new_multiple_records($table_name)
+{
+	$form_input=$this->input->post();
+	$build_final_post=array();
+	foreach ($form_input as $field_name => $field_values_array) {
+		$i=0;
+		foreach ($field_values_array as $field_values) {
+			
+			$build_final_post[$i][$field_name]=$field_values;
+			$i++;
+		}
+		
+	}
+	
+	if($this->db->insert_batch($table_name,$build_final_post))
+	{
+		echo true;
+	}
+	else {
+		echo false;
+	}
 }
 
 private function load_view($build_form,$fields,$form_type='multi_form'){
@@ -615,13 +695,6 @@ private function view_record_by_id($build_form,$table_name,$record_id)
             $this->db->where('type' , 'phone');
             $this->db->update('settings' , $data);
 
-            $data['description'] = $this->input->post('paypal_email');
-            $this->db->where('type' , 'paypal_email');
-            $this->db->update('settings' , $data);
-
-            $data['description'] = $this->input->post('currency');
-            $this->db->where('type' , 'currency');
-            $this->db->update('settings' , $data);
 
             $data['description'] = $this->input->post('system_email');
             $this->db->where('type' , 'system_email');
@@ -639,28 +712,25 @@ private function view_record_by_id($build_form,$table_name,$record_id)
             $this->db->where('type' , 'text_align');
             $this->db->update('settings' , $data);
 			
-			$data['description'] = $this->input->post('system_start_date');
-            $this->db->where('type' , 'system_start_date');
-            $this->db->update('settings' , $data);
 			
 			$data['description'] = $this->input->post('sidebar-collapsed');
             $this->db->where('type' , 'sidebar-collapsed');
             $this->db->update('settings' , $data);
 			
             $this->session->set_flashdata('flash_message' , get_phrase('data_updated')); 
-            redirect(base_url() . 'index.php?settings/system_settings/', 'refresh');
+            redirect(base_url() . 'settings/system_settings/', 'refresh');
         }
         if ($param1 == 'upload_logo') {
             move_uploaded_file($_FILES['userfile']['tmp_name'], 'uploads/logo.png');
             $this->session->set_flashdata('flash_message', get_phrase('settings_updated'));
-            redirect(base_url() . 'index.php?settings/system_settings/', 'refresh');
+            redirect(base_url() . 'settings/system_settings/', 'refresh');
         }
         if ($param1 == 'change_skin') {
             $data['description'] = $param2;
             $this->db->where('type' , 'skin_colour');
             $this->db->update('settings' , $data);
             $this->session->set_flashdata('flash_message' , get_phrase('theme_selected')); 
-            redirect(base_url() . 'index.php?settings/system_settings/', 'refresh'); 
+            redirect(base_url() . 'settings/system_settings/', 'refresh'); 
         }
 
         $page_data['page_name']  = 'system_settings';
@@ -732,7 +802,7 @@ private function view_record_by_id($build_form,$table_name,$record_id)
     function manage_language($param1 = '', $param2 = '', $param3 = '')
     {
         if ($this->session->userdata('user_login') != 1)
-			redirect(base_url() . 'index.php?login', 'refresh');
+			redirect(base_url() . 'login', 'refresh');
 		
 		if ($param1 == 'edit_phrase') {
 			$page_data['edit_profile'] 	= $param2;	
@@ -746,7 +816,7 @@ private function view_record_by_id($build_form,$table_name,$record_id)
 				$this->db->where('phrase_id' , $i);
 				$this->db->update('language' , array($language => $this->input->post('phrase'.$i)));
 			}
-			redirect(base_url() . 'index.php?settings/manage_language/edit_phrase/'.$language, 'refresh');
+			redirect(base_url() . 'settings/manage_language/edit_phrase/'.$language, 'refresh');
 		}
 		if ($param1 == 'do_update') {
 			$language        = $this->input->post('language');
@@ -754,13 +824,13 @@ private function view_record_by_id($build_form,$table_name,$record_id)
 			$this->db->where('phrase_id', $param2);
 			$this->db->update('language', $data);
 			$this->session->set_flashdata('flash_message', get_phrase('settings_updated'));
-			redirect(base_url() . 'index.php?settings/manage_language/', 'refresh');
+			redirect(base_url() . 'settings/manage_language/', 'refresh');
 		}
 		if ($param1 == 'add_phrase') {
 			$data['phrase'] = $this->input->post('phrase');
 			$this->db->insert('language', $data);
 			$this->session->set_flashdata('flash_message', get_phrase('settings_updated'));
-			redirect(base_url() . 'index.php?settings/manage_language/', 'refresh');
+			redirect(base_url() . 'settings/manage_language/', 'refresh');
 		}
 		if ($param1 == 'add_language') {
 			$language = $this->input->post('language');
@@ -773,7 +843,7 @@ private function view_record_by_id($build_form,$table_name,$record_id)
 			$this->dbforge->add_column('language', $fields);
 			
 			$this->session->set_flashdata('flash_message', get_phrase('settings_updated'));
-			redirect(base_url() . 'index.php?settings/manage_language/', 'refresh');
+			redirect(base_url() . 'settings/manage_language/', 'refresh');
 		}
 		if ($param1 == 'delete_language') {
 			$language = $param2;
@@ -781,7 +851,7 @@ private function view_record_by_id($build_form,$table_name,$record_id)
 			$this->dbforge->drop_column('language', $language);
 			$this->session->set_flashdata('flash_message', get_phrase('settings_updated'));
 			
-			redirect(base_url() . 'index.php?settings/manage_language/', 'refresh');
+			redirect(base_url() . 'settings/manage_language/', 'refresh');
 		}
 		$page_data['page_name']        = 'manage_language';
 		$page_data['view_type']        = 'settings';
