@@ -1175,7 +1175,7 @@ private function create_select_field($fields = array(),$cnt = 0){
 					if($option_key == $value){
 						$options[$option_key] = array('option'=>$option_value['option'],'properties'=>array('selected'=>'selected'));
 					}else{
-						$options[$option_key] = array('option'=>$option_key);
+						$options[$option_key] = array('option'=>$option_key['option']);
 					}
 				}
 									
@@ -1270,6 +1270,8 @@ private function create_select_field($fields = array(),$cnt = 0){
 		$this->get_list_action();
 		$this->get_add_form();
 		
+		$this->get_replace_field_value();
+		
 		if(!empty($this->list_action)){
 			extract($this->list_action);
 		}
@@ -1361,8 +1363,14 @@ private function create_select_field($fields = array(),$cnt = 0){
 											</div>
 								
 										</td>";
-											foreach($row as $td_value){
-												$output .= "<td>".$td_value."</td>";		
+											//print_r($this->replace_field_value);
+											foreach($row as $key=>$td_value){
+												if(is_array($this->replace_field_value) && array_key_exists($key, $this->replace_field_value)){
+													$output .= "<td>".$this->replace_field_value[$key][$td_value]."</td>";;
+												}else{
+													$output .= "<td>".$td_value."</td>";
+												}
+														
 											}
 										$output .= "</tr>";
 									}
@@ -1377,7 +1385,17 @@ private function create_select_field($fields = array(),$cnt = 0){
 		
 		return $output;
 	}
-
+	
+	private $replace_field_value = "";
+	
+	public function set_replace_field_value($field,$replace_field_value_array){
+		$this->replace_field_value = array($field=>$replace_field_value_array);
+	}
+	
+	private function get_replace_field_value(){
+		return $this->replace_field_value;
+	}
+	
 	private $table_primary_key;
 	
 	public function set_table_primary_key($table_primary_key){

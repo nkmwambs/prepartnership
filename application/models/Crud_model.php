@@ -74,6 +74,22 @@ class Crud_model extends CI_Model {
 		
 		return $is_admin; 
 	}
+   function get_connect_mappings()
+   {
+   	//Get the coonect mapping from the table 'compassion_connect_mapping'
+   	$connect_mappings=$this->db->select('lead_score_parameter,lead_score_stage')->get('compassion_connect_mapping')->result_object();
+	
+	//Build the array to be used in the controller 'Settings' in the method add_assemessment
+	$count=1;
+	$build_dropdown_array[]=array('option'=>'No Connect Match');
+	
+	foreach ($connect_mappings as $connect_value) {
+		$build_dropdown_array[$count]['option']='Lead Score Criteria -'.' '.$connect_value->lead_score_stage.' : '.$connect_value->lead_score_parameter;
+		$count++;
+	}
+	
+	return $build_dropdown_array;
+   }
 	
 	/**
 	 * Scope Countries: return Array of countries ids the user has ability to vote or be 
@@ -725,5 +741,41 @@ class Crud_model extends CI_Model {
 		}
 					
 		return $country_string;	
+	}
+	
+		/** Assessment Milestones **/	
+	public function get_insert_after_milestone()
+	{
+		//Get result array of assessment milestones
+		$assessment_milestones=$this->db->select(array('assessment_milestones_id','milestone_name','insert_after'))->get('assessment_milestones')->result_array();
+		
+		//Extract arrays of assessment milestones ids, names and insert after keys using array_colunm()
+		
+		$milestone_ids=array_column($assessment_milestones, 'assessment_milestones_id');
+		
+		$milestone_names=array_column($assessment_milestones, 'milestone_name');
+		
+		$insert_after_keys=array_column($assessment_milestones, 'insert_after');
+		
+		//Create two arrays using milestone_ids as keys as milestone name and insert_after_keys as keys of milestone names
+		
+		$milestone_names_by_milestone_ids=array_combine($milestone_ids,$milestone_names);
+		$milestone_names_by_insert_after_keys=array_combine($insert_after_keys,$milestone_names);
+		
+		$names_array_for_insert_after=array();
+		
+		foreach (array_keys($milestone_names_by_insert_after_keys) as $insert_after_key) {
+			
+			if(array_key_exists($insert_after_key, $milestone_names_by_milestone_ids) && $insert_after_key!=0)
+			{
+				$names_array_for_insert_after[$insert_after_key]=$milestone_names_by_milestone_ids[$insert_after_key];
+			}
+			else{
+				$names_array_for_insert_after[$insert_after_key]=get_phrase('initial_assessment');
+			}
+		}
+		
+		return $names_array_for_insert_after;
+		
 	}
 }

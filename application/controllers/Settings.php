@@ -136,6 +136,8 @@ private function view_assessment_milestones()
 	
 	$build_list->set_add_form();
 	
+	$build_list->set_replace_field_value('Insert Milestone After',$this->crud_model->get_insert_after_milestone());
+	
 	return $build_list->render_item_list();
 	
 }
@@ -264,6 +266,8 @@ public function add_assessment_progress_measure(){
 
 		$build_form = $this->load_library();
 		
+		
+		
 		$fields[] = array(
 			'label'=>'Progress Measure Title',
 			'element'=>'input',
@@ -299,25 +303,14 @@ public function add_assessment_progress_measure(){
 				'10'=>array('option'=>10),
 			)
 		);
+		$array_connect_measures=$this->crud_model->get_connect_mappings();
 		
 		$fields[] = array(
 			'label'=>'Connect Mapping',
 			'element'=>'select',
 			'properties'=>array('id'=>'','class'=>''),
-			'options' => array(
-				'0'=>array('option'=>'No Connect Match'),
-				'1'=>array('option'=>'Lead Score Criteria - Stage 1: Statement Of Faith Compatibility'),
-				'2'=>array('option'=>'Lead Score Criteria - Stage 1: Commitment To Child Ministry'),
-				'3'=>array('option'=>'Lead Score Criteria - Stage 1: Strategic Location for Compassion'),
-				'4'=>array('option'=>'Lead Score Criteria - Stage 2 - Stage 1: Denomination'),
-				'5'=>array('option'=>'Lead Score Criteria - Stage 2: Legal Registration'),
-				'6'=>array('option'=>'Lead Score Criteria - Stage 2: Physical Environment'),
-				'7'=>array('option'=>'Lead Score Criteria - Stage 2: Child Enrollment Capacity'),
-				'8'=>array('option'=>'Lead Score Criteria - Stage 2: Commitment To Christian Staff'),
-				'9'=>array('option'=>'Lead Score Criteria - Stage 2: Understands Context'),
-				'10'=>array('option'=>'Lead Score Criteria - Stage 2: Commitment To Ongoing Learning')
-				
-			)
+			'options' =>$array_connect_measures,
+			
 		);
 		$build_form->set_view_or_edit_mode('add');
 		$build_form->set_panel_title('Assessment Progress Measure');
@@ -579,33 +572,30 @@ public function edit_lead_bio_fields($table_name,$record_id){
 		$this->view_record_by_id($build_form,$table_name,$record_id);
 	}
 public function edit_assessment_milestone($table_name,$record_id){
-	$build_form = $this->load_library();
-		
-	$selected_columns = array("Milestone Name"=>"milestone_name",
-	'When'=>"assessment_period_in_days","Review Status"=>"assessment_review_status","User Customized Review Status"=>"user_customized_review_status");
-	
-	$build_form->set_selected_fields($selected_columns,"assessment_milestones_id");
-		
-		//$join_array = array('datatype'=>array('lead_bio_fields.datatype_id','datatype.datatype_id'));
-		
-		//$build_form->set_table_join($join_array);
-		
-		$build_form->set_view_or_edit_mode('edit');
-		//$build_form->set_hide_save_button();
-		
-		$build_form->set_panel_title('Edit Assessment Milestone');
-		
-		/*$build_form->set_element_type(array('lead_score_stage',
-			array('select'=>array(
-				'options'=>array(
-					'0'=>array('option'=>'No'),
-					'1'=>array('option'=>'Yes','selected'=>'selected')
-					)
-				)
-			)));*/
-	
-		$this->view_record_by_id($build_form,$table_name,$record_id);
+    $build_form = $this->load_library();
+            
+    $selected_columns = array("Milestone Name"=>"milestone_name",'Insert After'=>'insert_after',
+      'When'=>"assessment_period_in_days","Review Status"=>"assessment_review_status","User Customized Review Status"=>"user_customized_review_status");
+      
+        $milestones=$this->db->select(array('assessment_milestones_id','milestone_name'))->get('assessment_milestones')->result_object();
+            $option=array('0' => array('option'=>'Initial Assessment'));
+            foreach ($milestones as $milestone) {
+                  $option=array_merge($option,array($milestone->assessment_milestones_id=>array('option'=>$milestone->milestone_name)));
+                  
+            }
+    $build_form->set_dropdown_element_type(array('insert_after',$option
+                  )
+            );
+            
+   	$build_form->set_selected_fields($selected_columns,"assessment_milestones_id");
+            
+    $build_form->set_view_or_edit_mode('edit');
+            
+    $build_form->set_panel_title('Edit Assessment Milestone');
+      
+    $this->view_record_by_id($build_form,$table_name,$record_id);
 }
+
 public function edit_connect_progress_measure($table_name,$record_id){
 	$build_form = $this->load_library();
 		

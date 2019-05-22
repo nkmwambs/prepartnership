@@ -175,5 +175,10 @@
 		function go_back(){
 			window.history.back();
 		}
+		
+		function go_forward() {
+		  window.history.forward();
+		}
+
 	</script>
 	

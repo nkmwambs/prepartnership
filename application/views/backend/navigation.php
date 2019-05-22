@@ -1,54 +1,58 @@
-<div class="sidebar-menu">
-    <header class="logo-env" >
 
-        <!-- logo -->
-        <div class="logo" style="">
-            <a href="<?php echo base_url(); ?>">
-                <img src="<?php echo base_url();?>uploads/logo.png"  style="max-height:60px;"/>
-            </a>
-        </div>
-
-        <!-- logo collapse icon -->
-        <div class="sidebar-collapse" style="">
-            <a href="#" class="sidebar-collapse-icon with-animation">
-
-                <i class="entypo-menu"></i>
-            </a>
-        </div>
-
-        <!-- open/close menu icon (do not remove if you want to enable menu on mobile devices) -->
-        <div class="sidebar-mobile-menu visible-xs">
-            <a href="#" class="with-animation">
-                <i class="entypo-menu"></i>
-            </a>
-        </div>
-    </header>
-
-    <div style=""></div>
-    <ul id="main-menu" class="">
+<header class="navbar navbar-fixed-top"><!-- set fixed position by adding class "navbar-fixed-top" -->
+		
+		<div class="navbar-inner">
+		
+			<!-- logo -->
+			<div class="navbar-brand">
+				<a href="<?=base_url();?>">
+					<img src="<?=base_url();?>uploads/logo.png" width="60" alt="" />
+				</a>
+			</div>
+			
+			
+			<!-- main menu -->
+						
+	<ul class="navbar-nav">
+   
         <!-- add class "multiple-expanded" to allow multiple submenus to open -->
         <!-- class "auto-inherit-active-class" will automatically add "active" class for parent elements who are marked already with class "active" -->
 
 
         <!-- DASHBOARD -->
-        <li class=" <?php echo get_access('dashboard');?> <?php if ($page_name == 'dashboard') echo 'active'; ?> ">
+        <li class=" <?php echo get_access('dashboard');?> ">
             <a href="<?php echo base_url();?>dashboard">
                 <i class="entypo-gauge"></i>
                 <span><?php echo get_phrase('dashboard'); ?></span>
             </a>
         </li>
         
-        <!-- SETTINGS -->
-        <li class="<?php echo get_access('settings');?> <?php
-        if ($page_name == 'system_settings' ||
-                $page_name == 'manage_language' ||
-                    $page_name == 'sms_settings'||
-					$page_name == 'assessment_settings' ||
-					$page_name == 'user_profiles')
-                        echo 'opened active';
-        ?> <?=get_access('settings');?>">
+        <!-- LEADS MENU -->
+        <li class=" <?php echo get_access('leads');?> ">
             <a href="#">
-                <i class="entypo-lifebuoy"></i>
+                <i class="entypo-compass"></i>
+                <span><?php echo get_phrase('leads'); ?></span>
+            </a>
+            <ul>
+            	<li class="<?=get_access('active_leads','leads');?>">
+            		<a href="<?php echo base_url();?>leads/leads/active">
+            			<i class='entypo-sound'></i>
+            			<span> <?=get_phrase('active_leads');?></span>
+            		</a>
+            	</li>
+            	
+            	<li class="<?=get_access('closed_leads','leads');?>">
+            		<a href="<?php echo base_url();?>leads/leads/closed">
+            			<i class='entypo-mute'></i>
+            			<span> <?=get_phrase('closed_leads');?></span>
+            		</a>
+            	</li>
+            </ul>
+        </li>
+        <!-- SETTINGS -->
+        <li class="<?php echo get_access('settings');?> ">
+            <a href="#">
+                <i class="entypo-cog"></i>
                 <span><?php echo get_phrase('settings'); ?></span>
             </a>
             <ul>
@@ -116,9 +120,89 @@
                 </li>
             </ul>
         </li>
+        <!-- Accounts -->
+        <li class="<?php echo get_access('account');?>">
+            <a href="#">
+                <i class="entypo-lifebuoy"></i>
+                <span><?php echo get_phrase('account'); ?></span>
+            </a>
+            <ul>
+                <li class="<?php echo get_access('change_password','account');?>">
+                    <a href="#">
+                        <i class="entypo-lock"></i> <?=get_phrase('change_password');?>
+                    </a>
 
+				
+				<ul class="<?php echo get_access('edit_profile','account');?>">
+					<li>
+						<a href="<?php echo base_url();?>account/manage_profile">
+                        	<i class="entypo-info"></i>
+							<span><?php echo get_phrase('edit_profile');?></span>
+						</a>
+					</li>
 
-         
+				</ul>
+				
+				
+			</li>
+				<!-- Language Selector--> 			
+           <li class="<?php echo get_access('language','account');?>">
+                    <a href="#">
+                        <i class="entypo-globe"></i> <?php echo get_phrase('language');?>
+                    </a>
+				
+				<ul class="">
+					<?php
+                            $fields = $this->db->list_fields('language');
+                            foreach ($fields as $field)
+                            {
+                                if(($field == 'phrase_id' || $field == 'phrase') || $field=='tooltip')continue;
+                                ?>
+                                    <li class="<?php if($this->session->userdata('current_language') == $field)echo 'active';?>">
+                                        <a href="<?php echo base_url();?>multilanguage/select_language/<?php echo $field;?>">
+                                            <img src="<?php echo base_url();?>assets/images/flag/<?php echo $field;?>.png" style="width:16px; height:16px;" />	
+												 <span><?php echo ucfirst($field);?></span>
+                                        </a>
+                                    </li>
+                                <?php
+                            }
+                            ?>
+                    
+				</ul>
+				
+			</li>
+            </ul>
+          </li> 
     </ul>
+    <ul class="nav navbar-right pull-right">
+       <li class="has-sub">
+                    <a href="#" >
+                        	<i class="entypo-user"></i> <?php echo ucfirst($this->session->name).' - '.ucfirst($this->session->role_name);?> (<?php echo $this->session->profile_name;?>) 
+                    </a>
 
-</div>
+			</li>
+				
+				<li class="sep"></li>
+				
+				<li>
+					<a href="<?php echo base_url();?>login/logout">
+					  <?=get_phrase('log_out');?> <i class="entypo-logout right"></i>
+				    </a>
+				</li>
+				
+				
+				<!-- mobile only -->
+				<li class="visible-xs">	
+				
+					<!-- open/close menu icon (do not remove if you want to enable menu on mobile devices) -->
+					<div class="horizontal-mobile-menu visible-xs">
+						<a href="#" class="with-animation"><!-- add class "with-animation" to support animation -->
+							<i class="entypo-menu"></i>
+						</a>
+					</div>
+					
+				</li>
+				</ul>
+    </div>
+    </header>
+

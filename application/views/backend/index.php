@@ -26,12 +26,12 @@
 	
 </head>
 <body class="page-body <?php if ($skin_colour != '') echo 'skin-' . $skin_colour;?> page-fade-only">
-	<div class="page-container <?=$sidebar_collapsed;?> <?php if ($text_align == 'right-to-left') echo 'right-sidebar';?>" >
+	<div class="page-container horizontal-menu">
 		<?php include 'navigation.php';?>	
 		<div class="main-content">
 		
-			<?php include 'header.php';?>
-				<hr />
+			<?php //include 'header.php';?>
+				
 					<div class="row">
 						<div class="col-xs-6">
 							<h3 style="" class="pull-left">
@@ -41,8 +41,11 @@
 						  </div>
 						  
 						  <div class="col-xs-6 pull-right;">
-						  		<span title="<?=get_phrase('back');?>" style="cursor: pointer;font-weight: bold;" onclick="javascript:go_back();" class="fa fa-reply pull-right"> <?=get_phrase('go_back');?> </span>
-						  </div>  
+				            	<div class="btn-group pull-right">
+									<button class="btn btn-default" title="<?=get_phrase('back');?>" onclick="javascript:go_back();"><i class="fa fa-backward"></i></button>
+									<button class="btn btn-default" title="<?=get_phrase('forward');?>" onclick="javascript:go_forward();"><i class="fa fa-forward"></i></button>
+								</div>
+						 	</div>   
 						    
 						
 					</div>
