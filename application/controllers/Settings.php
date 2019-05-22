@@ -83,7 +83,7 @@ private function view_progress_measures()
 	$build_list->set_use_datatable(false);
 	
 	$selected_columns = array("Progress Measure"=>"Progress_Measure_title",
-	'Tools Of Verification'=>"verification_tool","Progress Measure Weight"=>"weight","CC Mapping"=>"compassion_connect_mapping");
+	'Tools Of Verification'=>"verification_tool","Method of Assessment"=>'assessment_method',"Progress Measure Weight"=>"weight","CC Mapping"=>"compassion_connect_mapping");
 
 	$build_list->set_selected_fields($selected_columns,"assessment_progress_measure_id");		
 
@@ -149,7 +149,7 @@ private function list_lead_bio(){
 		
 		$selected_columns = array("Field Name"=>"lead_bio_fields_name",
 		'Data Type'=>"datatype_name","Is Field Unique?"=>"is_field_unique","Is Field Null?"=>"is_field_null",
-		'default_value');
+		'Default Value'=>'default_value');
 	
 		$build_list->set_selected_fields($selected_columns,'lead_bio_fields_id');		
 	
@@ -227,6 +227,7 @@ public function add_lead_bio_fields()
 				'properties'=> array('id'=>'','class'=>'default_value', 'name'=>'default_value[]')
 		);
 		
+		$build_form->set_form_action(base_url().'settings/multiform_save/lead_bio_fields');
 		$build_form->set_view_or_edit_mode('add');
 		$build_form->set_panel_title('Leads Bio Information');
 		$build_form->set_form_id('frm_bio');
@@ -243,23 +244,41 @@ public	function add_compassion_connect_progress_measure(){
 		$fields[] = array(
 			'label'=>'Lead Score Criteria Parameter',
 			'element'=>'input',
-			'properties'=>array('id'=>'','class'=>'')
+			'properties'=>array('id'=>'','class'=>'','name'=>'lead_score_parameter[]')
 		);
 		
 		$fields[] = array(
 			'label'=>'Connect Lead Score Stage',
 			'element'=>'select',
-			'properties'=>array('id'=>'','class'=>''),
+			'properties'=>array('id'=>'','class'=>'', 'name'=>'lead_score_stage[]'),
 			'options'=>array(
 				'1'=>array('option'=>'Stage 1'),
 				'2'=>array('option'=>'Stage 2')
 			)
 		);
-		
+		$build_form->set_form_action(base_url().'settings/multiform_save/compassion_connect_mapping');
 		$build_form->set_panel_title('Connect Lead Score Parameters');
 		$build_form->set_view_or_edit_mode('add');
 		
 		$this->load_view($build_form, $fields);
+}
+public function multiform_save($table_name)
+{
+	$array_post=$this->input->post();
+	$data_array=array();
+	
+	foreach ($array_post as $key=> $post_value) {
+		$count=0;
+		foreach ($post_value as $value) {
+			
+			$data_array[$count][$key]=$value;
+			$count++;
+		}
+	 
+	}
+  $this->db->insert_batch($table_name,$data_array);
+  echo "Data Saved Successfully";
+  //echo json_encode($data_array);
 }
 
 public function add_assessment_progress_measure(){
@@ -271,25 +290,25 @@ public function add_assessment_progress_measure(){
 		$fields[] = array(
 			'label'=>'Progress Measure Title',
 			'element'=>'input',
-			'properties'=>array('id'=>'','class'=>'')
+			'properties'=>array('id'=>'','class'=>'', 'name'=>'Progress_measure_title[]')
 		);
 		
 		$fields[] = array(
 			'label'=>'Verification Tools',
 			'element'=>'input',
-			'properties'=>array('id'=>'','class'=>'')
+			'properties'=>array('id'=>'','class'=>'', 'name'=>'verification_tool[]')
 		);
 		
 		$fields[] = array(
 			'label'=>'Method of assessment',
 			'element'=>'input',
-			'properties'=>array('id'=>'','class'=>'')
+			'properties'=>array('id'=>'','class'=>'', 'name'=>'assessment_method[]')
 		);
 		
 		$fields[] = array(
 			'label'=>'Weight',
 			'element'=>'select',
-			'properties'=>array('id'=>'','class'=>''),
+			'properties'=>array('id'=>'','class'=>'', 'name'=>'weight[]'),
 			'options' => array(
 				'1'=>array('option'=>1),
 				'2'=>array('option'=>2),
@@ -308,13 +327,14 @@ public function add_assessment_progress_measure(){
 		$fields[] = array(
 			'label'=>'Connect Mapping',
 			'element'=>'select',
-			'properties'=>array('id'=>'','class'=>''),
+			'properties'=>array('id'=>'','class'=>'', 'name'=>'compassion_connect_mapping[]'),
 			'options' =>$array_connect_measures,
 			
 		);
+		$build_form->set_form_action(base_url().'settings/multiform_save/assessment_progress_measure');
 		$build_form->set_view_or_edit_mode('add');
 		$build_form->set_panel_title('Assessment Progress Measure');
-		
+		$build_form->set_go_back_on_post(true);
 		$this->load_view($build_form, $fields);
 	}
 
@@ -457,7 +477,7 @@ public function view_single_lead_bio($table_name,$record_id){
 		
 		$selected_columns = array("Field Name"=>"lead_bio_fields_name",
 		'Data Type'=>"datatype_name","Is Field Unique?"=>"is_field_unique","Is Field Null?"=>"is_field_null",
-		'default_value');
+		'Default Value'=>'default_value');
 	
 		$build_form->set_selected_fields($selected_columns,'lead_bio_fields_id');
 		
@@ -519,7 +539,7 @@ public function view_single_assessment_progress_measure($table_name,$record_id)
 	
 	
 	$selected_columns = array("Progress Measure"=>"Progress_Measure_title",
-		'Tools Of Verification'=>"verification_tool","Progress Measure Weight"=>"weight","CC Mapping"=>"compassion_connect_mapping");
+		'Tools Of Verification'=>"verification_tool","Method of Assessment"=>"assessment_method","Progress Measure Weight"=>"weight","CC Mapping"=>"compassion_connect_mapping");
 
 	$build_form->set_selected_fields($selected_columns,"assessment_progress_measure_id");
 	
@@ -625,7 +645,7 @@ public function edit_assessment_progress_measure($table_name,$record_id){
 		$build_form = $this->load_library();
 		
 		$selected_columns = array("Progress Measure"=>"Progress_Measure_title",
-		'Tools Of Verification'=>"verification_tool","Progress Measure Weight"=>"weight","CC Mapping"=>"compassion_connect_mapping");
+		'Tools Of Verification'=>"verification_tool","Method of Assessment"=>"assessment_method","Progress Measure Weight"=>"weight","CC Mapping"=>"compassion_connect_mapping");
 	
 		$build_form->set_selected_fields($selected_columns,"assessment_progress_measure_id");
 		
