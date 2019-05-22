@@ -1305,7 +1305,7 @@ private function create_select_field($fields = array(),$cnt = 0){
 						<div class='col-xs-12'>
 							<table class='table datatable'>
 								<thead><tr><th>Action</th>";
-									$header_elem = $list_array[0];
+									$header_elem = $this->get_selected_fields();
 									/**
 									 * Remove the first element (red) from an array, and return 
 									 * the value of the removed element
