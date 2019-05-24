@@ -465,6 +465,8 @@ class Utility_forms {
 		 */
 		//$this->set_internal_debug($fields);
 
+		$this -> set_internal_debug($fields);
+
 		$output_string = "";
 
 		$additional_classes = "";
@@ -615,9 +617,7 @@ class Utility_forms {
 	}
 
 	private function create_single_column_form() {
-		
-		//$this->set_internal_debug($this->fields);
-		
+
 		$output_string = "";
 
 		$output_string = "<div class='row'><div class='col-xs-12'><ul class='nav nav-pills'>
@@ -852,7 +852,7 @@ class Utility_forms {
 								$("#overlay").css("display","block");
 							},
 							success:function(resp){
-								alert(resp);
+								//alert(resp);
 								
 								if(go_back_on_post && resp){
 									go_back();
@@ -1041,62 +1041,10 @@ class Utility_forms {
 			$field_data = array_merge($field_data, $this -> CI -> db -> field_data($table));
 		}
 
-		/**
-		 *$field_data =  [{"name":"lead_bio_fields_id","type":"int","max_length":100,"default":null,
-		 * "primary_key":1},{"name":"lead_bio_fields_name","type":"varchar","max_length":100,"default":null,
-		 * "primary_key":0},{"name":"datatype_id","type":"int","max_length":100,"default":null,
-		 * "primary_key":0},{"name":"is_field_unique","type":"int","max_length":5,"default":"1",
-		 * "primary_key":0},{"name":"is_field_null","type":"int","max_length":5,"default":"0",
-		 * "primary_key":0},{"name":"default_value","type":"varchar","max_length":20,"default":null,
-		 * "primary_key":0},{"name":"datatype_id","type":"int","max_length":100,"default":null,
-		 * "primary_key":1},{"name":"datatype_name","type":"varchar","max_length":20,"default":null,
-		 * "primary_key":0}]
-		 *
-		 */
-
 		$field_names = array_column($field_data, 'name');
-		//Keys array
 		$field_types = array_column($field_data, 'type');
-		//Values array
 
 		$field_types = array_combine($field_names, $field_types);
-
-		/**
-		 * $field_types = {"lead_bio_fields_id":"int","lead_bio_fields_name":"varchar",
-		 * "datatype_id":"int","is_field_unique":"int","is_field_null":"int","default_value":"varchar",
-		 * "datatype_name":"varchar"}
-		 *
-		 */
-
-		/**
-		 * $results = [{"lead_bio_fields_id":"2","datatype_id":"1","lead_bio_fields_name":"e",
-		 * "datatype_name":"text","is_field_unique":"1","is_field_null":"0","default_value":"tr"}]
-		 *
-		 */
-
-		$flipped_without_dots = array();
-
-		foreach ($this -> selected_list_fields as $key => $value) {
-
-			$piece = $value;
-
-			if (substr_count($value, ".")) {
-				$explode = explode(".", $value);
-				$piece = $explode[1];
-			}
-
-			$flipped_without_dots[$key] = $piece;
-		}
-
-		/**
-		 * $flipped_without_dots = {"0":"lead_bio_fields_id","Data Type ID":"datatype_id","Field Name":"lead_bio_fields_name","Data Type":"datatype_name","Is Field Unique?":"is_field_unique","Is Field Null?":"is_field_null","Default Value":"default_value"}
-		 *
-		 * $this -> selected_list_fields = {"0":"lead_bio_fields_id","Data Type ID":"lead_bio_fields.datatype_id","Field Name":"lead_bio_fields.lead_bio_fields_name","Data Type":"datatype.datatype_name","Is Field Unique?":"lead_bio_fields.is_field_unique","Is Field Null?":"lead_bio_fields.is_field_null","Default Value":"lead_bio_fields.default_value"}
-		 *
-		 * $results = [{"lead_bio_fields_id":"2","datatype_id":"1","lead_bio_fields_name":"e",
-		 * "datatype_name":"text","is_field_unique":"1","is_field_null":"0","default_value":"tr"}]
-		 *
-		 */
 
 		$final_array = array();
 
@@ -1106,14 +1054,12 @@ class Utility_forms {
 
 			foreach ($result as $elem_key => $elem_value) {
 
-				if (in_array($elem_key, $flipped_without_dots)) {
-					$key_for_display_as_elem = array_search($elem_key, $flipped_without_dots);
+				if (in_array($elem_key, $this -> selected_list_fields)) {
+					$key_for_display_as_elem = array_search($elem_key, $this -> selected_list_fields);
 
 					if (is_numeric($key_for_display_as_elem)) {
-
 						$final_array[$cnt][$this -> selected_list_fields[$key_for_display_as_elem]] = $elem_value;
 					} else {
-
 						$final_array[$cnt][$key_for_display_as_elem] = $elem_value;
 					}
 
@@ -1124,11 +1070,11 @@ class Utility_forms {
 
 			$cnt++;
 		}
-		//$this->set_internal_debug($final_array);
+
 		return $final_array;
 	}
 
-	private function db_results($use_fields_as_human_readable = true) {
+	private function db_results() {
 		$this -> get_selected_fields();
 		$this -> get_db_table();
 		$this -> get_data_limit();
@@ -1139,8 +1085,6 @@ class Utility_forms {
 
 		if (is_array($this -> selected_list_fields) && !empty($this -> selected_list_fields)) {
 			$this -> CI -> db -> select($this -> selected_list_fields);
-			// $this -> CI -> db -> select(array('lead_bio_fields.lead_bio_fields_id','lead_bio_fields.lead_bio_fields_name',
-			// 'lead_bio_fields.datatype_id', 'lead_bio_fields.is_field_unique','lead_bio_fields.is_field_null','lead_bio_fields.default_value'));
 		}
 
 		if (is_array($this -> where) && !empty($this -> where)) {
@@ -1166,13 +1110,8 @@ class Utility_forms {
 			$this -> CI -> db -> limit($this -> data_limit['offset'], $this -> data_limit['count']);
 		}
 
-		$results = "";
-
-		if ($use_fields_as_human_readable) {
-			$results = $this -> display_field_as($this -> CI -> db -> get($this -> db_table) -> result_array(), $this -> db_table, $this -> join);
-		} else {
-			$results = $this -> CI -> db -> get($this -> db_table) -> result_array();
-		}
+		//$results = $this->CI->db->get($this->db_table)->result_array();
+		$results = $this -> display_field_as($this -> CI -> db -> get($this -> db_table) -> result_array(), $this -> db_table, $this -> join);
 
 		return $results;
 	}
@@ -1193,119 +1132,69 @@ class Utility_forms {
 
 		$this -> get_dropdown_element_type();
 
-		$results = $this -> db_results(false);
-		
-		$results_true = $this -> db_results(true);
-		
-		$result_combine = array_combine(array_keys($results[0]),array_keys($results_true[0]));
-		
+		$results = $this -> db_results();
+
 		$fields = array();
 
 		$elem = $results[0];
 
 		array_shift($elem);
 
+		//print_r($elem);
+		//print_r($this->selected_list_fields);
 		$fields_with_type = array_column($this -> dropdown_element_type, '0');
-
-		/**
-		 * $this -> get_dropdown_element_type() - Not working = [{"0":"is_field_unique","options":[{"option":"No"},{"option":"Yes","selected":"selected"}]},{"0":"is_field_null","options":[{"option":"No"},{"option":"Yes","selected":"selected"}]}]
-		 *
-		 * $this -> get_dropdown_element_type() - Working = [["weight",[{"option":"Zero"},{"option":"One"},{"option":"Two","properties":{"selected":"selected"}},{"option":"Three"}]],["compassion_connect_mapping",[{"option":"Test"},{"option":"Test 0"},{"option":"Test 2"}]]]
-		 *
-		 *
-		 * $fields_options = [[{"option":"Zero"},{"option":"One"},
-		 {"option":"Two","properties":{"selected":"selected"}},{"option":"Three"}],
-		 [{"option":"Test"},{"option":"Test 0"},{"option":"Test 2"}]]
-		 *
-		 */
+		//echo "++++++++++++";
+		//print_r($this->element_type);
+		//print_r($fields_with_type);
 
 		$fields_options = array_column($this -> dropdown_element_type, '1');
-		$this->set_internal_debug($this -> dropdown_element_type);
+
+		//$this->set_internal_debug($fields_options);
+		//print_r($fields_options[0]);
 		$cnt = 0;
-		/**
-		 * $elem = {"Progress_Measure_title":"De","verification_tool":"De",
-		 * "assessment_method":"De","weight":"3","compassion_connect_mapping":"2"}
-		 *
-		 * $this -> selected_list_fields = {"0":"lead_bio_fields_id",
-		 * "Data Type ID":"lead_bio_fields.datatype_id","Field Name":"lead_bio_fields.lead_bio_fields_name",
-		 * "Data Type":"datatype.datatype_name","Is Field Unique?":"lead_bio_fields.is_field_unique",
-		 * "Is Field Null?":"lead_bio_fields.is_field_null","Default Value":"lead_bio_fields.default_value"}
-		 *
-		 * $fields_with_type = ["is_field_unique","is_field_null"]
-		 *
-		 * $flipped_selected_fields = {"lead_bio_fields_id":0,"lead_bio_fields.datatype_id":"Data Type ID",
-		 * "lead_bio_fields.lead_bio_fields_name":"Field Name","datatype.datatype_name":"Data Type",
-		 * "lead_bio_fields.is_field_unique":"Is Field Unique?",
-		 * "lead_bio_fields.is_field_null":"Is Field Null?","lead_bio_fields.default_value":"Default Value"}
-		 *
-		 * $flipped_without_dots = ["lead_bio_fields_id","datatype_id","lead_bio_fields_name","datatype_name",
-		 * "is_field_unique","is_field_null","default_value"]
-		 *
-		 * $reflipped  = {"lead_bio_fields_id":0,"datatype_id":1,"lead_bio_fields_name":2,"datatype_name":3,
-		 * "is_field_unique":4,"is_field_null":5,"default_value":6}
-		 *
-		 *
-		 */
-		//$flipped_selected_fields = array_flip($this -> selected_list_fields);
-		
-		$flipped_without_dots = array();
-
-		foreach ($this -> selected_list_fields as $key => $value) {
-
-			$piece = $value;
-
-			if (substr_count($value, ".")) {
-				$explode = explode(".", $value);
-				$piece = $explode[1];
-			}
-
-			$flipped_without_dots[] = $piece;
-		}
-
-		$reflipped = array_flip($flipped_without_dots);
-
 		foreach ($elem as $key => $value) {
 			if ($this -> view_or_edit_mode == 'view') {
 
-				$fields[] = array('element' => 'div', 'label' => $result_combine[$key], 'properties' => array('innerHTML' => ucfirst($value), 'class' => '', 'id' => '', 'style' => 'margin-top:8px;', $this -> view_or_edit_mode == 'view' ? '' : 'value' => $value));
+				$fields[] = array('element' => 'div', 'label' => $key, 'properties' => array('innerHTML' => ucfirst($value), 'class' => '', 'id' => '', 'style' => 'margin-top:8px;', $this -> view_or_edit_mode == 'view' ? '' : 'value' => $value));
 
 			} else {
 
-				$x = "";
-
-				if (array_key_exists($key, $reflipped)) {
-					$x = $key;
-				}
-
-				//$this->set_internal_debug($fields_options);
-
-				if (in_array($x, $fields_with_type)) {
+				if (in_array($this -> selected_list_fields[$key], $fields_with_type)) {
 
 					$element = "select";
 
-					$options = array();
+					//$fields[]['options']['properties'] = array('selected'=>'selected');
 
-					/**
-					 * $fields_options = [[{"option":"Zero"},{"option":"One"},
-					 * {"option":"Two","properties":{"selected":"selected"}},{"option":"Three"}],
-					 * [{"option":"Test"},{"option":"Test 0"},{"option":"Test 2"}]]
-					 *
-					 */
-
-					foreach ($fields_options[$cnt] as $option_key => $option_value) {
-						if ($option_key == $value) {
-							$options[$option_key] = array('option' => $option_value['option'], 'properties' => array('selected' => 'selected'));
-						} else {
-							$options[$option_key] = array('option' => $option_value['option']);
-						}
+					//$options = array();
+					//print_r($fields_options);
+					//$this->set_internal_debug($fields_options);
+					// foreach($fields_options as $select_value){
+					// foreach ($select_value['select']['options'] as $option_key => $option_value) {
+					// $options[$option_key] = array('option'=>$option_value);
+					// }
+					// // if($option_key == $value){
+					// // $options[$option_key] = array('option'=>$option_value['option'],'properties'=>array('selected'=>'selected'));
+					// // }else{
+					//
+					// //}
+					// }
+					$options = '';
+					/*The if checks if the select tag option hard coded in the controler the else
+					 options are dynamically builddropdown type*/
+					if (array_key_exists('select', $fields_options)) {
+						$options = array_column(array_column($fields_options, 'select'), 'options');
+					} else {
+						$options = $fields_options;
 					}
 
-					$fields[] = array('element' => $element, 'label' => $result_combine[$key], 'properties' => array('class' => '', 'value' => $value, 'name'=>$key, 'id' => '', 'style' => 'margin-top:8px;'), 'options' => $options);
+					//$this->set_internal_debug($fields_options);
+
+					$fields[] = array('element' => $element, 'label' => $key, 'properties' => array('class' => '', 'value' => $value, 'id' => '', 'style' => 'margin-top:8px;'), 'options' => $options[$cnt]);
 					$cnt++;
 
 				} else {
 
-					$fields[] = array('element' => 'input', 'label' => $result_combine[$key], 'properties' => array('class' => '', 'name'=>$key, 'value' => $value, 'id' => '', 'style' => 'margin-top:8px;'));
+					$fields[] = array('element' => 'input', 'label' => $key, 'properties' => array('class' => '', 'value' => $value, 'id' => '', 'style' => 'margin-top:8px;'));
 
 				}
 
@@ -1474,7 +1363,8 @@ class Utility_forms {
 			//print_r($this->replace_field_value);
 			foreach ($row as $key => $td_value) {
 				if (is_array($this -> replace_field_value) && array_key_exists($key, $this -> replace_field_value)) {
-					$output .= "<td>" . $this -> replace_field_value[$key][$td_value] . "</td>"; ;
+					$output .= "<td>" . $this -> replace_field_value[$key][$td_value] . "</td>";
+					;
 				} else {
 					$output .= "<td>" . $td_value . "</td>";
 				}
