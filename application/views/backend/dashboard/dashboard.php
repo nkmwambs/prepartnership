@@ -1,14 +1,17 @@
 <div class='row'>
 	<div class='col-xs-12'>
 		<?php
+		
+			$not_to_show_object = $this->db->select(array('lead_bio_info_column'))->get_where('lead_bio_fields',
+			array('show_field'=>0))->result_object();
 			
-			$count = 5;
+			$hidden_fields = array_column($not_to_show_object,'lead_bio_info_column');
 			
-			$aliases_range = range('a','z'); 
+			$all_fields = array_column($this->db->field_data('leads_bio_information'),'name');
 			
-			$chunks = array_chunk($aliases_range, $count);
 			
-			print_r($chunks[0]);
+			print_r(array_diff($all_fields, $hidden_fields));
+			
 		?>
 		<!-- <button class='btn btn-info <?php echo get_access('test_button','dashboard');?>'>TEST BUTTON</button> -->
 	</div>
