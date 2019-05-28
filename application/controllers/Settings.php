@@ -53,6 +53,10 @@ class Settings extends CI_Controller {
 
 		$build_list -> set_selected_fields($selected_columns, "compassion_connect_mapping_id");
 		$build_list -> set_panel_title("Compassion Connect Progress Measures");
+		
+		//$join_array = array('connect_stage' => array('connect_stage.connect_stage_id', 'compassion_connect_mapping.lead_score_stage'));
+
+		//$build_list -> set_table_join($join_array);
 
 		$action = array('add' => array('href' => 'settings/add_compassion_connect_progress_measure'), 'view' => array('href' => 'settings/view_single_connect_progress_measure'), 'edit' => array('href' => 'settings/edit_connect_progress_measure'), 'delete' => array('href' => 'settings/delete_connect_compassion_progress_measure'));
 
@@ -72,7 +76,13 @@ class Settings extends CI_Controller {
 
 		$build_list -> set_use_datatable(false);
 
-		$selected_columns = array("Progress Measure" => "Progress_Measure_title", 'Tools Of Verification' => "verification_tool", "Method of Assessment" => 'assessment_method', "Progress Measure Weight" => "weight", "CC Mapping" => "compassion_connect_mapping");
+		$selected_columns = array("Progress Measure" => "Progress_Measure_title", 
+		'Tools Of Verification' => "verification_tool", "Method of Assessment" => 'assessment_method', 
+		"Progress Measure Weight" => "weight", "CC Mapping" => "compassion_connect_mapping.lead_score_parameter");
+		
+		$join_array = array('compassion_connect_mapping' => array('compassion_connect_mapping.compassion_connect_mapping_id', 'assessment_progress_measure.compassion_connect_mapping'));
+
+		$build_list -> set_table_join($join_array);
 
 		$build_list -> set_selected_fields($selected_columns, "assessment_progress_measure_id");
 
@@ -133,10 +143,14 @@ class Settings extends CI_Controller {
 
 		$build_list -> set_list_action($action);
 
-		$join_array = array('datatype' => array('lead_bio_fields.datatype_id', 'datatype.datatype_id'));
-
+		$join_array['datatype'] = array('datatype.datatype_id','lead_bio_fields.datatype_id');
+		
+		$build_list->set_replace_field_value(array('is_field_null',array('1'=>'Yes','0'=>'No'),
+		'is_field_unique',array('1'=>'Yes','0'=>'No')));
+		
 		$build_list -> set_table_join($join_array);
 
+		
 		$build_list -> set_db_table("lead_bio_fields");
 
 		$build_list -> set_add_form();
@@ -151,7 +165,16 @@ class Settings extends CI_Controller {
 
 		$fields[] = array('label' => 'Lead Score Criteria Parameter', 'element' => 'input', 'properties' => array('id' => '', 'class' => '', 'name' => 'lead_score_parameter[]'));
 
-		$fields[] = array('label' => 'Connect Lead Score Stage', 'element' => 'select', 'properties' => array('id' => '', 'class' => '', 'name' => 'lead_score_stage[]'), 'options' => array('1' => array('option' => 'Stage 1'), '2' => array('option' => 'Stage 2')));
+		$options_for_stages = array();
+		
+		$connect_stages = $this->db->get("connect_stage")->result_object(); 
+		
+		foreach($connect_stages as $connect_stage){
+			$options_for_stages[$connect_stage->connect_stage_id] = array('option'=>$connect_stage->connect_stage_name);
+		}
+		
+		$fields[] = array('label' => 'Connect Lead Score Stage', 'element' => 'select', 'properties' => array('id' => '', 'class' => '', 'name' => 'lead_score_stage[]'), 'options' => $options_for_stages);
+		
 		$build_form -> set_form_action(base_url() . 'settings/multiform_save/compassion_connect_mapping');
 		$build_form -> set_panel_title('Connect Lead Score Parameters');
 		$build_form -> set_view_or_edit_mode('add');
@@ -206,7 +229,7 @@ class Settings extends CI_Controller {
 		$milestones = $this -> db -> select(array('assessment_milestones_id', 'milestone_name')) -> get('assessment_milestones') -> result_object();
 		$option = array('0' => array('option' => 'Initial Assessment'));
 		foreach ($milestones as $milestone) {
-			$option = array_merge($option, array($milestone -> assessment_milestones_id => array('option' => $milestone -> milestone_name)));
+			$option[$milestone -> assessment_milestones_id] = array('option' => $milestone -> milestone_name);
 
 		}
 		$fields[] = array('label' => 'Insert Milestone After', 'element' => 'select', 'properties' => array('id' => '', 'class' => '', 'name' => 'insert_after'), 'options' => $option);
@@ -310,7 +333,7 @@ class Settings extends CI_Controller {
 		$this -> load -> view('backend/index', $page_data);
 	}
 
-	public function view_single_lead_bio($table_name, $record_id) {
+	function view_single_lead_bio($table_name, $record_id) {
 		$build_form = $this -> load_library();
 
 		$selected_columns = array("Field Name" => "lead_bio_fields_name", 'Data Type' => "datatype_name", "Is Field Unique?" => "is_field_unique", "Is Field Null?" => "is_field_null", 'Default Value' => 'default_value');
@@ -393,9 +416,17 @@ class Settings extends CI_Controller {
 
 		$fields[] = array('label' => 'Data Type', 'element' => 'select', 'properties' => array('id' => '', 'class' => '', 'required' => 'required', 'name' => 'datatype_id[]'), 'options' => array('1' => array('option' => 'Whole Number'), '2' => array('option' => 'Decimal Number'), '3' => array('option' => 'Date & Time'), '4' => array('option' => 'Text')));
 
-		$fields[] = array('label' => 'Field Unique?', 'element' => 'select', 'properties' => array('id' => '', 'class' => '', 'name' => 'is_field_unique[]'), 'options' => array('yes' => array('option' => 'Yes'), 'no' => array('option' => 'No')));
+		$yes_nos = $this->db->get('yes_no_option')->result_object();
+		
+		$yes_no_options = array();
+		
+		foreach($yes_nos as $yes_no){
+			$yes_no_options[$yes_no->yes_no_option_key]['option'] = $yes_no->yes_no_option_name;
+		}
+		
+		$fields[] = array('label' => 'Field Unique?', 'element' => 'select', 'properties' => array('id' => '', 'class' => '', 'name' => 'is_field_unique[]'), 'options' => $yes_no_options);
 
-		$fields[] = array('label' => 'Optional?', 'element' => 'select', 'properties' => array('id' => '', 'class' => 'is_field_null', 'name' => 'is_field_null[]'), 'options' => array('yes' => array('option' => 'Yes'), 'no' => array('option' => 'No')));
+		$fields[] = array('label' => 'Optional?', 'element' => 'select', 'properties' => array('id' => '', 'class' => 'is_field_null', 'name' => 'is_field_null[]'), 'options' => $yes_no_options);
 
 		$fields[] = array('label' => 'Default Value', 'element' => 'input', 'properties' => array('id' => '', 'class' => 'default_value', 'name' => 'default_value[]'));
 
@@ -425,7 +456,7 @@ class Settings extends CI_Controller {
 		$compassion_connect_mapping = $this -> db -> select(array('compassion_connect_mapping_id', 'lead_score_parameter')) -> get('compassion_connect_mapping') -> result_object();
 		$option = array();
 		foreach ($compassion_connect_mapping as $mapping) {
-			$option = array_merge($option, array($mapping -> compassion_connect_mapping_id => array('option' => $mapping -> lead_score_parameter)));
+			$option[$mapping -> compassion_connect_mapping_id] = array('option' => $mapping -> lead_score_parameter);
 
 		}
 
@@ -448,23 +479,31 @@ class Settings extends CI_Controller {
 		$build_form -> set_view_or_edit_mode('edit');
 
 		$build_form -> set_panel_title('Edit Leads Bio Field');
+		
+		$yes_nos = $this->db->get('yes_no_option')->result_object();
+		
+		$yes_no_options = array();
+		
+		foreach($yes_nos as $yes_no){
+			$yes_no_options[$yes_no->yes_no_option_key]['option'] = $yes_no->yes_no_option_name;
+		}
+		
+		$build_form -> set_dropdown_element_type(array('is_field_unique', $yes_no_options));
 
+		
+		$build_form -> set_dropdown_element_type(array('is_field_null', $yes_no_options));
+		
 		$datatype = $this->db->get('datatype')->result_object();
 		
 		$data_types_array = array(); 
 		
 		foreach($datatype as $type){
-			$data_types_array = array_merge($data_types_array,array($type->datatype_id=>array('option' => $type->datatype_name)));
+			$data_types_array[$type->datatype_id] = array('option' => $type->datatype_name);
 		}
 		
 				
 		$build_form -> set_dropdown_element_type(array('datatype_id', $data_types_array));
 		
-
-		$build_form -> set_dropdown_element_type(array('is_field_unique', array('0' => array('option' => 'No'), '1' => array('option' => 'Yes', 'selected' => 'selected'))));
-
-		
-		$build_form -> set_dropdown_element_type(array('is_field_null', array('0' => array('option' => 'No'), '1' => array('option' => 'Yes', 'selected' => 'selected'))));
 		
 		
 		$this -> view_record_by_id($build_form, $table_name, $record_id);
@@ -478,10 +517,20 @@ class Settings extends CI_Controller {
 		$milestones = $this -> db -> select(array('assessment_milestones_id', 'milestone_name')) -> get('assessment_milestones') -> result_object();
 		$option = array('0' => array('option' => 'Initial Assessment'));
 		foreach ($milestones as $milestone) {
-			$option = array_merge($option, array($milestone -> assessment_milestones_id => array('option' => $milestone -> milestone_name)));
+			$option[$milestone -> assessment_milestones_id] = array('option' => $milestone -> milestone_name);
 
 		}
 		$build_form -> set_dropdown_element_type(array('insert_after', $option));
+		
+		$months =  range(1,12);
+		
+		$months_options = array();
+		
+		foreach($months as $month){
+			$months_options[$month] = array('option'=>$month);
+		}
+		
+		$build_form -> set_dropdown_element_type(array('assessment_period_in_days', $months_options));
 
 		$build_form -> set_selected_fields($selected_columns, "assessment_milestones_id");
 
