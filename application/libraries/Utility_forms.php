@@ -852,7 +852,7 @@ class Utility_forms {
 								$("#overlay").css("display","block");
 							},
 							success:function(resp){
-								alert(resp);
+								//alert(resp);
 								
 								if(go_back_on_post && resp){
 									go_back();
@@ -1155,7 +1155,7 @@ class Utility_forms {
 			 * 'province'=>array('country.country_id','province.country_id')
 			 * )
 			 */
-
+			
 			foreach ($this->join as $secondary_table => $join_keys) {
 
 				$this -> CI -> db -> join($secondary_table, $join_keys[1] . "=" . $join_keys[0]);
@@ -1219,7 +1219,7 @@ class Utility_forms {
 		 *
 		 */
 
-		$fields_options = array_column($this -> dropdown_element_type, '1');
+		$fields_options = $this -> dropdown_element_type;//array_column($this -> dropdown_element_type, '1');
 		$this->set_internal_debug($this -> dropdown_element_type);
 		$cnt = 0;
 		/**
@@ -1277,8 +1277,6 @@ class Utility_forms {
 					$x = $key;
 				}
 
-				//$this->set_internal_debug($fields_options);
-
 				if (in_array($x, $fields_with_type)) {
 
 					$element = "select";
@@ -1290,14 +1288,27 @@ class Utility_forms {
 					 * {"option":"Two","properties":{"selected":"selected"}},{"option":"Three"}],
 					 * [{"option":"Test"},{"option":"Test 0"},{"option":"Test 2"}]]
 					 *
+					 * 
+					 * 'options' => array('yes' => array('option' => 'Yes'), 'no' => array('option' => 'No','properties'=>array('selected'=>'selected'))))
 					 */
 
-					foreach ($fields_options[$cnt] as $option_key => $option_value) {
-						if ($option_key == $value) {
-							$options[$option_key] = array('option' => $option_value['option'], 'properties' => array('selected' => 'selected'));
-						} else {
-							$options[$option_key] = array('option' => $option_value['option']);
-						}
+					foreach ($fields_options as $option_value) {
+						
+							if ($option_value[0] == $key) {
+								foreach($option_value[1] as $option_key=>$inner_value){
+									
+									if($option_key == $value){
+										$options[$option_key]['option'] = $inner_value['option'];
+										$options[$option_key]['properties']['selected'] = 'selected';
+									}else {
+										$options[$option_key]['option'] = $inner_value['option'];
+									}
+									
+								
+								}
+							} 
+							
+						
 					}
 
 					$fields[] = array('element' => $element, 'label' => $result_combine[$key], 'properties' => array('class' => '', 'value' => $value, 'name'=>$key, 'id' => '', 'style' => 'margin-top:8px;'), 'options' => $options);
@@ -1385,7 +1396,7 @@ class Utility_forms {
 		}
 		//print_r($view);
 
-		$list_array = $this -> db_results();
+		$list_array = $this -> db_results(false);
 
 		$output = $this -> open_panel();
 		if ($this -> add_form) {
@@ -1473,8 +1484,8 @@ class Utility_forms {
 										</td>";
 			//print_r($this->replace_field_value);
 			foreach ($row as $key => $td_value) {
-				if (is_array($this -> replace_field_value) && array_key_exists($key, $this -> replace_field_value)) {
-					$output .= "<td>" . $this -> replace_field_value[$key][$td_value] . "</td>"; ;
+				if (is_array($this -> replace_field_value) && in_array($key, $this -> replace_field_value)) {
+					$output .= "<td>" . $this -> replace_field_value[1][$td_value] . "</td>"; ;
 				} else {
 					$output .= "<td>" . $td_value . "</td>";
 				}
@@ -1496,8 +1507,8 @@ class Utility_forms {
 
 	private $replace_field_value = "";
 
-	public function set_replace_field_value($field, $replace_field_value_array) {
-		$this -> replace_field_value = array($field => $replace_field_value_array);
+	public function set_replace_field_value($replace_field_value_array) {
+		$this -> replace_field_value = $replace_field_value_array;//array($field => $replace_field_value_array);
 	}
 
 	private function get_replace_field_value() {
