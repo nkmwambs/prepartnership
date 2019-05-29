@@ -1402,7 +1402,7 @@ class Utility_forms {
 		$this -> extra_list_action;
 	}
 
-	private function additional_list_action() {
+	private function additional_list_action($primary_key) {
 		$this -> get_extra_list_action();
 
 		$output = "";
@@ -1411,7 +1411,7 @@ class Utility_forms {
 			foreach ($this->extra_list_action as $row) {
 				$output .= "
 					<li>
-						<a href='" . base_url() . "index.php/" . $row['href'] . "'>
+						<a href='" . base_url() . "index.php/" . $row['href'] . '/'.$primary_key.'/'."'>
 							<i class='fa fa-" . $row['icon'] . "'></i>
 								" . $row['label'] . "
 						</a>
@@ -1616,7 +1616,7 @@ class Utility_forms {
 													</li>
 													<li class='divider'></li>";
 			}
-			$output .= $this -> additional_list_action();
+			$output .= $this -> additional_list_action($primary_key);
 			$output .= "</ul>
 											</div>
 								
