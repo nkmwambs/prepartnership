@@ -1437,6 +1437,20 @@ class Utility_forms {
 		return $this->hide_delete_button;
 	}
 	
+	private function _get_primary_key_field(){
+		
+		$field_data = $this->CI->db->field_data($this->db_table);
+				
+		$field_name = array_column($field_data, 'name');
+		$field_primary_key = array_column($field_data, 'primary_key');
+				
+		$combined = array_combine($field_name, $field_primary_key);
+		
+		$primary_key_field = array_search(1, $combined);
+				
+		return $primary_key_field;
+	}
+	
 	function render_item_list() {
 		$add = "#";
 		$view = "#";
@@ -1495,12 +1509,18 @@ class Utility_forms {
 		foreach ($header_elem as $key => $value) {
 
 			$output .= "<th>" . get_phrase($key) . " <i style='cursor:pointer;' title='" . get_tooltip($key) . "' class='fa fa-question-circle'></i></th>";
+		
 		}
 		$output .= "</tr></thead>
 								<tbody>";
 		foreach ($list_array as $row) {
-			$primary_key = array_shift($row);
 			//print_r($row);
+			$primary_key_field = $this->_get_primary_key_field();
+			
+			$primary_key = $row[$primary_key_field];
+			
+			array_shift($row);
+			
 			$output .= "<tr>";
 			$output .= "<td>
 										
