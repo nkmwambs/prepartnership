@@ -124,7 +124,7 @@ class Settings extends CI_Controller {
 
 		$build_list -> set_add_form();
 
-		$build_list -> set_replace_field_value('Insert Milestone After', $this -> crud_model -> get_insert_after_milestone());
+		$build_list -> set_replace_field_value(array('insert_after'=>$this -> crud_model -> get_insert_after_milestone()));
 
 		return $build_list -> render_item_list();
 
@@ -136,7 +136,7 @@ class Settings extends CI_Controller {
 
 		$selected_columns = array("Field Name" => "lead_bio_fields_name", 'Data Type' => "datatype_name", 
 		"Is Field Unique?" => "is_field_unique", "Is Field Null?" => "is_field_null", 
-		'Default Value' => 'default_value','Show Field'=>'show_field');
+		'Default Value' => 'default_value','Show Field'=>'show_field', 'Is Field In Use?'=>'is_suspended');
 
 		$build_list -> set_selected_fields($selected_columns, 'lead_bio_fields_id');
 		
@@ -150,11 +150,12 @@ class Settings extends CI_Controller {
 
 		$join_array['datatype'] = array('datatype.datatype_id','lead_bio_fields.datatype_id');
 		
-		$build_list->set_replace_field_value(array('is_field_null',array('1'=>'Yes','0'=>'No'),
-		'is_field_unique',array('1'=>'Yes','0'=>'No')));
+		$yes_no_options=array('1'=>'Yes','0'=>'No');
 		
-		$build_list->set_replace_field_value(array('show_field',array('1'=>'Yes','0'=>'No'),
-		'is_field_unique',array('1'=>'Yes','0'=>'No')));
+		$build_list->set_replace_field_value(array('is_field_null'=>$yes_no_options,
+		'is_field_unique'=>$yes_no_options,'show_field'=>$yes_no_options, 'is_suspended'=>$yes_no_options));
+		
+		//$build_list->set_replace_field_value();
 		
 		$build_list -> set_table_join($join_array);
 
@@ -358,7 +359,9 @@ class Settings extends CI_Controller {
 	function view_single_lead_bio($table_name, $record_id) {
 		$build_form = $this -> load_library();
 
-		$selected_columns = array("Field Name" => "lead_bio_fields_name", 'Data Type' => "datatype_name", "Is Field Unique?" => "is_field_unique", "Is Field Null?" => "is_field_null", 'Default Value' => 'default_value');
+		$selected_columns = array("Field Name" => "lead_bio_fields_name", 'Data Type' => "datatype_name", 
+		"Is Field Unique?" => "is_field_unique", "Is Field Null?" => "is_field_null", 
+		'Default Value' => 'default_value', 'Show Field'=>'show_field','Is Field In Use'=>'is_suspended');
 
 		$build_form -> set_selected_fields($selected_columns, 'lead_bio_fields_id');
 
@@ -369,6 +372,11 @@ class Settings extends CI_Controller {
 		$build_form -> set_view_or_edit_mode('view');
 
 		$build_form -> set_panel_title('View Leads Bio Field');
+		
+		$yes_no=array('No','Yes');
+		
+		$build_form->set_replace_field_value(array('is_field_unique'=>$yes_no,
+		'is_field_null'=>$yes_no,'show_field'=>$yes_no, 'is_suspended'=>$yes_no ));
 
 		$this -> view_record_by_id($build_form, $table_name, $record_id);
 	}
@@ -377,7 +385,7 @@ class Settings extends CI_Controller {
 
 		$build_form = $this -> load_library();
 
-		$selected_columns = array("Milestone Name" => "milestone_name", 'When' => "assessment_period_in_days", "Review Status" => "assessment_review_status", "User Customized Review Status" => "user_customized_review_status");
+		$selected_columns = array("Milestone Name" => "milestone_name", 'Insert After'=>'insert_after', 'When' => "assessment_period_in_days", "Review Status" => "assessment_review_status", "User Customized Review Status" => "user_customized_review_status");
 
 		$build_form -> set_selected_fields($selected_columns, "assessment_milestones_id");
 
@@ -390,6 +398,8 @@ class Settings extends CI_Controller {
 		$build_form -> set_view_or_edit_mode('view');
 
 		$build_form -> set_panel_title("Assessment Milestone Details");
+		
+		$build_form -> set_replace_field_value(array('insert_after'=>$this -> crud_model -> get_insert_after_milestone()));
 
 		$this -> view_record_by_id($build_form, $table_name, $record_id);
 	}
@@ -408,6 +418,8 @@ class Settings extends CI_Controller {
 		$build_form -> set_view_or_edit_mode('view');
 
 		$build_form -> set_panel_title('View Progress Measure');
+		
+		$build_form -> set_replace_field_value(array('lead_score_stage'=>array('1'=>'Stage 1', '2'=>'Stage 2')));
 
 		$this -> view_record_by_id($build_form, $table_name, $record_id);
 	}
@@ -415,7 +427,7 @@ class Settings extends CI_Controller {
 	public function view_single_assessment_progress_measure($table_name, $record_id) {
 		$build_form = $this -> load_library();
 
-		$selected_columns = array("Progress Measure" => "Progress_Measure_title", 'Tools Of Verification' => "verification_tool", "Method of Assessment" => "assessment_method", "Progress Measure Weight" => "weight", "CC Mapping" => "compassion_connect_mapping");
+		$selected_columns = array("Progress Measure" => "Progress_Measure_title",'Tools Of Verification' => "verification_tool", "Method of Assessment" => "assessment_method", "Progress Measure Weight" => "weight", "CC Mapping" => "compassion_connect_mapping");
 
 		$build_form -> set_selected_fields($selected_columns, "assessment_progress_measure_id");
 
@@ -466,6 +478,8 @@ class Settings extends CI_Controller {
 		
 		$fields[] = array('label' => 'Show Field?', 'element' => 'select', 'properties' => array('id' => '', 'class' => '', 'name' => 'show_field[]'), 'options' => $yes_no_options);
 		
+		$fields[] = array('label' => 'Is Field In Use?', 'element' => 'select', 'properties' => array('id' => '', 'class' => '', 'name' => 'is_suspended[]'), 'options' => $yes_no_options);
+		
 		
 		$build_form -> set_view_or_edit_mode('add');
 		$build_form -> set_panel_title('Leads Bio Fields');
@@ -497,14 +511,8 @@ class Settings extends CI_Controller {
 		
 		$build_form -> set_dropdown_element_type(array('weight', $weight));
 
-		$compassion_connect_mapping = $this -> db -> select(array('compassion_connect_mapping_id', 'lead_score_parameter')) -> get('compassion_connect_mapping') -> result_object();
-		$option = array();
-		foreach ($compassion_connect_mapping as $mapping) {
-			$option[$mapping -> compassion_connect_mapping_id] = array('option' => $mapping -> lead_score_parameter);
-
-		}
-
-		$build_form -> set_dropdown_element_type(array('compassion_connect_mapping', $option));
+		
+		$build_form->set_dropdown_from_table(array('compassion_connect_mapping','compassion_connect_mapping_id','lead_score_parameter','compassion_connect_mapping'));
 
 		$this -> view_record_by_id($build_form, $table_name, $record_id);
 	}
@@ -512,7 +520,7 @@ class Settings extends CI_Controller {
 	public function edit_lead_bio_fields($table_name, $record_id) {
 		$build_form = $this -> load_library();
 
-		$selected_columns = array("Is Field Unique?" => "lead_bio_fields.is_field_unique", "Is Field Null?" => "lead_bio_fields.is_field_null", 'Default Value' => 'lead_bio_fields.default_value');
+		$selected_columns = array("Is Field Unique?" => "lead_bio_fields.is_field_unique", "Is Field Null?" => "lead_bio_fields.is_field_null", 'Default Value' => 'lead_bio_fields.default_value', 'Is Field In Use'=>'is_suspended', 'Show Field'=>'show_field');
 
 		$build_form -> set_selected_fields($selected_columns, 'lead_bio_fields_id');
 
@@ -524,29 +532,27 @@ class Settings extends CI_Controller {
 
 		$build_form -> set_panel_title('Edit Leads Bio Field');
 		
-		$yes_nos = $this->db->get('yes_no_option')->result_object();
+			
+		$build_form -> set_dropdown_yes_no('is_field_unique');
 		
-		$yes_no_options = array();
+		$build_form -> set_dropdown_yes_no('is_field_null');
 		
-		foreach($yes_nos as $yes_no){
-			$yes_no_options[$yes_no->yes_no_option_key]['option'] = $yes_no->yes_no_option_name;
-		}
+		$build_form -> set_dropdown_yes_no('is_suspended');
 		
-		$build_form -> set_dropdown_element_type(array('is_field_unique', $yes_no_options));
-
+		$build_form -> set_dropdown_yes_no('show_field');
 		
-		$build_form -> set_dropdown_element_type(array('is_field_null', $yes_no_options));
+		// $datatype = $this->db->get('datatype')->result_object();
+// 		
+		// $data_types_array = array(); 
+// 		
+		// foreach($datatype as $type){
+			// $data_types_array[$type->datatype_id] = array('option' => $type->datatype_name);
+		// }
+// 		
+// 				
+		// $build_form -> set_dropdown_element_type(array('datatype_id', $data_types_array));
 		
-		$datatype = $this->db->get('datatype')->result_object();
 		
-		$data_types_array = array(); 
-		
-		foreach($datatype as $type){
-			$data_types_array[$type->datatype_id] = array('option' => $type->datatype_name);
-		}
-		
-				
-		$build_form -> set_dropdown_element_type(array('datatype_id', $data_types_array));
 		
 		
 		

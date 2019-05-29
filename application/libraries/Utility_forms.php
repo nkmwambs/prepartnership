@@ -1196,6 +1196,47 @@ class Utility_forms {
 		$this -> dropdown_element_type[] = $dropdown_element_type;
 	}
 
+	public function set_dropdown_yes_no($field_name) {
+
+		$yes_nos = array('No', 'Yes');
+
+		$yes_no_options = array();
+
+		foreach ($yes_nos as $key => $yes_no) {
+			$yes_no_options[$key]['option'] = $yes_no;
+		}
+
+		$dropdown_element_type = array($field_name, $yes_no_options);
+
+		$this -> dropdown_element_type[] = $dropdown_element_type;
+	}
+
+	public function set_dropdown_from_table($table_details = array()) {
+
+		/*
+		 $table_details has 3 aurguments: table name key 0; field holding key of key=1;
+		 fields with option text key =2 ; select field_name which key=3*/
+		 
+         $table_name=$table_details[0];
+		 $option_field_key=$table_details[1];
+		 $option_field_text=$table_details[2];
+		 $select_field_name=$table_details[3];
+		 
+		$options_from_table = $this -> CI->db -> get($table_name) -> result_object();
+
+		$options_array = array();
+
+		foreach ($options_from_table as $option) {
+			$options_array[$option->$option_field_key] = array('option' => $option->$option_field_text);
+		}
+
+		
+		$dropdown_element_type = array($select_field_name, $options_array);
+
+		$this -> dropdown_element_type[] = $dropdown_element_type;
+
+	}
+
 	public function get_dropdown_element_type() {
 		return $this -> dropdown_element_type;
 	}
@@ -1234,7 +1275,7 @@ class Utility_forms {
 
 		$fields_options = $this -> dropdown_element_type;
 		//array_column($this -> dropdown_element_type, '1');
-		$this -> set_internal_debug($this -> dropdown_element_type);
+		
 		$cnt = 0;
 		/**
 		 * $elem = {"Progress_Measure_title":"De","verification_tool":"De",
@@ -1280,8 +1321,19 @@ class Utility_forms {
 
 		foreach ($elem as $key => $value) {
 			if ($this -> view_or_edit_mode == 'view') {
-
-				$fields[] = array('element' => 'div', 'label' => $result_combine[$key], 'properties' => array('innerHTML' => ucfirst($value), 'class' => '', 'id' => '', 'style' => 'margin-top:8px;', $this -> view_or_edit_mode == 'view' ? '' : 'value' => $value));
+                 if(is_array($this->replace_field_value)&& array_key_exists($key, $this->replace_field_value))
+                 {
+                 	$human_readable_val=$this->replace_field_value[$key][$value];
+                 	
+                 	$fields[] = array('element' => 'div', 'label' => $result_combine[$key], 
+                 	'properties' => array('innerHTML' => ucfirst($human_readable_val), 'class' => '', 'id' => '', 
+                 	'style' => 'margin-top:8px;', $this -> view_or_edit_mode == 'view' ? '' : 'value' => $human_readable_val));
+                 }else{
+                 	
+                 	$fields[] = array('element' => 'div', 'label' => $result_combine[$key], 
+                 	'properties' => array('innerHTML' => ucfirst($value), 'class' => '', 'id' => '', 
+                 	'style' => 'margin-top:8px;', $this -> view_or_edit_mode == 'view' ? '' : 'value' => $value));
+                 }
 
 			} else {
 
@@ -1506,7 +1558,9 @@ class Utility_forms {
 		 * the value of the removed element
 		 */
 		array_shift($header_elem);
-
+		
+        // print_r($list_array);
+         
 		foreach ($header_elem as $key => $value) {
 
 			$output .= "<th>" . get_phrase($key) . " <i style='cursor:pointer;' title='" . get_tooltip($key) . "' class='fa fa-question-circle'></i></th>";
@@ -1567,11 +1621,11 @@ class Utility_forms {
 											</div>
 								
 										</td>";
-			//print_r($this->replace_field_value);
+			
+			
 			foreach ($row as $key => $td_value) {
-				if (is_array($this -> replace_field_value) && in_array($key, $this -> replace_field_value)) {
-					$output .= "<td>" . $this -> replace_field_value[1][$td_value] . "</td>";
-					;
+				if (is_array($this -> replace_field_value) && array_key_exists($key, $this -> replace_field_value)) {
+					$output .= "<td>" . $this -> replace_field_value[$key][$td_value] . "</td>"; ;
 				} else {
 					$output .= "<td>" . $td_value . "</td>";
 				}
