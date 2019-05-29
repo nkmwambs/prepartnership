@@ -618,6 +618,10 @@ class Utility_forms {
 		
 		//$this->set_internal_debug($this->fields);
 		
+		if(empty($this->fields)){
+			$this->fields = $this->get_fields_from_table();	
+		}
+		
 		$output_string = "";
 
 		$output_string = "<div class='row'><div class='col-xs-12'><ul class='nav nav-pills'>
@@ -968,10 +972,14 @@ class Utility_forms {
 	}
 
 	function set_selected_fields($selected_list_fields, $fields_not_selected) {
-
-		//$this->selected_list_fields = array("lead_bio_fields_id");
-		$this -> selected_list_fields = array($fields_not_selected);
-		$this -> selected_list_fields = array_merge($this -> selected_list_fields, $selected_list_fields);
+		if(empty($selected_list_fields)){
+			$this -> selected_list_fields = $this->get_fields_from_table();
+		}else{
+			$this -> selected_list_fields = array($fields_not_selected);
+			$this -> selected_list_fields = array_merge($this -> selected_list_fields, $selected_list_fields);
+			
+		}
+	
 	}
 
 	private function get_selected_fields() {
@@ -1130,6 +1138,11 @@ class Utility_forms {
 
 	private function db_results($use_fields_as_human_readable = true) {
 		$this -> get_selected_fields();
+		
+		if(empty($this -> get_selected_fields())){
+			$this->selected_list_fields = $this->get_fields_from_table();	
+		}		
+		
 		$this -> get_db_table();
 		$this -> get_data_limit();
 		$this -> get_where_clause();
@@ -1348,7 +1361,7 @@ class Utility_forms {
 				$output .= "
 					<li>
 						<a href='" . base_url() . "index.php/" . $row['href'] . "'>
-							<i class='fa fa-pencil'></i>
+							<i class='fa fa-".$row['icon']."'></i>
 								" . $row['label'] . "
 						</a>
 					</li>
@@ -1379,7 +1392,65 @@ class Utility_forms {
 	private function get_view_or_edit_mode() {
 		return $this -> view_or_edit_mode;
 	}
-
+	
+	private function make_human_readables($element){
+				
+		return ucwords(str_replace("_"," ", $element));
+	}
+	
+	private $hidden_fields = array();
+	
+	function set_hidden_fields($hidden_fields){
+		$this->hidden_fields = $hidden_fields;
+	}
+	
+	private function get_hidden_fields(){
+		return $this->hidden_fields;
+	}
+	
+	private function hide_fields($hidden_fields){
+		
+		$all_fields = array_column($this->CI->db->field_data($this->db_table),'name');
+		
+		return array_diff($all_fields, $hidden_fields);
+	}
+	
+	private function get_fields_from_table(){
+		
+		$this->get_hidden_fields();
+		
+		$table_fields = $this->hide_fields($this->hidden_fields);
+			
+		$human_readable_labels = array_map(array($this,"make_human_readables"), $table_fields);
+			
+		return array_combine($human_readable_labels,$table_fields);
+		
+	}
+	
+	private $hide_delete_button = false; 
+	
+	function set_hide_delete_button($hide_delete_button){
+		$this->hide_delete_button = $hide_delete_button;
+	}
+	
+	private function get_hide_delete_button(){
+		return $this->hide_delete_button;
+	}
+	
+	private function _get_primary_key_field(){
+		
+		$field_data = $this->CI->db->field_data($this->db_table);
+				
+		$field_name = array_column($field_data, 'name');
+		$field_primary_key = array_column($field_data, 'primary_key');
+				
+		$combined = array_combine($field_name, $field_primary_key);
+		
+		$primary_key_field = array_search(1, $combined);
+				
+		return $primary_key_field;
+	}
+	
 	function render_item_list() {
 		$add = "#";
 		$view = "#";
@@ -1425,6 +1496,10 @@ class Utility_forms {
 							<table class='table datatable'>
 								<thead><tr><th>Action</th>";
 		$header_elem = $this -> get_selected_fields();
+		
+		if(empty($this -> get_selected_fields())){
+			$header_elem = $this->get_fields_from_table();	
+		}
 		/**
 		 * Remove the first element (red) from an array, and return
 		 * the value of the removed element
@@ -1434,12 +1509,18 @@ class Utility_forms {
 		foreach ($header_elem as $key => $value) {
 
 			$output .= "<th>" . get_phrase($key) . " <i style='cursor:pointer;' title='" . get_tooltip($key) . "' class='fa fa-question-circle'></i></th>";
+		
 		}
 		$output .= "</tr></thead>
 								<tbody>";
 		foreach ($list_array as $row) {
-			$primary_key = array_shift($row);
 			//print_r($row);
+			$primary_key_field = $this->_get_primary_key_field();
+			
+			$primary_key = $row[$primary_key_field];
+			
+			array_shift($row);
+			
 			$output .= "<tr>";
 			$output .= "<td>
 										

@@ -35,14 +35,14 @@
             </a>
             <ul>
             	<li class="<?=get_access('active_leads','leads');?>">
-            		<a href="<?php echo base_url();?>leads/leads/active">
+            		<a href="<?php echo base_url();?>leads/leads_information/view_leads_bio_information/active">
             			<i class='entypo-sound'></i>
             			<span> <?=get_phrase('active_leads');?></span>
             		</a>
             	</li>
             	
             	<li class="<?=get_access('closed_leads','leads');?>">
-            		<a href="<?php echo base_url();?>leads/leads/closed">
+            		<a href="<?php echo base_url();?>leads/leads_information/view_leads_bio_information/closed">
             			<i class='entypo-mute'></i>
             			<span> <?=get_phrase('closed_leads');?></span>
             		</a>
@@ -77,7 +77,7 @@
                     </a>
                     <ul>
                     	<li class="<?php echo get_access('lead_bio_settings','settings');?> <?php if ($page_name == 'assessment_settings') echo 'active'; ?>">
-                    		<a href="<?=base_url();?>settings/assessment_settings/list_lead_bio">
+                    		<a href="<?=base_url();?>settings/assessment_settings/view_lead_bio_fields">
                     			<span>
                     				<i class="fa fa-globe"></i>
                     					<?=get_phrase('lead_bio_fields');?>
