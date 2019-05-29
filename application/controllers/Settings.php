@@ -160,6 +160,14 @@ class Settings extends CI_Controller {
 		$build_list -> set_db_table("lead_bio_fields");
 
 		$build_list -> set_add_form();
+		
+		$extra_action[] = array(
+				'href'=> 'settings/suspend_activate',
+				'label'=>'Suspend/Activate',
+				'icon' => 'times'
+		);
+		
+		$build_list->set_extra_list_action($extra_action);
 
 		return $build_list -> render_item_list();
 

@@ -1361,7 +1361,7 @@ class Utility_forms {
 				$output .= "
 					<li>
 						<a href='" . base_url() . "index.php/" . $row['href'] . "'>
-							<i class='fa fa-pencil'></i>
+							<i class='fa fa-".$row['icon']."'></i>
 								" . $row['label'] . "
 						</a>
 					</li>
@@ -1426,7 +1426,17 @@ class Utility_forms {
 		return array_combine($human_readable_labels,$table_fields);
 		
 	}
-
+	
+	private $hide_delete_button = false; 
+	
+	function set_hide_delete_button($hide_delete_button){
+		$this->hide_delete_button = $hide_delete_button;
+	}
+	
+	private function get_hide_delete_button(){
+		return $this->hide_delete_button;
+	}
+	
 	function render_item_list() {
 		$add = "#";
 		$view = "#";

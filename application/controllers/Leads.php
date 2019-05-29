@@ -64,7 +64,8 @@ class Leads extends CI_Controller {
 		
 				$extra_action[] = array(
 				'href'=> 'leads/assess_lead',
-				'label'=>'Assess Lead'
+				'label'=>'Assess Lead',
+				'icon' => 'book'
 		);
 		
 		$build_list->set_extra_list_action($extra_action);
