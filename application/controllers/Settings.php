@@ -502,7 +502,7 @@ class Settings extends CI_Controller {
 	public function edit_lead_bio_fields($table_name, $record_id) {
 		$build_form = $this -> load_library();
 
-		$selected_columns = array("Field Name" => "lead_bio_fields.lead_bio_fields_name", 'Data Type' => "lead_bio_fields.datatype_id", "Is Field Unique?" => "lead_bio_fields.is_field_unique", "Is Field Null?" => "lead_bio_fields.is_field_null", 'Default Value' => 'lead_bio_fields.default_value');
+		$selected_columns = array("Is Field Unique?" => "lead_bio_fields.is_field_unique", "Is Field Null?" => "lead_bio_fields.is_field_null", 'Default Value' => 'lead_bio_fields.default_value');
 
 		$build_form -> set_selected_fields($selected_columns, 'lead_bio_fields_id');
 
