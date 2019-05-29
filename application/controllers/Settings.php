@@ -139,7 +139,9 @@ class Settings extends CI_Controller {
 		'Default Value' => 'default_value','Show Field'=>'show_field');
 
 		$build_list -> set_selected_fields($selected_columns, 'lead_bio_fields_id');
-
+		
+        $build_list->set_hide_delete_button(true);
+		
 		$build_list -> set_panel_title("Lead Bio Fields");
 
 		$action = array('add' => array('href' => 'settings/add_lead_bio_fields'), 'view' => array('href' => 'settings/view_single_lead_bio'), 'edit' => array('href' => 'settings/edit_lead_bio_fields'), 'delete' => array('href' => 'settings/delete_lead_bio_fields'));

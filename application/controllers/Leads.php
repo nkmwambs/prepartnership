@@ -84,11 +84,13 @@ class Leads extends CI_Controller {
 		
 		$lead_bio_fields = array_column($leads_bio_information_fields,'name');
 		
+		$fields=array();
+		
 		foreach($lead_bio_fields as $lead_bio_field){
 			$fields[] = array('label' => $lead_bio_field, 'element' => 'input', 'properties' => array('id' => '', 'class' => '', 'name' => 'lead_name'));	
 		}
 		
-		$build_form->set_extra_list_action($extra_action);
+		//$build_form->set_extra_list_action($extra_action);
 			
 		$build_form -> set_view_or_edit_mode('add');
 		$build_form -> set_panel_title('Add Lead Bio Information');
