@@ -68,6 +68,8 @@ class Settings extends CI_Controller {
 		$build_list -> set_db_table("compassion_connect_mapping");
 
 		$build_list -> set_add_form();
+		
+		$build_list->set_hide_delete_button(true);
 
 		$extra_action[] = array(
 		                   'href' => 'settings/delete_suspend_activate/suspend/compassion_connect_mapping/compassion_connect_mapping_id', 
@@ -102,6 +104,8 @@ class Settings extends CI_Controller {
 		$build_list -> set_use_datatable(false);
 
 		$build_list -> set_db_table("assessment_progress_measure");
+		
+		$build_list->set_hide_delete_button(true);
 
 		$build_list -> set_add_form();
 
@@ -130,6 +134,8 @@ class Settings extends CI_Controller {
 		$build_list -> set_list_action($action);
 
 		$build_list -> set_use_datatable(false);
+		
+		$build_list->set_hide_delete_button(true);
 
 		$build_list -> set_db_table("assessment_milestones");
 
