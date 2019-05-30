@@ -88,7 +88,7 @@ $autoload['drivers'] = array();
 |	$autoload['helper'] = array('url', 'file');
 */
 
-$autoload['helper'] = array('access_profiling','url','file','form','security','string','inflector','directory','download','multi_language','download','thumbnail','ziparchive','files');
+$autoload['helper'] = array('access_profiling','url','file','form','security','string','inflector','directory','download','multi_language','download','thumbnail','ziparchive','files','assessment');
 
 
 /*

@@ -243,15 +243,7 @@ class Settings extends CI_Controller {
 		$build_form->set_hidden_fields(array('assessment_milestones_id'));
 		$build_form->set_dropdown_from_table(array('assessment_milestones','assessment_milestones_id','milestone_name','insert_after'));
 		
-		$ranges_of_days = range(1, 10);
-
-		$days_count_option = array();
-
-		foreach ($ranges_of_days as $day_count) {
-			$days_count_option[$day_count]['option'] = $day_count;
-		}
-		
-		$build_form->set_dropdown_element_type(array('assessment_period_in_days',$days_count_option));
+		$build_form->set_dropdown_element_type(array('assessment_period_in_days',dropdown_range_option(1,10)));
 				
 		$build_form -> set_view_or_edit_mode('add');
 		$build_form -> set_panel_title('Add Milestone');
