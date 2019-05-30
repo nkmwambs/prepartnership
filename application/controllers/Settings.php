@@ -640,7 +640,7 @@ class Settings extends CI_Controller {
 	}
 
 	private function view_record_by_id($build_form, $table_name, $record_id) {
-		$build_form -> set_debug_mode(2);
+		//$build_form -> set_debug_mode(2);
 		$build_form -> set_where_clause(array($table_name . "_id" => $record_id));
 
 		$build_form -> set_db_table($table_name);
