@@ -86,6 +86,7 @@ class Crud_model extends CI_Model {
 
 		
 		foreach ($connect_mappings as $connect_value) {
+			
 			$str_lead_score_stage='Lead Score Criteria -' . ' ' . $connect_value -> lead_score_stage . ' : ';
 			
 			$str_lead_score_stage=$connect_value->compassion_connect_mapping_id==1?'':$str_lead_score_stage;

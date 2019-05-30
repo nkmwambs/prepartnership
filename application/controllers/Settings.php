@@ -122,6 +122,8 @@ class Settings extends CI_Controller {
 		$build_list = $this -> load_library();
 
 		$build_list -> set_use_datatable(false);
+		
+		$build_list->set_hidden_fields(array('assessment_review_status'));
 
 		// $selected_columns = array("Milestone Name" => "milestone_name", "Insert Milestone After" => "insert_after", 'When' => "assessment_period_in_days", "Review Status" => "assessment_review_status", "User Customized Review Status" => "user_customized_review_status");
 		//
@@ -248,7 +250,7 @@ class Settings extends CI_Controller {
 
 		$fields[] = array('label' => 'Period Needed to Complete(in months)', 'element' => 'select', 'properties' => array('id' => '', 'class' => '', 'name' => 'assessment_period_in_days'), 'options' => array('1' => array('option' => '1'), '2' => array('option' => '2'), '3' => array('option' => '3'), '4' => array('option' => '4'), '5' => array('option' => '5'), '6' => array('option' => '6'), '7' => array('option' => '7'), '8' => array('option' => '8'), '9' => array('option' => '9'), '10' => array('option' => '10'), '11' => array('option' => '11'), '12' => array('option' => '12')));
 
-		$fields[] = array('label' => 'Assessment Review Status', 'element' => 'input', 'properties' => array('id' => '', 'class' => '', 'name' => 'assessment_review_status'), );
+		//$fields[] = array('label' => 'Assessment Review Status', 'element' => 'input', 'properties' => array('id' => '', 'class' => '', 'name' => 'assessment_review_status'), );
 
 		$fields[] = array('label' => 'User Customized Review Status', 'element' => 'input', 'properties' => array('id' => '', 'class' => '', 'name' => 'user_customized_review_status'), );
 		$build_form -> set_view_or_edit_mode('add');
@@ -567,7 +569,7 @@ class Settings extends CI_Controller {
 	public function edit_assessment_milestone($table_name, $record_id) {
 		$build_form = $this -> load_library();
 
-		$selected_columns = array("Milestone Name" => "milestone_name", 'Insert After' => 'insert_after', 'When' => "assessment_period_in_days", "Review Status" => "assessment_review_status", "User Customized Review Status" => "user_customized_review_status");
+		$selected_columns = array("Milestone Name" => "milestone_name", 'Insert After' => 'insert_after', 'When' => "assessment_period_in_days", "User Customized Review Status" => "user_customized_review_status");
 
 		$milestones = $this -> db -> select(array('assessment_milestones_id', 'milestone_name')) -> get('assessment_milestones') -> result_object();
 		$option = array('0' => array('option' => 'Initial Assessment'));
