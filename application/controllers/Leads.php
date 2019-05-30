@@ -45,6 +45,8 @@ class Leads extends CI_Controller {
 		$build_list = $this -> load_library();
 
 		$build_list -> set_panel_title("Lead Bio Information");
+		
+		$build_list->set_hidden_fields(array('assessment_id'));
 
 		$action = array('add' => array('href' => 'leads/add_lead_bio_information'), 'view' => array('href' => 'leads/view_lead_bio_information'), 'edit' => array('href' => 'leads/edit_lead_bio_information'), 'delete' => array('href' => 'leads/delete_lead_bio_information'));
 
@@ -78,18 +80,22 @@ class Leads extends CI_Controller {
 
 		$build_form = $this -> load_library();
 		
-		$leads_bio_information_fields = $this->db->field_data('leads_bio_information');
+		$build_form->set_db_table('leads_bio_information');
 		
-		array_shift($leads_bio_information_fields);
-		
-		$lead_bio_fields = array_column($leads_bio_information_fields,'name');
-		
-		$fields=array();
-		
-		foreach($lead_bio_fields as $lead_bio_field){
-			$fields[] = array('label' => $lead_bio_field, 'element' => 'input', 'properties' => array('id' => '', 'class' => '', 'name' => 'lead_name'));	
-		}
-		
+		// $leads_bio_information_fields = $this->db->field_data('leads_bio_information');
+// 		
+		// array_shift($leads_bio_information_fields);
+// 		
+// 		
+		// $lead_bio_fields = array_column($leads_bio_information_fields,'name');
+// 		
+		// $fields=array();
+// 		
+		// foreach($lead_bio_fields as $lead_bio_field){
+			// $fields[] = array('label' => $lead_bio_field, 'element' => 'input', 'properties' => array('id' => '', 'class' => '', 'name' => 'lead_name'));	
+		// }
+
+		$build_form->set_hidden_fields(array('assessment_id'));
 		//$build_form->set_extra_list_action($extra_action);
 			
 		$build_form -> set_view_or_edit_mode('add');
@@ -97,16 +103,19 @@ class Leads extends CI_Controller {
 		$build_form -> set_form_id('frm_add_lead_bio_information');
 		$build_form -> set_form_action(base_url() . 'leads/create_new_lead/');
 		
-		$this -> load_view($build_form,$fields ,'single_form');
+		$this -> load_view($build_form,'single_form');
 	}
 
 	function create_new_lead(){
 		
 	}
 	
-	private function load_view($build_form,$fields ,$form_type = 'multi_form') {
+	private function load_view($build_form,$form_type = 'multi_form',$fields=array()) {
 		
-		$build_form -> set_form_fields($fields);
+		if(empty($fields)){
+		   $build_form -> set_form_fields($fields);
+		}
+		
 
 		$page_data['output'] = $build_form -> render_form($form_type);
 		$page_data['page_name'] = 'leads_information';

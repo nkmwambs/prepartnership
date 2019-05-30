@@ -239,25 +239,17 @@ class Settings extends CI_Controller {
 
 		$build_form = $this -> load_library();
 
-		$fields[] = array('label' => 'Assessment Milestone Name:', 'element' => 'input', 'properties' => array('id' => '', 'class' => '', 'name' => 'milestone_name'));
-		$milestones = $this -> db -> select(array('assessment_milestones_id', 'milestone_name')) -> get('assessment_milestones') -> result_object();
-		$option = array('0' => array('option' => 'Initial Assessment'));
-		foreach ($milestones as $milestone) {
-			$option[$milestone -> assessment_milestones_id] = array('option' => $milestone -> milestone_name);
-
-		}
-		$fields[] = array('label' => 'Insert Milestone After', 'element' => 'select', 'properties' => array('id' => '', 'class' => '', 'name' => 'insert_after'), 'options' => $option);
-
-		$fields[] = array('label' => 'Period Needed to Complete(in months)', 'element' => 'select', 'properties' => array('id' => '', 'class' => '', 'name' => 'assessment_period_in_days'), 'options' => array('1' => array('option' => '1'), '2' => array('option' => '2'), '3' => array('option' => '3'), '4' => array('option' => '4'), '5' => array('option' => '5'), '6' => array('option' => '6'), '7' => array('option' => '7'), '8' => array('option' => '8'), '9' => array('option' => '9'), '10' => array('option' => '10'), '11' => array('option' => '11'), '12' => array('option' => '12')));
-
-		//$fields[] = array('label' => 'Assessment Review Status', 'element' => 'input', 'properties' => array('id' => '', 'class' => '', 'name' => 'assessment_review_status'), );
-
-		$fields[] = array('label' => 'User Customized Review Status', 'element' => 'input', 'properties' => array('id' => '', 'class' => '', 'name' => 'user_customized_review_status'), );
+		$build_form->set_db_table('assessment_milestones');
+		//$build_form->set_dropdown_element_type(array('insert_after',array('1'=>array('option'=>'Test'))));
+		$build_form->set_hidden_fields(array('assessment_milestones_id'));
+		$build_form->set_dropdown_from_table('assessment_milestones','assessment_milestones_id','milestone_name','insert_after');
+				
 		$build_form -> set_view_or_edit_mode('add');
 		$build_form -> set_panel_title('Add Milestone');
 		$build_form -> set_form_id('frm_add_milestone');
 		$build_form -> set_form_action(base_url() . 'settings/create_assessment_milestone/assessment_milestones');
-
+        
+        $fields=array();
 		$this -> load_view($build_form, $fields, 'single_form');
 	}
 

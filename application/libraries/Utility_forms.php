@@ -613,13 +613,45 @@ class Utility_forms {
 
 		return $output_string;
 	}
-
+	
+    private function add_fields_in_add_form(){
+    	
+    	// $fields[] = array('label' => 'Progress Measure Title', 'element' => 'input', 'properties' => array('id' => '', 'class' => '', 'name' => 'Progress_measure_title[]'));
+// 
+		// $fields[] = array('label' => 'Verification Tools', 'element' => 'input', 'properties' => array('id' => '', 'class' => '', 'name' => 'verification_tool[]'));
+// 
+		// $fields[] = array('label' => 'Method of assessment', 'element' => 'input', 'properties' => array('id' => '', 'class' => '', 'name' => 'assessment_method[]'));
+        
+		$all_table_fields=$this->get_fields_from_table();
+		
+		$fields=array();
+		
+		$this->get_dropdown_element_type();
+		
+		foreach ($all_table_fields as $value) {
+			if($this->dropdown_element_type[0][0]==$value)
+			{
+				$options=$this->dropdown_element_type[0][1];
+				
+				$fields[] = array('label' => $value, 'element' => 'select', 'properties' => array('id' => '', 'class' => '', 'name' => $value),'options'=>$options);
+			}else{
+				$fields[] = array('label' => $value, 'element' => 'input', 'properties' => array('id' => '', 'class' => '', 'name' => $value));
+			}
+			
+			//$fields[] = array('label' => $value, 'element' => 'input', 'properties' => array('id' => '', 'class' => '', 'name' => $value));
+		}
+		
+		return $fields;
+}
 	private function create_single_column_form() {
 
 		//$this->set_internal_debug($this->fields);
 
 		if (empty($this -> fields)) {
 			$this -> fields = $this -> get_fields_from_table();
+		}
+		if($this->view_or_edit_mode=='add'){
+			$this -> fields=$this->add_fields_in_add_form();
 		}
 
 		$output_string = "";
@@ -1240,7 +1272,8 @@ class Utility_forms {
 	public function get_dropdown_element_type() {
 		return $this -> dropdown_element_type;
 	}
-
+    
+	
 	private function build_single_form_fields() {
 
 		$this -> get_view_or_edit_mode();
@@ -1335,7 +1368,12 @@ class Utility_forms {
                  	'style' => 'margin-top:8px;', $this -> view_or_edit_mode == 'view' ? '' : 'value' => $value));
                  }
 
-			} else {
+			}elseif($this -> view_or_edit_mode == 'add'){
+				$fields[] = array('element' => 'div', 'label' => $result_combine[$key], 
+                 	'properties' => array('innerHTML' => ucfirst($value.'OOOOOOOOOOOOO'), 'class' => '', 'id' => '', 
+                 	'style' => 'margin-top:8px;'));
+			} 
+			else {
 
 				$x = "";
 
@@ -1717,7 +1755,9 @@ class Utility_forms {
 			$this -> form_output_string .= $this -> create_single_column_form();
 		elseif ($form_type == 'single_view_form')
 			$this -> form_output_string .= $this -> build_single_form_fields();
-
+		
+			
+			
 		$this -> form_output_string .= $this -> form_close_tag();
 		$this -> form_output_string .= $this -> close_panel();
 
