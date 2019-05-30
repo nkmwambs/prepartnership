@@ -614,7 +614,7 @@ class Utility_forms {
 		return $output_string;
 	}
 	
-	private function _get_dropdwon_element_options_as_field_options(){
+	private function _get_dropdown_element_options_as_field_options(){
 		$this->get_dropdown_element_type();
 		
 		$option_arr = array();
@@ -632,7 +632,7 @@ class Utility_forms {
 		
 		$fields=array();
 		
-		$dropdown = $this->_get_dropdwon_element_options_as_field_options();
+		$dropdown = $this->_get_dropdown_element_options_as_field_options();
 		
 		$cnt =0;
 		foreach ($all_table_fields as $value) {
@@ -646,7 +646,7 @@ class Utility_forms {
 			}
 			$cnt++;
 		}
-		$this->set_internal_debug($this->dropdown_element_type);
+		//$this->set_internal_debug($this->dropdown_element_type);
 		return $fields;
 }
 	private function create_single_column_form() {

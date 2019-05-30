@@ -81,22 +81,9 @@ class Leads extends CI_Controller {
 		$build_form = $this -> load_library();
 		
 		$build_form->set_db_table('leads_bio_information');
-		
-		// $leads_bio_information_fields = $this->db->field_data('leads_bio_information');
-// 		
-		// array_shift($leads_bio_information_fields);
-// 		
-// 		
-		// $lead_bio_fields = array_column($leads_bio_information_fields,'name');
-// 		
-		// $fields=array();
-// 		
-		// foreach($lead_bio_fields as $lead_bio_field){
-			// $fields[] = array('label' => $lead_bio_field, 'element' => 'input', 'properties' => array('id' => '', 'class' => '', 'name' => 'lead_name'));	
-		// }
 
 		$build_form->set_hidden_fields(array('assessment_id'));
-		//$build_form->set_extra_list_action($extra_action);
+
 			
 		$build_form -> set_view_or_edit_mode('add');
 		$build_form -> set_panel_title('Add Lead Bio Information');

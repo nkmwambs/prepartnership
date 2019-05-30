@@ -240,7 +240,7 @@ class Settings extends CI_Controller {
 		$build_form = $this -> load_library();
 
 		$build_form->set_db_table('assessment_milestones');
-		$build_form->set_hidden_fields(array('assessment_milestones_id'));
+		$build_form->set_hidden_fields(array('assessment_milestones_id','assessment_review_status'));
 		$build_form->set_dropdown_from_table(array('assessment_milestones','assessment_milestones_id','milestone_name','insert_after'));
 		
 		$build_form->set_dropdown_element_type(array('assessment_period_in_days',dropdown_range_option(1,10)));
@@ -509,14 +509,8 @@ class Settings extends CI_Controller {
 
 		$build_form -> set_panel_title('Edit Progress Measure');
 
-		$weight_ranges = range(1, 10);
-
-		$weight = array();
-
-		foreach ($weight_ranges as $weight_range) {
-			$weight[$weight_range]['option'] = $weight_range;
-		}
-
+		$weight = dropdown_range_option(1,10);
+		
 		$build_form -> set_dropdown_element_type(array('weight', $weight));
 
 		$build_form -> set_dropdown_from_table(array('compassion_connect_mapping', 'compassion_connect_mapping_id', 'lead_score_parameter', 'compassion_connect_mapping'));
@@ -574,13 +568,7 @@ class Settings extends CI_Controller {
 		}
 		$build_form -> set_dropdown_element_type(array('insert_after', $option));
 
-		$months = range(1, 12);
-
-		$months_options = array();
-
-		foreach ($months as $month) {
-			$months_options[$month] = array('option' => $month);
-		}
+		$months_options = dropdown_range_option(1,12);
 
 		$build_form -> set_dropdown_element_type(array('assessment_period_in_days', $months_options));
 
