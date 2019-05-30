@@ -78,15 +78,20 @@ class Crud_model extends CI_Model {
 
 	function get_connect_mappings() {
 		//Get the coonect mapping from the table 'compassion_connect_mapping'
-		$connect_mappings = $this -> db -> select('lead_score_parameter,lead_score_stage') -> get('compassion_connect_mapping') -> result_object();
+		$connect_mappings = $this -> db -> select(array('compassion_connect_mapping_id','lead_score_parameter','lead_score_stage')) -> get('compassion_connect_mapping') -> result_object();
 
 		//Build the array to be used in the controller 'Settings' in the method add_assemessment
-		$count = 1;
-		$build_dropdown_array[] = array('option' => 'No Connect Match');
+		//$count = 1;
+		//$build_dropdown_array[] = array('option' => 'No Connect Match');
 
+		
 		foreach ($connect_mappings as $connect_value) {
-			$build_dropdown_array[$count]['option'] = 'Lead Score Criteria -' . ' ' . $connect_value -> lead_score_stage . ' : ' . $connect_value -> lead_score_parameter;
-			$count++;
+			$str_lead_score_stage='Lead Score Criteria -' . ' ' . $connect_value -> lead_score_stage . ' : ';
+			
+			$str_lead_score_stage=$connect_value->compassion_connect_mapping_id==1?'':$str_lead_score_stage;
+			
+			$build_dropdown_array[$connect_value->compassion_connect_mapping_id]['option'] = $str_lead_score_stage . $connect_value -> lead_score_parameter;
+			//$count++;
 		}
 
 		return $build_dropdown_array;
