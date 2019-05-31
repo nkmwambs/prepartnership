@@ -766,5 +766,6 @@ class Crud_model extends CI_Model {
 		return array_combine($array_of_keys, $array_of_text);
 
 	}
+	
 
 }

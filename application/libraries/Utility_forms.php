@@ -614,33 +614,39 @@ class Utility_forms {
 		return $output_string;
 	}
 	
+	private function _get_dropdown_element_options_as_field_options(){
+		$this->get_dropdown_element_type();
+		
+		$option_arr = array();
+		
+		foreach($this->dropdown_element_type as $dropdown_element){
+			$option_arr[$dropdown_element[0]] = $dropdown_element[1];
+		}
+		
+		return $option_arr;
+	}
+	
     private function add_fields_in_add_form(){
     	
-    	// $fields[] = array('label' => 'Progress Measure Title', 'element' => 'input', 'properties' => array('id' => '', 'class' => '', 'name' => 'Progress_measure_title[]'));
-// 
-		// $fields[] = array('label' => 'Verification Tools', 'element' => 'input', 'properties' => array('id' => '', 'class' => '', 'name' => 'verification_tool[]'));
-// 
-		// $fields[] = array('label' => 'Method of assessment', 'element' => 'input', 'properties' => array('id' => '', 'class' => '', 'name' => 'assessment_method[]'));
-        
 		$all_table_fields=$this->get_fields_from_table();
 		
 		$fields=array();
 		
-		$this->get_dropdown_element_type();
+		$dropdown = $this->_get_dropdown_element_options_as_field_options();
 		
+		$cnt =0;
 		foreach ($all_table_fields as $value) {
-			if($this->dropdown_element_type[0][0]==$value)
+			if(array_key_exists($value,$dropdown))
 			{
-				$options=$this->dropdown_element_type[0][1];
+				$options=$dropdown[$value];
 				
 				$fields[] = array('label' => $value, 'element' => 'select', 'properties' => array('id' => '', 'class' => '', 'name' => $value),'options'=>$options);
 			}else{
 				$fields[] = array('label' => $value, 'element' => 'input', 'properties' => array('id' => '', 'class' => '', 'name' => $value));
 			}
-			
-			//$fields[] = array('label' => $value, 'element' => 'input', 'properties' => array('id' => '', 'class' => '', 'name' => $value));
+			$cnt++;
 		}
-		
+		//$this->set_internal_debug($this->dropdown_element_type);
 		return $fields;
 }
 	private function create_single_column_form() {
