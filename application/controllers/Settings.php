@@ -120,8 +120,6 @@ class Settings extends CI_Controller {
 	private function view_assessment_milestones() {
 
 		$build_list = $this -> load_library();
-
-		$build_list -> set_use_datatable(false);
 		
 		$build_list->set_hidden_fields(array('assessment_review_status'));
 
