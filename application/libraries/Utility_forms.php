@@ -1261,7 +1261,6 @@ class Utility_forms {
 		foreach ($options_from_table as $option) {
 			$options_array[$option->$option_field_key] = array('option' => $option->$option_field_text);
 		}
-
 		
 		$dropdown_element_type = array($select_field_name, $options_array);
 
