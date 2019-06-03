@@ -58,22 +58,17 @@ class Settings extends CI_Controller {
 
 		$build_list -> set_table_join($join_array);
 
-		$action = array('add' => array('href' => 'settings/add_compassion_connect_progress_measure'), 
-		                'view' => array('href' => 'settings/view_single_connect_progress_measure'), 
-		                'edit' => array('href' => 'settings/edit_connect_progress_measure'), 
-		                'delete' => array('href' => 'settings/delete_suspend_activate/delete/compassion_connect_mapping/compassion_connect_mapping_id'));
+		$action = array('add' => array('href' => 'settings/add_compassion_connect_progress_measure'), 'view' => array('href' => 'settings/view_single_connect_progress_measure'), 'edit' => array('href' => 'settings/edit_connect_progress_measure'), 'delete' => array('href' => 'settings/delete_suspend_activate/delete/compassion_connect_mapping/compassion_connect_mapping_id'));
 
 		$build_list -> set_list_action($action);
 
 		$build_list -> set_db_table("compassion_connect_mapping");
 
 		$build_list -> set_add_form();
-		
-		$build_list->set_hide_delete_button(true);
 
-		$extra_action[] = array(
-		                   'href' => '#', 
-		                   'label' => 'Suspend/Activate', 'icon' => 'times');
+		$build_list -> set_hide_delete_button(true);
+
+		$extra_action[] = array('href' => '#', 'label' => 'Suspend/Activate', 'icon' => 'times');
 
 		$build_list -> set_extra_list_action($extra_action);
 
@@ -104,8 +99,8 @@ class Settings extends CI_Controller {
 		$build_list -> set_use_datatable(false);
 
 		$build_list -> set_db_table("assessment_progress_measure");
-		
-		$build_list->set_hide_delete_button(true);
+
+		$build_list -> set_hide_delete_button(true);
 
 		$build_list -> set_add_form();
 
@@ -120,8 +115,8 @@ class Settings extends CI_Controller {
 	private function view_assessment_milestones() {
 
 		$build_list = $this -> load_library();
-		
-		$build_list->set_hidden_fields(array('assessment_review_status'));
+
+		$build_list -> set_hidden_fields(array('assessment_review_status'));
 
 		// $selected_columns = array("Milestone Name" => "milestone_name", "Insert Milestone After" => "insert_after", 'When' => "assessment_period_in_days", "Review Status" => "assessment_review_status", "User Customized Review Status" => "user_customized_review_status");
 		//
@@ -134,8 +129,8 @@ class Settings extends CI_Controller {
 		$build_list -> set_list_action($action);
 
 		$build_list -> set_use_datatable(false);
-		
-		$build_list->set_hide_delete_button(true);
+
+		$build_list -> set_hide_delete_button(true);
 
 		$build_list -> set_db_table("assessment_milestones");
 
@@ -237,20 +232,20 @@ class Settings extends CI_Controller {
 
 		$build_form = $this -> load_library();
 
-		$build_form->set_db_table('assessment_milestones');
-		$build_form->set_hidden_fields(array('assessment_milestones_id','assessment_review_status'));
-		$build_form->set_dropdown_from_table(array('assessment_milestones','assessment_milestones_id','milestone_name','insert_after'));
-		
-		$build_form->set_dropdown_element_type(array('assessment_period_in_days',dropdown_range_option(1,10)));
-				
+		$build_form -> set_db_table('assessment_milestones');
+		$build_form -> set_hidden_fields(array('assessment_milestones_id', 'assessment_review_status'));
+		$build_form -> set_dropdown_from_table(array('assessment_milestones', 'assessment_milestones_id', 'milestone_name', 'insert_after'));
+
+		$build_form -> set_dropdown_element_type(array('assessment_period_in_days', dropdown_range_option(1, 10)));
+
 		$build_form -> set_view_or_edit_mode('add');
 		$build_form -> set_panel_title('Add Milestone');
 		$build_form -> set_form_id('frm_add_milestone');
 		$build_form -> set_form_action(base_url() . 'settings/create_assessment_milestone/assessment_milestones');
-        
-		$build_form->set_debug_mode(2);
-		
-        $fields=array();
+
+		$build_form -> set_debug_mode(2);
+
+		$fields = array();
 		$this -> load_view($build_form, $fields, 'single_form');
 	}
 
@@ -332,22 +327,72 @@ class Settings extends CI_Controller {
 	}
 
 	private function add_leads_bio_information_fields($columns) {
+
 		$this -> load -> dbforge();
 
-		// $datatypes = $this->db->get('datatype')->result_object();
-		//
-		// $datatype_key = array_column($datatypes, 'datatype_id');
-		// $datatype_name = array_column($datatypes, 'sql_datatype');
-		//
-		// $sql_datatypearray_combine($datatype_key, $datatype_name);
+		$table_name = 'leads_bio_information';
+		
+		$leads_bio_infomation_fields = $this -> db -> field_data($table_name);
+		
+		$varchar='VARCHAR';
+		$number='INT';
 
-		foreach ($columns as $column) {
+		foreach ($columns as $column) 
+		{
 
 			$table_column_name = strtolower(str_replace(" ", "_", $column['lead_bio_fields_name']));
-
-			$fields = array($table_column_name => array('type' => 'LONGTEXT'));
-			$this -> dbforge -> add_column('leads_bio_information', $fields);
+			
+			//Defence code added
+            if(!$this -> db -> field_exists($table_column_name, $table_name))
+			{
+				//Check if text, then use VARCHAR
+				if($column['datatype_id']==1)
+				{
+				  //$fields = array($table_column_name => array('type' =>$varchar ,'constraint'=>'30'));
+				
+			      $this -> dbforge -> add_column($table_name, 
+			                  array($table_column_name => array(
+			                  'type' =>$varchar ,
+			                  'constraint'=>'30',
+							  'NULL'=>TRUE)));	
+				}
+				//Check if number , then use INT
+                if($column['datatype_id']==2)
+				{
+					 $this -> dbforge -> add_column($table_name, 
+			                  array($table_column_name => array(
+			                  'type' =>$number ,
+			                  'constraint'=>'3',//We can include this to be passed dynamically from Leads_bio_fields
+							  'NULL'=>TRUE)));
+				}
+			}
+			
 		}
+
+		/*
+		 Added this to ensure that compulsory fields: 'lead_status' and 'assessment_id'
+		 are always part of leads_bio_information................................................*/
+
+		//$bio_field_names = array_column($leads_bio_infomation_fields, 'name');
+
+		 if (!$this -> db -> field_exists('lead_status', $table_name)) {
+
+			$this -> dbforge -> add_column($table_name,
+			                               array('lead_status' => array(
+			                               'type' => 'VARCHAR', 
+			                               'constraint' => '10', 
+			                               'NULL' => TRUE)));
+		}
+
+	    if (!$this -> db -> field_exists('assessment_id', $table_name)) {
+
+			  $this -> dbforge -> add_column($table_name,
+			                                 array('assessment_id' => array(
+			                                 'type' => 'INT', 
+			                                 'constraint' => '2', 
+			                                 'NULL' => TRUE)));
+		}
+		//..........................................................................................
 
 	}
 
@@ -507,8 +552,8 @@ class Settings extends CI_Controller {
 
 		$build_form -> set_panel_title('Edit Progress Measure');
 
-		$weight = dropdown_range_option(1,10);
-		
+		$weight = dropdown_range_option(1, 10);
+
 		$build_form -> set_dropdown_element_type(array('weight', $weight));
 
 		$build_form -> set_dropdown_from_table(array('compassion_connect_mapping', 'compassion_connect_mapping_id', 'lead_score_parameter', 'compassion_connect_mapping'));
@@ -566,7 +611,7 @@ class Settings extends CI_Controller {
 		}
 		$build_form -> set_dropdown_element_type(array('insert_after', $option));
 
-		$months_options = dropdown_range_option(1,12);
+		$months_options = dropdown_range_option(1, 12);
 
 		$build_form -> set_dropdown_element_type(array('assessment_period_in_days', $months_options));
 
@@ -1018,30 +1063,27 @@ class Settings extends CI_Controller {
 
 	}
 
-	public function delete_suspend_activate($action,$table, $primary_key_field, $primary_key, $status_field='') {
-		
-		if($action=='delete')
-		{
-			$this->db-where($primary_key_field,$primary_key);
-			
-			$this->db->delete($table);
-			
-			$back_trace=debug_backtrace();
-			$calling_method=$back_trace[1]['function'];
-			
-			$message='Record Deleted Successfully';
-			
-			if($this->db->affected_row()==0){
-				$message='Deletion Failed';
+	public function delete_suspend_activate($action, $table, $primary_key_field, $primary_key, $status_field = '') {
+
+		if ($action == 'delete') {
+			$this -> db - where($primary_key_field, $primary_key);
+
+			$this -> db -> delete($table);
+
+			$back_trace = debug_backtrace();
+			$calling_method = $back_trace[1]['function'];
+
+			$message = 'Record Deleted Successfully';
+
+			if ($this -> db -> affected_row() == 0) {
+				$message = 'Deletion Failed';
 			}
-				$this->session->set_flashdata('flash_message',$message);
-			
+			$this -> session -> set_flashdata('flash_message', $message);
+
 			//redirect(base_url(). __CLASS__.'/'.$calling_method, 'refresh');
+		} elseif ($action == 'suspend') {
+
 		}
-		elseif($action=='suspend'){
-			
-		}
-		
 
 	}
 

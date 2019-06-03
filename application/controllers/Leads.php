@@ -51,7 +51,14 @@ class Leads extends CI_Controller {
 		$action = array('add' => array('href' => 'leads/add_lead_bio_information'), 'view' => array('href' => 'leads/view_sigle_lead_bio_information'), 'edit' => array('href' => 'leads/edit_lead_bio_information'), 'delete' => array('href' => 'leads/delete_lead_bio_information'));
 
 		$build_list -> set_list_action($action);
-
+		
+		//check if the leads are active or in active
+		if($status=='closed'){
+			$build_list -> set_where_clause(array("lead_status" => 'Closed'));
+		}else{
+			$build_list -> set_where_clause(array("lead_status" => 'Active'));
+		}
+		
 		$build_list -> set_db_table("leads_bio_information");
 
 		$build_list -> set_add_form();
@@ -82,22 +89,25 @@ class Leads extends CI_Controller {
 
 		$build_form -> set_db_table('leads_bio_information');
 		
+		/*
 		$assessment_milestone_options = array();//Initial assessments
-
-		$assessment_milestones = $this -> db ->get("assessment_milestones") -> result_object();
-
-		foreach ($assessment_milestones as $assessment_milestone) {
-			$assessment_milestone_options[$assessment_milestone -> assessment_milestones_id] = array('option' => $assessment_milestone -> milestone_name);
-		}
 		
-		$build_form->set_dropdown_element_type(array('assessment_id',$assessment_milestone_options));
+				$assessment_milestones = $this -> db ->get("assessment_milestones") -> result_object();
+		
+				foreach ($assessment_milestones as $assessment_milestone) {
+					$assessment_milestone_options[$assessment_milestone -> assessment_milestones_id] = array('option' => $assessment_milestone -> milestone_name);
+				}
+				
+				$build_form->set_dropdown_element_type(array('assessment_id',$assessment_milestone_options));*/
+		
 		//$build_form->set_dropdown_from_table(array('leads_bio_information','leads_bio_information_id','assessment_id','assessment_id'));
+		
 
 		//Hide Id fields
-		$build_form -> set_hidden_fields(array('leads_bio_information_id','lead_status'));//, 'assessment_id'));
+		$build_form -> set_hidden_fields(array('leads_bio_information_id','lead_status', 'assessment_id'));
 
 		$build_form -> set_view_or_edit_mode('add');
-		$build_form -> set_panel_title('Add Lead Bio Information');
+		$build_form -> set_panel_title('Create New Lead');
 		$build_form -> set_form_id('frm_add_lead_bio_information');
 		$build_form -> set_form_action(base_url() . 'leads/create_new_lead/leads_bio_information');
 
