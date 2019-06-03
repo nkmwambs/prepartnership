@@ -766,6 +766,17 @@ class Crud_model extends CI_Model {
 		return array_combine($array_of_keys, $array_of_text);
 
 	}
-	
+
+	public function derive_dropdown_options_from_table($table_name,$key_fields,$option_text_field){
+		$types = $this -> db -> get($table_name) -> result_object();
+
+		$type_array = array();
+
+		foreach ($types as $type) {
+			$type_array[$type -> $key_fields]['option'] = ucfirst($type -> $option_text_field);
+		}
+		
+		return $type_array;
+	}	
 
 }

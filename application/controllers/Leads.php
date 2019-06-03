@@ -41,6 +41,8 @@ class Leads extends CI_Controller {
 	}
 
 	private function view_leads_bio_information($status) {
+		
+		$this->check_add_if_leads_information_default_fields_exists();
 
 		$build_list = $this -> load_library();
 
@@ -82,7 +84,48 @@ class Leads extends CI_Controller {
 
 		return $build_list -> render_item_list();
 	}
-
+	
+	private function check_add_if_leads_information_default_fields_exists(){
+			
+		$this -> load -> dbforge();
+		
+		$required_fields = array('lead_status'=>1,'assessment_id'=>2);
+		
+		$varchar='VARCHAR';
+		$number='INT';
+		
+		
+		//Defence code added
+		foreach($required_fields as $required_field=>$datatype){
+			   if(!$this -> db -> field_exists($required_field, 'leads_bio_information'))
+			{
+				//Check if text, then use VARCHAR
+				if($datatype==1)
+				{
+				  //$fields = array($table_column_name => array('type' =>$varchar ,'constraint'=>'30'));
+				
+			      $this -> dbforge -> add_column('leads_bio_information', 
+			                  array($required_field => array(
+			                  'type' =>$varchar ,
+			                  'constraint'=>'30',
+							  'NULL'=>TRUE)));	
+				}
+				//Check if number , then use INT
+                if($datatype==2)
+				{
+					 $this -> dbforge -> add_column('leads_bio_information', 
+			                  array($required_field => array(
+			                  'type' =>$number ,
+			                  'constraint'=>'100',//We can include this to be passed dynamically from Leads_bio_fields
+							  'NULL'=>TRUE)));
+				}
+			}
+			
+		}
+		
+         
+	}
+	
 	function add_lead_bio_information() {
 
 		$build_form = $this -> load_library();

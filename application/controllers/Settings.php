@@ -149,10 +149,10 @@ class Settings extends CI_Controller {
 	private function view_lead_bio_fields() {
 
 		$build_list = $this -> load_library();
-
-		$selected_columns = array("Field Name" => "lead_bio_fields_name", 'Data Type' => "datatype_name", "Is Field Unique?" => "is_field_unique", "Is Field Null?" => "is_field_null", 'Default Value' => 'default_value', 'Show Field' => 'show_field', 'Is Field In Use?' => 'is_suspended');
-
-		$build_list -> set_selected_fields($selected_columns, 'lead_bio_fields_id');
+		
+		$build_list->set_field_swap(array('datatype_id'=>'datatype_name'));
+		
+		$build_list->set_hidden_fields(array('lead_bio_info_column'));
 
 		$build_list -> set_hide_delete_button(true);
 
@@ -162,13 +162,11 @@ class Settings extends CI_Controller {
 
 		$build_list -> set_list_action($action);
 
-		$join_array['datatype'] = array('datatype.datatype_id', 'lead_bio_fields.datatype_id');
-
 		$yes_no_options = array('1' => 'Yes', '0' => 'No');
 
 		$build_list -> set_replace_field_value(array('is_field_null' => $yes_no_options, 'is_field_unique' => $yes_no_options, 'show_field' => $yes_no_options, 'is_suspended' => $yes_no_options));
-
-		//$build_list->set_replace_field_value();
+		
+		$join_array['datatype'] = array('datatype_id', 'datatype_id');	
 
 		$build_list -> set_table_join($join_array);
 
@@ -187,45 +185,37 @@ class Settings extends CI_Controller {
 	public function add_compassion_connect_progress_measure() {
 
 		$build_form = $this -> load_library();
-
-		$fields[] = array('label' => 'Lead Score Criteria Parameter', 'element' => 'input', 'properties' => array('id' => '', 'class' => '', 'name' => 'lead_score_parameter[]'));
-
-		$options_for_stages = array();
-
-		$connect_stages = $this -> db -> get("connect_stage") -> result_object();
-
-		foreach ($connect_stages as $connect_stage) {
-			$options_for_stages[$connect_stage -> connect_stage_id] = array('option' => $connect_stage -> connect_stage_name);
-		}
-
-		$fields[] = array('label' => 'Connect Lead Score Stage', 'element' => 'select', 'properties' => array('id' => '', 'class' => '', 'name' => 'lead_score_stage[]'), 'options' => $options_for_stages);
-
+		
+		$build_form->set_db_table('compassion_connect_mapping');
+		
+		$build_form->set_hidden_fields(array('compassion_connect_mapping_id'));
+		
+		$build_form->set_dropdown_from_table(array('connect_stage','connect_stage_id','connect_stage_name','lead_score_stage'));
+			
 		$build_form -> set_form_action(base_url() . 'settings/create_new_multiple_records/compassion_connect_mapping');
 		$build_form -> set_panel_title('Connect Lead Score Parameters');
 		$build_form -> set_view_or_edit_mode('add');
 
-		$this -> load_view($build_form, $fields);
+		$this -> load_view($build_form);
 	}
 
 	public function add_assessment_progress_measure() {
 
 		$build_form = $this -> load_library();
 
-		$fields[] = array('label' => 'Progress Measure Title', 'element' => 'input', 'properties' => array('id' => '', 'class' => '', 'name' => 'Progress_measure_title[]'));
-
-		$fields[] = array('label' => 'Verification Tools', 'element' => 'input', 'properties' => array('id' => '', 'class' => '', 'name' => 'verification_tool[]'));
-
-		$fields[] = array('label' => 'Method of assessment', 'element' => 'input', 'properties' => array('id' => '', 'class' => '', 'name' => 'assessment_method[]'));
-
-		$fields[] = array('label' => 'Weight', 'element' => 'select', 'properties' => array('id' => '', 'class' => '', 'name' => 'weight[]'), 'options' => array('1' => array('option' => 1), '2' => array('option' => 2), '3' => array('option' => 3), '4' => array('option' => 4), '5' => array('option' => 5), '6' => array('option' => 6), '7' => array('option' => 7), '8' => array('option' => 8), '9' => array('option' => 9), '10' => array('option' => 10), ));
-		$array_connect_measures = $this -> crud_model -> get_connect_mappings();
-
-		$fields[] = array('label' => 'Connect Mapping', 'element' => 'select', 'properties' => array('id' => '', 'class' => '', 'name' => 'compassion_connect_mapping[]'), 'options' => $array_connect_measures, );
+		$build_form->set_db_table('assessment_progress_measure');
+		
+		$build_form->set_hidden_fields(array('assessment_progress_measure_id'));
+		
+		$build_form->set_dropdown_from_range(array('weight',10,1));
+		
+		$build_form->set_dropdown_from_table(array('compassion_connect_mapping','compassion_connect_mapping_id','lead_score_parameter','compassion_connect_mapping'));
+		
 		$build_form -> set_form_action(base_url() . 'settings/create_new_multiple_records/assessment_progress_measure');
 		$build_form -> set_view_or_edit_mode('add');
 		$build_form -> set_panel_title('Assessment Progress Measure');
 		$build_form -> set_go_back_on_post(true);
-		$this -> load_view($build_form, $fields);
+		$this -> load_view($build_form);
 	}
 
 	public function add_assessment_milestone() {
@@ -243,10 +233,9 @@ class Settings extends CI_Controller {
 		$build_form -> set_form_id('frm_add_milestone');
 		$build_form -> set_form_action(base_url() . 'settings/create_assessment_milestone/assessment_milestones');
 
-		$build_form -> set_debug_mode(2);
+		//$build_form -> set_debug_mode(2);
 
-		$fields = array();
-		$this -> load_view($build_form, $fields, 'single_form');
+		$this -> load_view($build_form, 'single_form');
 	}
 
 	public function create_assessment_milestone($table_name) {
@@ -302,10 +291,10 @@ class Settings extends CI_Controller {
 			echo false;
 		}
 	}
-
-	public function create_new_multiple_records($table_name) {
-		$form_input = $this -> input -> post();
+	
+	private function convert_post_into_insert_batch_array($form_input){
 		$build_final_post = array();
+		
 		foreach ($form_input as $field_name => $field_values_array) {
 			$i = 0;
 			foreach ($field_values_array as $field_values) {
@@ -315,15 +304,87 @@ class Settings extends CI_Controller {
 			}
 
 		}
+		
+		return $build_final_post;
+	}
+	
+	public function create_new_multiple_records($table_name) {
+		$form_input = $this -> input -> post();
+		
+		$build_final_post = $this->convert_post_into_insert_batch_array($form_input);
+		
+		if($table_name == 'lead_bio_fields'){
+			
+			$build_final_post_add_column = $this->convert_post_into_insert_batch_array($form_input);
+			
+			$cnt = 0;
+			
+			//$form_input_add_column = array();
+			
+			foreach($form_input['lead_bio_fields_name'] as $raw_name){
+				
+				$formatted_name_array = $this->get_bio_information_field_name($raw_name);
+				
+				if($formatted_name_array[1] == 'add_column'){
+						
+					unset($build_final_post[$cnt]);
+					$build_final_post_add_column[$cnt]['lead_bio_info_column']	= $formatted_name_array[0];	
+				
+				}elseif($formatted_name_array[1] == 'add_record'){
+				
+					unset($build_final_post_add_column[$cnt]);	
+					$build_final_post[$cnt]['lead_bio_info_column']	= $formatted_name_array[0];		
+				
+				}elseif($formatted_name_array[1] == 'add_record_column'){
+					
+					$build_final_post_add_column[$cnt]['lead_bio_info_column']	= $formatted_name_array[0];	
+					$build_final_post[$cnt]['lead_bio_info_column']	= $formatted_name_array[0];
+				
+				}elseif($formatted_name_array[1] == 'none'){
+				
+					unset($build_final_post_add_column[$cnt]);	
+					unset($build_final_post[$cnt]);
+				}
+				
+				$cnt++;
+			}
+				
+			$this -> db -> insert_batch($table_name, $build_final_post);
+			
+			$this->add_leads_bio_information_fields($build_final_post_add_column);			
 
-		$this -> db -> insert_batch($table_name, $build_final_post);
-
-		if ($table_name == 'lead_bio_fields') {
-			$this -> add_leads_bio_information_fields($build_final_post);
+		}else{
+			
+			$this -> db -> insert_batch($table_name, $build_final_post);
 		}
 
 		echo "Success";
 
+	}
+	
+	private function get_bio_information_field_name($raw_name){
+		
+		$formatted_name = str_replace(" ", "_",strtolower(trim($raw_name)));
+		
+		$record_count = $this->db->get_where('lead_bio_fields',
+		array('lead_bio_info_column'=>$formatted_name))->num_rows();
+		
+		$fields_exists = $this->db->field_exists($formatted_name,'leads_bio_information');
+		
+		$action = 'none';
+		
+		if($record_count == 0 && !$fields_exists){
+			$action = 'add_record_column';
+		}elseif($record_count > 0 && !$fields_exists){
+			$action = 'add_column';
+		}elseif($record_count == 0 && $fields_exists){
+			$action = 'add_record';
+		}elseif($record_count > 0 && $fields_exists){
+			$action = 'none';
+		}
+		
+		return array($formatted_name,$action);
+		
 	}
 
 	private function add_leads_bio_information_fields($columns) {
@@ -332,15 +393,13 @@ class Settings extends CI_Controller {
 
 		$table_name = 'leads_bio_information';
 		
-		$leads_bio_infomation_fields = $this -> db -> field_data($table_name);
-		
 		$varchar='VARCHAR';
 		$number='INT';
 
 		foreach ($columns as $column) 
 		{
 
-			$table_column_name = strtolower(str_replace(" ", "_", $column['lead_bio_fields_name']));
+			$table_column_name = $column['lead_bio_info_column'];
 			
 			//Defence code added
             if(!$this -> db -> field_exists($table_column_name, $table_name))
@@ -362,7 +421,7 @@ class Settings extends CI_Controller {
 					 $this -> dbforge -> add_column($table_name, 
 			                  array($table_column_name => array(
 			                  'type' =>$number ,
-			                  'constraint'=>'3',//We can include this to be passed dynamically from Leads_bio_fields
+			                  'constraint'=>'100',//We can include this to be passed dynamically from Leads_bio_fields
 							  'NULL'=>TRUE)));
 				}
 			}
@@ -396,10 +455,8 @@ class Settings extends CI_Controller {
 
 	}
 
-	private function load_view($build_form, $fields, $form_type = 'multi_form') {
-
-		$build_form -> set_form_fields($fields);
-
+	private function load_view($build_form, $form_type = 'multi_form') {
+		//$build_form->set_debug_mode(1);
 		$page_data['output'] = $build_form -> render_form($form_type);
 		$page_data['page_name'] = 'assessment_settings';
 		$page_data['view_type'] = "settings";
@@ -497,47 +554,29 @@ class Settings extends CI_Controller {
 	}
 
 	public function add_lead_bio_fields() {
-		//$output = $this->uri->segment(1);
+		
 		$build_form = $this -> load_library();
 
-		$fields[] = array('label' => 'Field Name', 'element' => 'input', 'properties' => array('id' => '', 'class' => '', 'required' => 'required', 'name' => 'lead_bio_fields_name[]'));
-
-		$datatypes = $this -> db -> get('datatype') -> result_object();
-
-		$datatype_array = array();
-
-		foreach ($datatypes as $datatype) {
-			$datatype_array[$datatype -> datatype_id]['option'] = ucfirst($datatype -> datatype_name);
-		}
-
-		$fields[] = array('label' => 'Data Type', 'element' => 'select', 'properties' => array('id' => '', 'class' => '', 'required' => 'required', 'name' => 'datatype_id[]'), 'options' => $datatype_array);
-
-		$yes_nos = $this -> db -> get('yes_no_option') -> result_object();
-
-		$yes_no_options = array();
-
-		foreach ($yes_nos as $yes_no) {
-			$yes_no_options[$yes_no -> yes_no_option_key]['option'] = $yes_no -> yes_no_option_name;
-		}
-
-		$yes_no_options[0]['properties']['selected'] = 'selected';
-
-		$fields[] = array('label' => 'Field Unique?', 'element' => 'select', 'properties' => array('id' => '', 'class' => '', 'name' => 'is_field_unique[]'), 'options' => $yes_no_options);
-
-		$fields[] = array('label' => 'Optional?', 'element' => 'select', 'properties' => array('id' => '', 'class' => 'is_field_null', 'name' => 'is_field_null[]'), 'options' => $yes_no_options);
-
-		$fields[] = array('label' => 'Default Value', 'element' => 'input', 'properties' => array('id' => '', 'class' => 'default_value', 'name' => 'default_value[]'));
-
-		$fields[] = array('label' => 'Show Field?', 'element' => 'select', 'properties' => array('id' => '', 'class' => '', 'name' => 'show_field[]'), 'options' => $yes_no_options);
-
-		$fields[] = array('label' => 'Is Field In Use?', 'element' => 'select', 'properties' => array('id' => '', 'class' => '', 'name' => 'is_suspended[]'), 'options' => $yes_no_options);
-
+		$build_form->set_db_table('lead_bio_fields');
+		
+		$build_form->set_hidden_fields(array('lead_bio_fields_id','lead_bio_info_column'));
+		
+		$build_form->set_dropdown_from_table(array('datatype','datatype_id','datatype_name','datatype_id'));
+		
+		$build_form->set_dropdown_yes_no('is_field_unique');
+		
+		$build_form->set_dropdown_yes_no('is_field_null');
+		
+		$build_form->set_dropdown_yes_no('show_field');
+		
+		$build_form->set_dropdown_yes_no('is_suspended');
+				
 		$build_form -> set_view_or_edit_mode('add');
 		$build_form -> set_panel_title('Leads Bio Fields');
 		$build_form -> set_form_id('frm_bio');
 		$build_form -> set_form_action(base_url() . 'settings/create_new_multiple_records/lead_bio_fields');
-
-		$this -> load_view($build_form, $fields);
+		
+		$this -> load_view($build_form);
 
 	}
 
