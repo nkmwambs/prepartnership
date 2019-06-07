@@ -75,15 +75,13 @@ class Leads extends CI_Controller {
 
 		$build_list -> set_add_form();
 
-		//Fields from lead_bio_fields that you need to hid from view
-		$not_to_show_object = $this -> db -> select(array('lead_bio_info_column')) -> get_where('lead_bio_fields', array('show_field' => 0)) -> result_object();
-
-		$hidden_fields = array_column($not_to_show_object, 'lead_bio_info_column');
+		//Get fields to hide
+		$fields_to_hide =$this->return_fields_to_hide();
 
 		//add assessment_id column to the $hidden_fields and hide it from view
 		//array_push($hidden_fields, 'assessment_id');
 
-		$build_list -> set_hidden_fields($hidden_fields);
+		$build_list -> set_hidden_fields($fields_to_hide);
 
 		
 		
@@ -184,9 +182,10 @@ class Leads extends CI_Controller {
 
 		$build_form = $this -> load_library();
 
-		$selected_columns = array("Lead Name" => "lead_name", "Address" => "address", 'Email' => 'email', 'Phone' => 'phone');
-
-		$build_form -> set_selected_fields($selected_columns, 'leads_bio_information_id');
+		//Get fields to hide
+		$fields_to_hide =$this->return_fields_to_hide();
+		
+		$build_form -> set_hidden_fields($fields_to_hide);
 
 		$build_form -> set_view_or_edit_mode('edit');
 
@@ -199,9 +198,12 @@ class Leads extends CI_Controller {
 
 		$build_form = $this -> load_library();
 
-		$selected_columns = array("Lead Name" => "lead_name", "Address" => "address", 'Email' => 'email', 'Phone' => 'phone');
-
-		$build_form -> set_selected_fields($selected_columns, "leads_bio_information_id");
+		//Get fields to hide
+		$fields_to_hide =$this->return_fields_to_hide();
+		
+		array_push($fields_to_hide,'assessment_id');
+		
+		$build_form -> set_hidden_fields($fields_to_hide);
 
 		$build_form -> set_view_or_edit_mode('view');
 
@@ -210,6 +212,20 @@ class Leads extends CI_Controller {
 		//$build_form -> set_replace_field_value(array('insert_after' => $this -> crud_model -> get_insert_after_milestone()));
 
 		$this -> view_record_by_id($build_form, $table_name, $record_id);
+	}
+	private function return_fields_to_hide(){
+		
+		 
+				
+		 $not_to_show_object = $this -> db -> select(array('lead_bio_info_column')) -> get_where('lead_bio_fields', array('show_field' => 0)) -> result_object();
+
+		$hidden_fields = array_column($not_to_show_object, 'lead_bio_info_column');
+		
+		// $not_to_show_object = $this -> db -> select(array('lead_bio_info_column'))->group_start()->or_where('show_field', 0)->or_where('is_suspended', 1)->group_end() -> get('lead_bio_fields') -> result_object();
+// 
+		// $hidden_fields = array_column($not_to_show_object, 'lead_bio_info_column');
+		
+		return $hidden_fields;
 	}
 
 	private function view_record_by_id($build_form, $table_name, $record_id) {
