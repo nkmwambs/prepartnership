@@ -54,12 +54,22 @@ class Leads extends CI_Controller {
 
 		$build_list -> set_list_action($action);
 		
+		$extra_action= array();
+		
 		//check if the leads are active or in active
 		if($status=='closed'){
+			
 			$build_list -> set_where_clause(array("lead_status" => 'Closed'));
+			
+			$extra_action[]=array('href' => 'leads/reopen_lead', 'label' => 'Reopen Lead', 'icon' => 'book');
+				   
 		}else{
 			$build_list -> set_where_clause(array("lead_status" => 'Active'));
+			
+			$extra_action[]=array('href' => 'leads/assess_lead', 'label' => 'Assess Lead', 'icon' => 'book');
 		}
+		
+		$build_list -> set_extra_list_action($extra_action);
 		
 		$build_list -> set_db_table("leads_bio_information");
 
@@ -75,9 +85,7 @@ class Leads extends CI_Controller {
 
 		$build_list -> set_hidden_fields($hidden_fields);
 
-		$extra_action[] = array('href' => 'leads/assess_lead', 'label' => 'Assess Lead', 'icon' => 'book');
-
-		$build_list -> set_extra_list_action($extra_action);
+		
 		
 		$build_list -> set_replace_field_value(array('assessment_id' => $this -> crud_model -> get_insert_after_milestone()));
 		
