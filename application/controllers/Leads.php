@@ -66,7 +66,7 @@ class Leads extends CI_Controller {
 		}else{
 			$build_list -> set_where_clause(array("lead_status" => 'Active'));
 			
-			$extra_action[]=array('href' => 'leads/assess_lead', 'label' => 'Assess Lead', 'icon' => 'book');
+			$extra_action[]=array('href' => 'leads/lead_asessment', 'label' => 'Assess Lead', 'icon' => 'book');
 		}
 		
 		$build_list -> set_extra_list_action($extra_action);
@@ -275,6 +275,17 @@ class Leads extends CI_Controller {
 		$page_data['view_type'] = "leads";
 		$page_data['page_title'] = get_phrase('lead_bio_information');
 		$this -> load -> view('backend/index', $page_data);
+	}
+	
+	public function lead_asessment(){
+		if ($this -> session -> userdata('user_login') != 1)
+			redirect(base_url() . 'index.php?login', 'refresh');
+		
+
+		$page_data['page_name'] = 'lead_assessment';
+		$page_data['view_type'] = "leads";
+		$page_data['page_title'] = get_phrase('lead_assessment');
+		$this -> load -> view('backend/index', $page_data);		
 	}
 
 }

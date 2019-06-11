@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 
 <div class='row'>
 <div class="col-xs-12">
@@ -695,5 +694,3 @@
 	
 </script>
 
-=======
->>>>>>> 315d2dc9bb696c0148a2f46a5ec7e5ae7844a9ed
