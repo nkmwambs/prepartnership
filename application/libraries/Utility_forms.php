@@ -97,7 +97,7 @@ class Utility_forms {
 	 *
 	 */
 
-	private $initial_row_count = 1;
+	//private $initial_row_count = 1;
 
 	/**
 	 *
@@ -120,7 +120,7 @@ class Utility_forms {
 
 	private $use_panel = true;
 
-	private $panel_title = "Panel";
+	private $panel_title = "";
 
 	private $panel_color_theme = 'info';
 	//success,info,danger,default
@@ -146,73 +146,8 @@ class Utility_forms {
 		$this -> CI -> load -> helper('form');
 
 		$this -> CI -> load -> helper('multi_language');
-	}
 
-	/**
-	 *
-	 * Set Form Fields
-	 *
-	 * @param Array form_elements
-	 *
-	 * This is public setter that enables to set the value of fields propoerty of this
-	 * class.
-	 *
-	 * The fields property is of array type. This is a multi dimensional array with
-	 * numeric outer keys. The inner arrays are associative arrays with the following
-	 * mandatory keys: label and element. Other fields are properties, a key that hold
-	 * an associative array of keys being the name of the form field propoerty and its
-	 * value e.g. name=>'username', options for select elements which holds an
-	 * associative array of options values as keys and its values an array with 2 keys
-	 * option equaling to option inner html and properties, an associtive array of option
-	 * tag properties. The key values is a special propperty of fields that holds an array
-	 * of values which represent dafault values of elements.
-	 *
-	 *
-	 *   $fields[] = array(
-	 'label'=>'Username',
-	 'element'=>'input',
-	 'properties' => array('name'=>'username','id'=>'username')
-	 );
-
-	 $fields[] = array(
-	 'label'=>'Password',
-	 'element'=>'input',
-	 'properties' => array('name'=>'password','id'=>'password')
-	 );
-
-	 $fields[] = array(
-	 'label'=>'Days Of Week',
-	 'element'=>'select',
-	 'properties' => array('name'=>'daysofweek','id'=>'daysofweek'),
-	 'options' => array(
-	 'day1'=>array('option'=>'Monday'),
-	 'day2'=>array('option'=>'Tuesday','properties'=>array('selected'=>'selected')),
-	 'day3'=>array('option'=>'Wednesday')
-	 )
-	 );
-	 *
-	 *
-	 * @return Void
-	 *
-	 */
-
-	public function set_form_fields($form_elements = array()) {
-
-		$this -> fields = $form_elements;
-	}
-
-	/**
-	 *
-	 * Get Form Elements
-	 *
-	 * This returns an array of the form elements
-	 *
-	 * @return Array
-	 *
-	 */
-
-	private function get_form_elements() {
-		return $this -> fields;
+		$this -> CI -> load -> library('session');
 	}
 
 	/**
@@ -303,9 +238,9 @@ class Utility_forms {
 	 * @return Void
 	 */
 
-	function set_initial_row_count($row_count = "") {
-		$this -> initial_row_count = $row_count;
-	}
+	// function set_initial_row_count($row_count = "") {
+		// $this -> initial_row_count = $row_count;
+	// }
 
 	/**
 	 * Get Initial Row Count
@@ -316,9 +251,9 @@ class Utility_forms {
 	 * @return Integer
 	 */
 
-	private function get_initial_row_count() {
-		return $this -> initial_row_count;
-	}
+	// private function get_initial_row_count() {
+		// return $this -> initial_row_count;
+	// }
 
 	/**
 	 * Form Open Tag
@@ -358,16 +293,19 @@ class Utility_forms {
 		$return_string = "";
 
 		if ($this -> use_panel == true) {
+			$title = $this -> panel_title == "" ? get_phrase($this -> db_table) . ' ' . get_phrase('list') : $this -> panel_title;
 			$return_string .= '
 					<div class="panel panel-' . $this -> get_panel_color_theme() . '">
 										
 						<div class="panel-heading">
-							<div class="panel-title">' . $this -> get_panel_title() . '</div>						
+							<div class="panel-title">' . $title . '</div>						
 						</div>
 												
 						<div class="panel-body">
 				';
 		}
+		
+
 
 		return $return_string;
 	}
@@ -433,7 +371,7 @@ class Utility_forms {
 			if ($this -> view_or_edit_mode != 'view') {
 				$return_string .= "<div class='form-group'>
 				    <div class='col-xs-12'>
-					<button type='submit' class='btn btn-default' id='btnCreate'><i class='fa fa-send'></i> ".get_phrase('save')."</button>
+					<button type='submit' class='btn btn-default' id='btnCreate'><i class='fa fa-send'></i> " . get_phrase('save') . "</button>
 				   </div>";
 			}
 			$return_string .= "</div>";
@@ -464,7 +402,6 @@ class Utility_forms {
 		 * class.
 		 */
 
-
 		$output_string = "";
 
 		$additional_classes = "";
@@ -493,7 +430,7 @@ class Utility_forms {
 		}
 
 		$output_string .= ">
-		<option value=''>".get_phrase('select')."....</option>";
+		<option value=''>" . get_phrase('select') . "....</option>";
 		/**
 		 * Builds the options html in a select element
 		 */
@@ -613,170 +550,242 @@ class Utility_forms {
 
 		return $output_string;
 	}
-	
-	private function _get_dropdown_element_options_as_field_options(){
-		$this->get_dropdown_element_type();
-		
-		$option_arr = array();
-		
-		foreach($this->dropdown_element_type as $dropdown_element){
-			$option_arr[$dropdown_element[0]] = $dropdown_element[1];
-		}
-		
-		return $option_arr;
+
+	private function _get_primary_table_fields() {
+		return array_column($this -> CI -> db -> field_data($this -> db_table), 'name');
 	}
 	
-    private function add_fields_in_add_form(){
-    	
-		$all_table_fields=$this->_get_fields_from_table();
-		
-		$fields=array();
-		
-		$dropdown = $this->_get_dropdown_element_options_as_field_options();
-		
-		$cnt =0;
-		foreach ($all_table_fields as $value) {
-			if(array_key_exists($value,$dropdown))
-			{
-				$options=$dropdown[$value];
-					
-				if($this->form_type == 'multi_column'){
-					$fields[] = array('label' => $value, 'element' => 'select', 'properties' => array('id' => '', 'class' => '', 'name' => $value.'[]'),'options'=>$options);					
-				}else{
-					$fields[] = array('label' => $value, 'element' => 'select', 'properties' => array('id' => '', 'class' => '', 'name' => $value),'options'=>$options);
-				}
+	private $change_field_type = array();
+	
+	public function set_change_field_type($change_field_type){
+		$this->change_field_type = array_merge($this->change_field_type,$change_field_type);
+	}
+	
+	private function create_single_column_add_form() {
+		if ($this -> form_output_string !== "")
+			$this -> form_output_string = "";
 
-			}else{
+		$this -> view_or_edit_mode = 'add';
 
-				if($this->form_type == 'multi_column'){
-					$fields[] = array('label' => $value, 'element' => 'input', 'properties' => array('id' => '', 'class' => '', 'name' => $value.'[]'));
-				}else{
-									$fields[] = array('label' => $value, 'element' => 'input', 'properties' => array('id' => '', 'class' => '', 'name' => $value));
-				}
-			}
-			$cnt++;
-		}
+		$this -> fields = $this -> _get_fields_names_from_table_result();
 
-		return $fields;
-}
-	private function create_single_column_form() {
+		$this -> panel_title = $this -> panel_title == "" ? get_phrase($this -> db_table) . ' ' . get_phrase('add') : $this -> panel_title;
 
-		if (empty($this -> fields)) {
-			$this -> fields = $this -> _get_fields_from_table();
-		}
-		if($this->view_or_edit_mode=='add'){
-			$this -> fields=$this->add_fields_in_add_form();
-		}
+		$output_string = $this -> open_panel();
 
-		$output_string = "";
+		$output_string .= $this -> form_open_tag();
 
-		$output_string = "<div class='row'><div class='col-xs-12'><ul class='nav nav-pills'>
+		$output_string .= "<div class='row'><div class='col-xs-12'><ul class='nav nav-pills'>
 							<li>
-								<a id='btnBack' onclick='go_back();' class='btn btn-default'><i class='fa fa-arrow-left'></i> ".get_phrase('back')."</a>		
+								<a id='btnBack' onclick='go_back();' class='btn btn-default'><i class='fa fa-arrow-left'></i> " . get_phrase('back') . "</a>		
 							</li>
 										
 						</ul></div></div>";
-
+		$this->set_internal_debug($this->dropdown_element_type);
 		foreach ($this->fields as $fields) {
-			$label = isset($fields['label']) ? $fields['label'] : get_phrase('label_not_provided');
+
 			$output_string .= "<div class='form-group'>
-				<label class='control-label col-xs-4'>" . get_phrase($label) . " <i style='cursor:pointer;' title='" . get_tooltip($label) . "' class='fa fa-question-circle'></i></label>
+				<label class='control-label col-xs-4'>" . get_phrase($fields) . " <i style='cursor:pointer;' title='" . get_tooltip($fields) . "' class='fa fa-question-circle'></i></label>
 				<div class='col-xs-8'>";
 
-			$additional_classes = "";
+			$output_string .= "<div class='col-xs-8'>";
+			
+			$output_string .= $this->_change_field_type($fields);
 
-			if (isset($fields['properties'])) {
-				if (array_key_exists('class', $fields['properties'])) {
-					$additional_classes = $fields['properties']['class'];
-				}
-			}
-
-			if ($fields['element'] !== 'input' && $fields['element'] !== 'select') {
-				$output_string .= $this -> create_closed_html_tag($fields);
-			} else {
-				if ($fields['element'] == 'input') {
-					$output_string .= $this -> create_input_field($fields);
-				} elseif ($fields['element'] == 'select') {
-					$output_string .= $this -> create_select_field($fields);
-				}
-			}
+			$output_string .= "</div>";
 
 			$output_string .= "</div>
 			</div>";
 		}
 
-		return $output_string;
+		$output_string .= $this -> form_close_tag();
+
+		$output_string .= $this -> close_panel();
+
+		//$this->set_internal_debug($this->db_results());
+
+		if ($this -> debug_mode != 0) {
+			$output_string .= $this -> show_debug_mode();
+		}
+		
+		$output_string .= $this -> jquery_script();
+
+		$output_string .= $this -> style_script();
+
+		return $this -> form_output_string = $output_string;
 	}
 
-	private function create_multi_column_form() {
-		
-		if (empty($this -> fields)) {
-			$this -> fields = $this -> _get_fields_from_table_with_table_alias();
+	private function _get_add_field_input_type($fields, $value = "") {
+			
+		$change_name_on_multi_form = $fields;
+
+		if ($this -> form_type == 'multi_column') {
+			$change_name_on_multi_form = $fields . '[]';
 		}
-		if($this->view_or_edit_mode=='add'){
-			$this -> fields=$this->add_fields_in_add_form();
-		}
 		
+		$is_required_field = '';
+		
+		if(in_array($fields, $this->required_fields)){
+			$is_required_field = 'required';
+		} 
+		
+		$element = array('label' => $fields, 'element' => 'input', 'properties' => array('class' => '', 'name' => $change_name_on_multi_form, 'value' => $value,$is_required_field));
+
+		$output_string_input = $this -> create_input_field($element);
+
+		if (!in_array($fields, $this -> _get_primary_table_fields())) {
+
+			//Find what is the table that has the field $fields amongst the joined tables and the primary key field
+
+			$joined_table = "";
+			$primary_key_field = "";
+			
+			//$this->set_internal_debug($this->join );
+			
+			foreach ($this->join as $join_table => $join_keys) {
+				$fields_for_joined_table = array_column($this -> CI -> db -> field_data($join_table), 'name');
+
+				if (in_array($fields, $fields_for_joined_table)) {
+					$joined_table = $join_table;
+					
+					$primary_key_field = $join_keys[1];//$this -> _get_primary_key_field($join_table);
+					
+					$change_name_on_multi_form = $primary_key_field;
+					
+					if ($this -> form_type == 'multi_column') {
+						$change_name_on_multi_form = $primary_key_field . '[]';
+					}
+
+					if(in_array($primary_key_field, $this->required_fields)){
+						$is_required_field = 'required';
+					}
+				}
+			}
+
+			$this -> set_dropdown_from_table(array($joined_table, $primary_key_field, $fields, $primary_key_field));
+
+			$element = array('label' => $fields, 'element' => 'select', 'properties' => array('class' => '', 'name' => $change_name_on_multi_form,$is_required_field), 'options' => $this -> dropdown_element_type[$primary_key_field]);
+
+			$output_string_input = $this -> create_select_field($element);
+			
+		}elseif(array_key_exists($fields, $this->dropdown_element_type)){
+			
+			$is_required_field = "";
+			
+			if(in_array($fields, $this->required_fields)){
+				$is_required_field = 'required';
+			}
+			
+			$element = array('label' => $fields, 'element' => 'select', 'properties' => array('class' => '', 'name' => $fields,$is_required_field), 'options' => $this -> dropdown_element_type[$fields]);
+
+			$output_string_input = $this -> create_select_field($element);
+		}
+
+		return $output_string_input;
+	}
+	
+	private function _change_field_type($fields,$value = ""){
 		
 		$output_string = "";
+		
+		if(array_key_exists($fields, $this->change_field_type)){
+				$elem = array('element'=>$this->change_field_type[$fields],'properties'=>array('id'=>'','name'=>$fields,'class'=>'form-control','innerHTML'=>$value));
+				$output_string .= $this -> create_closed_html_tag($elem);
+			}else{
+				$output_string .= $this -> _get_add_field_input_type($fields,$value);
+			}
+		
+		return $output_string;	
+	}
+	
+	private function create_multi_column_add_form() {
+
+		if ($this -> form_output_string !== "")
+			$this -> form_output_string = "";
+
+		$list_array = $this -> assign_primary_key_as_row_keys_for_db_results();
+
+		$this -> fields = $this -> _get_fields_names_from_table_result();
+
+		$this -> view_or_edit_mode = 'add';
+
+		$this -> panel_title = $this -> panel_title == "" ? get_phrase($this -> db_table) . ' ' . get_phrase('add') : $this -> panel_title;
+
+		$output_string = $this -> open_panel();
+
+		$output_string .= $this -> form_open_tag();
 
 		$output_string .= '<ul class="nav nav-pills">
 										<li>
-											<a id="add_row" class="btn btn-default"><i class="fa fa-plus"></i>  ' .get_phrase('add_row').'</a>	
+											<a id="add_row" class="btn btn-default"><i class="fa fa-plus"></i>  ' . get_phrase('add_row') . '</a>	
 										</li>
 										<li>
-											<a id="btnDelRow" class="btn btn-default hidden"><i class="fa fa-minus"></i> '.get_phrase('remove_row').'</a>	
+											<a id="btnDelRow" class="btn btn-default hidden"><i class="fa fa-minus"></i> ' . get_phrase('remove_row') . '</a>	
 										</li>
 										<li>
-											<a id="resetBtn" class="btn btn-default"><i class="fa fa-refresh"></i> '.get_phrase('reset').'</a>	
+											<a id="resetBtn" class="btn btn-default"><i class="fa fa-refresh"></i> ' . get_phrase('reset') . '</a>	
 										</li>
 										<li>
-											<a id="btnBack" onclick="go_back();" class="btn btn-default"><i class="fa fa-arrow-left"></i> '.get_phrase('back').'</a>	
+											<a id="btnBack" onclick="go_back();" class="btn btn-default"><i class="fa fa-arrow-left"></i> ' . get_phrase('back') . '</a>	
 										</li>
 									</ul><hr />';
 
-		$output_string .= "<table class='table table-striped' id='" . $this -> multi_column_table_id . "'>
-			<thead><tr>
-			<th>Action</th>";
-		foreach ($this->fields as $headers) {
-			$output_string .= "<th>" . get_phrase($headers['label']) . " <i style='cursor:pointer;' title='" . get_tooltip($headers['label']) . "' class='fa fa-question-circle'></i></th>";
-		}
-		$output_string .= "</tr></thead>
-		<tbody>";
+		$output_string .= "
+				<div class='row'>
+						<div class='col-xs-12'>
+							<table class='table table-striped' id='" . $this -> multi_column_table_id . "'>
+								<thead><tr>";
 
-		for ($i = 0; $i < $this -> get_initial_row_count(); $i++) {
+		$output_string .= "<th>Action</th>";
 
-			$output_string .= "<tr class='tr_clone'>
-			<td><input type='checkbox' id='' class='check' /></td>";
+		foreach ($this->_get_fields_names_from_table_result() as $value) {
 
-			foreach ($this->fields as $fields) {
-				$output_string .= "<td>";
-				if ($fields['element'] == 'select') {
-
-					$output_string .= $this -> create_select_field($fields, $i);
-
-				} elseif ($fields['element'] == 'input') {
-					$output_string .= $this -> create_input_field($fields, $i);
+			if (!empty($this -> display_as)) {
+				if (array_key_exists($value, $this -> display_as)) {
+					$value = $this -> display_as[$value];
 				}
-
-				$output_string .= "</td>";
-
 			}
 
-			$output_string .= "</tr>";
+			$output_string .= "<th>" . get_phrase($value) . " <i style='cursor:pointer;' title='" . get_tooltip($value) . "' class='fa fa-question-circle'></i></th>";
 
 		}
+		$output_string .= "</tr></thead><tbody><tr class='tr_clone'>";
+		$output_string .= "<td><input type='checkbox' id='' class='check' /></td>";
 
-		$output_string .= "</tbody>
-		</table>";
+		foreach ($this->_get_fields_names_from_table_result() as $fields) {
+			$output_string .= "<td>";
+			
+			$output_string .= $this->_change_field_type($fields);
 
-		return $output_string;
+			$output_string .= "</td>";
+		}
+		$output_string .= "</tr></tbody></table>
+						</div>
+				</div>				
+		";
+
+		$output_string .= $this -> form_close_tag();
+
+		$output_string .= $this -> close_panel();
+
+		if ($this -> debug_mode != 0) {
+			$output_string .= $this -> show_debug_mode();
+		}
+
+		$output_string .= $this -> jquery_script();
+
+		$output_string .= $this -> style_script();
+
+		return $this -> form_output_string = $output_string;
 	}
 
 	private function jquery_script() {
 
 		$output_string = '<script>
 		       
+			   setTimeout(function(){
+			   		$("#save_message").css("display","none");
+			   },1500);
 			  
 				function go_back(){
 					window.history.back();
@@ -801,6 +810,7 @@ class Utility_forms {
 				});
 				
 				function clone_last_body_row(table_id,row_class){
+					//alert($("#"+table_id+" tbody tr:last").html());
 					var $tr    = $("#"+table_id+" tbody tr:last").closest("."+row_class);
 					var $clone = $tr.clone();
 					$clone.find(":checkbox").removeAttr("disabled");
@@ -1009,43 +1019,16 @@ class Utility_forms {
 		return $return_string;
 	}
 
-	function set_panel_title($panel_title = "") {
+	function set_panel_title($panel_title) {
 		$this -> panel_title = $panel_title;
-	}
-
-	function get_panel_title() {
-		return $this -> panel_title;
 	}
 
 	function set_db_table($db_table = "") {
 		$this -> db_table = $db_table;
 	}
 
-	private function get_db_table() {
-		return $this -> db_table;
-	}
-
-	function set_selected_fields($selected_list_fields, $fields_not_selected) {
-		if (empty($selected_list_fields)) {
-			$this -> selected_list_fields = $this -> _get_fields_from_table();
-		} else {
-			$this -> selected_list_fields = array($fields_not_selected);
-			$this -> selected_list_fields = array_merge($this -> selected_list_fields, $selected_list_fields);
-
-		}
-
-	}
-
-	private function get_selected_fields() {
-		return $this -> selected_list_fields;
-	}
-
 	function set_data_limit($offset, $count) {
 		$this -> data_limit = array('offset' => $offset, 'count' => $count);
-	}
-
-	private function get_data_limit() {
-		return $this -> data_limit;
 	}
 
 	private $where = array();
@@ -1083,121 +1066,61 @@ class Utility_forms {
 		return $this -> join;
 	}
 
-	private function display_field_as($results, $set_db_table, $join_array) {
+	private $fields_to_show = array();
+	//Show on listing table
 
-		$this -> get_selected_fields();
+	private $fields_to_show_on_view = array();
+	//Show on View form
 
-		$field_data = $this -> CI -> db -> field_data($set_db_table);
+	private $fields_to_show_on_edit = array();
+	// Show on Edit form
 
-		foreach ($join_array as $table => $keys) {
-			$field_data = array_merge($field_data, $this -> CI -> db -> field_data($table));
-		}
+	private $fields_to_show_on_add = array();
+	//Show on Add form
 
-		/**
-		 *$field_data =  [{"name":"lead_bio_fields_id","type":"int","max_length":100,"default":null,
-		 * "primary_key":1},{"name":"lead_bio_fields_name","type":"varchar","max_length":100,"default":null,
-		 * "primary_key":0},{"name":"datatype_id","type":"int","max_length":100,"default":null,
-		 * "primary_key":0},{"name":"is_field_unique","type":"int","max_length":5,"default":"1",
-		 * "primary_key":0},{"name":"is_field_null","type":"int","max_length":5,"default":"0",
-		 * "primary_key":0},{"name":"default_value","type":"varchar","max_length":20,"default":null,
-		 * "primary_key":0},{"name":"datatype_id","type":"int","max_length":100,"default":null,
-		 * "primary_key":1},{"name":"datatype_name","type":"varchar","max_length":20,"default":null,
-		 * "primary_key":0}]
-		 *
-		 */
-
-		$field_names = array_column($field_data, 'name');
-		//Keys array
-		$field_types = array_column($field_data, 'type');
-		//Values array
-
-		$field_types = array_combine($field_names, $field_types);
-
-		/**
-		 * $field_types = {"lead_bio_fields_id":"int","lead_bio_fields_name":"varchar",
-		 * "datatype_id":"int","is_field_unique":"int","is_field_null":"int","default_value":"varchar",
-		 * "datatype_name":"varchar"}
-		 *
-		 */
-
-		/**
-		 * $results = [{"lead_bio_fields_id":"2","datatype_id":"1","lead_bio_fields_name":"e",
-		 * "datatype_name":"text","is_field_unique":"1","is_field_null":"0","default_value":"tr"}]
-		 *
-		 */
-
-		$flipped_without_dots = array();
-
-		foreach ($this -> selected_list_fields as $key => $value) {
-
-			$piece = $value;
-
-			if (substr_count($value, ".")) {
-				$explode = explode(".", $value);
-				$piece = $explode[1];
-			}
-
-			$flipped_without_dots[$key] = $piece;
-		}
-
-		/**
-		 * $flipped_without_dots = {"0":"lead_bio_fields_id","Data Type ID":"datatype_id","Field Name":"lead_bio_fields_name","Data Type":"datatype_name","Is Field Unique?":"is_field_unique","Is Field Null?":"is_field_null","Default Value":"default_value"}
-		 *
-		 * $this -> selected_list_fields = {"0":"lead_bio_fields_id","Data Type ID":"lead_bio_fields.datatype_id","Field Name":"lead_bio_fields.lead_bio_fields_name","Data Type":"datatype.datatype_name","Is Field Unique?":"lead_bio_fields.is_field_unique","Is Field Null?":"lead_bio_fields.is_field_null","Default Value":"lead_bio_fields.default_value"}
-		 *
-		 * $results = [{"lead_bio_fields_id":"2","datatype_id":"1","lead_bio_fields_name":"e",
-		 * "datatype_name":"text","is_field_unique":"1","is_field_null":"0","default_value":"tr"}]
-		 *
-		 */
-
-		$final_array = array();
-
-		$cnt = 0;
-
-		foreach ($results as $result) {
-
-			foreach ($result as $elem_key => $elem_value) {
-
-				if (in_array($elem_key, $flipped_without_dots)) {
-					$key_for_display_as_elem = array_search($elem_key, $flipped_without_dots);
-
-					if (is_numeric($key_for_display_as_elem)) {
-
-						$final_array[$cnt][$this -> selected_list_fields[$key_for_display_as_elem]] = $elem_value;
-					} else {
-
-						$final_array[$cnt][$key_for_display_as_elem] = $elem_value;
-					}
-
-				} else {
-					$final_array[$cnt][$elem_key] = $elem_value;
-				}
-			}
-
-			$cnt++;
-		}
-
-		return $final_array;
+	public function set_fields_to_show($fields_to_show) {
+		$this -> fields_to_show = $fields_to_show;
 	}
 
-	private function db_results($use_fields_as_human_readable = true) {
-		$this -> get_selected_fields();
+	public function set_fields_to_show_on_add($fields_to_show_on_add) {
+		$this -> fields_to_show_on_add = $fields_to_show_on_add;
+	}
 
-		if (empty($this -> get_selected_fields())) {
-			$this -> selected_list_fields = $this -> _get_fields_from_table_with_table_alias();
+	public function set_fields_to_show_on_edit($fields_to_show_on_edit) {
+		$this -> fields_to_show_on_edit = $fields_to_show_on_edit;
+	}
+
+	public function set_fields_to_show_on_view($fields_to_show_on_view) {
+		$this -> fields_to_show_on_view = $fields_to_show_on_view;
+	}
+
+	private $display_as = array();
+
+	public function set_display_as($display_as) {
+		$this -> display_as = $display_as;
+	}
+
+	private function db_results() {
+
+		$to_show = 'fields_to_show';
+
+		if ($this -> CI -> uri -> segment(3)) {
+			$to_show = $to_show . '_on_' . $this -> CI -> uri -> segment(3);
 		}
 
-		$this -> get_db_table();
-		$this -> get_data_limit();
-		$this -> get_where_clause();
-		$this -> get_table_join();
+		if (!empty($this -> $to_show)) {
 
-		//print_r($this->selected_list_fields);
+			//Used to bring the primary key field
 
-		if (is_array($this -> selected_list_fields) && !empty($this -> selected_list_fields)) {
-			$this -> CI -> db -> select($this -> selected_list_fields);
-			// $this -> CI -> db -> select(array('lead_bio_fields.lead_bio_fields_id','lead_bio_fields.lead_bio_fields_name',
-			// 'lead_bio_fields.datatype_id', 'lead_bio_fields.is_field_unique','lead_bio_fields.is_field_null','lead_bio_fields.default_value'));
+			if (!in_array($this -> _get_primary_key_field(), $this -> $to_show)) {
+				$this -> CI -> db -> select($this -> _get_primary_key_field());
+			}
+
+			$this -> CI -> db -> select($this -> $to_show);
+		}
+
+		if ($this -> CI -> uri -> segment(4)) {
+			$this -> set_where_clause(array($this -> _get_primary_key_field() => $this -> CI -> uri -> segment(4)));
 		}
 
 		if (is_array($this -> where) && !empty($this -> where)) {
@@ -1205,21 +1128,14 @@ class Utility_forms {
 		}
 
 		if (is_array($this -> join) && !empty($this -> join)) {
-			/**
-			 * INPUT ARRAY
-			 * join_array(
-			 * 	'country'=>array('user.country_id','country.country_id'),
-			 * 'province'=>array('country.country_id','province.country_id')
-			 * )
-			 */
 
 			foreach ($this->join as $secondary_table => $join_keys) {
-				if(substr_count($join_keys[1], '.') > 0 && substr_count($join_keys[0], '.') > 0){
+				if (substr_count($join_keys[1], '.') > 0 && substr_count($join_keys[0], '.') > 0) {
 					$this -> CI -> db -> join($secondary_table, $join_keys[1] . "=" . $join_keys[0]);
-				}elseif(substr_count($join_keys[1], '.') == 0 && substr_count($join_keys[0], '.') == 0){
-					$this -> CI -> db -> join($secondary_table, $secondary_table.'.'.$join_keys[1] . "=" . $this->db_table.'.'.$join_keys[0]);
+				} elseif (substr_count($join_keys[1], '.') == 0 && substr_count($join_keys[0], '.') == 0) {
+					$this -> CI -> db -> join($secondary_table, $secondary_table . '.' . $join_keys[1] . "=" . $this -> db_table . '.' . $join_keys[0]);
 				}
-				
+
 			}
 		}
 
@@ -1227,15 +1143,23 @@ class Utility_forms {
 			$this -> CI -> db -> limit($this -> data_limit['offset'], $this -> data_limit['count']);
 		}
 
-		$results = "";
-
-		if ($use_fields_as_human_readable) {
-			$results = $this -> display_field_as($this -> CI -> db -> get($this -> db_table) -> result_array(), $this -> db_table, $this -> join);
-		} else {
-			$results = $this -> CI -> db -> get($this -> db_table) -> result_array();
-		}
+		$results = $this -> CI -> db -> get($this -> db_table) -> result_array();
 
 		return $results;
+	}
+
+	private function assign_primary_key_as_row_keys_for_db_results() {
+		$db_result = $this -> db_results();
+
+		$rows_with_primary_key_as_key = array();
+
+		foreach ($db_result as $row) {
+			$primary_key = $row[$this->_get_primary_key_field()];
+			unset($row[$this->_get_primary_key_field()]);
+			$rows_with_primary_key_as_key[$primary_key] = $row;
+		}
+
+		return $rows_with_primary_key_as_key;
 	}
 
 	private $dropdown_element_type = array();
@@ -1253,215 +1177,189 @@ class Utility_forms {
 		foreach ($yes_nos as $key => $yes_no) {
 			$yes_no_options[$key]['option'] = $yes_no;
 		}
-
-		$dropdown_element_type = array($field_name, $yes_no_options);
-
-		$this -> dropdown_element_type[] = $dropdown_element_type;
-	}
-	
-	public function set_dropdown_from_range($field_name_and_range_array){
 		
-		$range = range(0,$field_name_and_range_array[1]);
-			
-		if(isset($field_name_and_range_array[2])){
-			$range = range($field_name_and_range_array[2],$field_name_and_range_array[1]);
+		if(is_array($field_name)){
+			foreach($field_name as $field){
+				$dropdown_element_type[$field] = $yes_no_options;		
+				$this -> dropdown_element_type = array_merge($this -> dropdown_element_type,$dropdown_element_type);				
+			}
+		}else{
+			$dropdown_element_type[$field_name] = $yes_no_options;	
+			$this -> dropdown_element_type = array_merge($this -> dropdown_element_type,$dropdown_element_type);
 		}
-		
+	}
+
+	public function set_dropdown_from_range($field_name_and_range_array) {
+
+		$range = range(0, $field_name_and_range_array[1]);
+
+		if (isset($field_name_and_range_array[2])) {
+			$range = range($field_name_and_range_array[2], $field_name_and_range_array[1]);
+		}
+
 		$range_options = array();
 
 		foreach ($range as $key => $value) {
 			$range_options[$key]['option'] = $value;
 		}
 
-		$dropdown_element_type = array($field_name_and_range_array[0], $range_options);
+		$dropdown_element_type[$field_name_and_range_array[0]] = $range_options;
 
-		$this -> dropdown_element_type[] = $dropdown_element_type;
+		$this -> dropdown_element_type = $dropdown_element_type;
 	}
+	
 
 	public function set_dropdown_from_table($table_details = array()) {
+
+		$db_result = $this -> db_results();
+
+		$record = $db_result[0];
 
 		/*
 		 $table_details has 3 aurguments: table name key 0; field holding key of key=1;
 		 fields with option text key =2 ; select field_name which key=3*/
-		 
-         $table_name=$table_details[0];
-		 $option_field_key=$table_details[1];
-		 $option_field_text=$table_details[2];
-		 $select_field_name=$table_details[3];
-		 
-		$options_from_table = $this -> CI->db -> get($table_name) -> result_object();
+
+		$table_name = $table_details[0];
+		$option_field_key = $table_details[1];
+		$option_field_text = $table_details[2];
+		$select_field_name = $table_details[3];
+
+		$options_from_table = $this -> CI -> db -> get($table_name) -> result_object();
 
 		$options_array = array();
 
 		foreach ($options_from_table as $option) {
-			$options_array[$option->$option_field_key] = array('option' => $option->$option_field_text);
-		}
-		
-		$dropdown_element_type = array($select_field_name, $options_array);
+			$options_array[$option -> $option_field_key] = array('option' => $option -> $option_field_text);
 
-		$this -> dropdown_element_type[] = $dropdown_element_type;
+			if ($option -> $option_field_text == $record[$option_field_text]) {
+				$options_array[$option -> $option_field_key]['properties'] = array('selected' => 'selected');
+			}
+		}
+
+		$dropdown_element_type[$select_field_name] = $options_array;
+		
+		$this -> dropdown_element_type = array_merge($this -> dropdown_element_type,$dropdown_element_type);
 
 	}
 
 	public function get_dropdown_element_type() {
 		return $this -> dropdown_element_type;
 	}
-    
-	
-	private function build_single_form_fields() {
 
-		$this -> get_view_or_edit_mode();
+	private function create_single_column_view_form() {
+		if ($this -> form_output_string !== "")
+			$this -> form_output_string = "";
 
-		$this -> get_dropdown_element_type();
+		$this -> view_or_edit_mode = 'view';
 
-		$results = $this -> db_results(false);
+		//$this->set_where_clause(array($this->_get_primary_key_field()=>$this->CI->uri->segment(4)));
 
-		$results_true = $this -> db_results(true);
+		$db_result = $this -> db_results();
 
-		$result_combine = array_combine(array_keys($results[0]), array_keys($results_true[0]));
+		$this -> fields = $this -> _get_fields_names_from_table_result();
 
-		$fields = array();
+		$this -> panel_title = $this -> panel_title == "" ? get_phrase($this -> db_table) . ' ' . get_phrase('add') : $this -> panel_title;
 
-		$elem = $results[0];
+		$output_string = $this -> open_panel();
 
-		array_shift($elem);
+		$output_string .= $this -> form_open_tag();
 
-		$fields_with_type = array_column($this -> dropdown_element_type, '0');
+		$output_string .= "<div class='row'><div class='col-xs-12'><ul class='nav nav-pills'>
+							<li>
+								<a id='btnBack' onclick='go_back();' class='btn btn-default'><i class='fa fa-arrow-left'></i> " . get_phrase('back') . "</a>		
+							</li>
+										
+						</ul></div></div>";
 
-		/**
-		 * $this -> get_dropdown_element_type() - Not working = [{"0":"is_field_unique","options":[{"option":"No"},{"option":"Yes","selected":"selected"}]},{"0":"is_field_null","options":[{"option":"No"},{"option":"Yes","selected":"selected"}]}]
-		 *
-		 * $this -> get_dropdown_element_type() - Working = [["weight",[{"option":"Zero"},{"option":"One"},{"option":"Two","properties":{"selected":"selected"}},{"option":"Three"}]],["compassion_connect_mapping",[{"option":"Test"},{"option":"Test 0"},{"option":"Test 2"}]]]
-		 *
-		 *
-		 * $fields_options = [[{"option":"Zero"},{"option":"One"},
-		 {"option":"Two","properties":{"selected":"selected"}},{"option":"Three"}],
-		 [{"option":"Test"},{"option":"Test 0"},{"option":"Test 2"}]]
-		 *
-		 */
+		foreach ($this->fields as $fields) {
 
-		$fields_options = $this -> dropdown_element_type;
-		//array_column($this -> dropdown_element_type, '1');
+			$output_string .= "<div class='form-group'>
+				<label class='control-label col-xs-4'>" . get_phrase($fields) . " <i style='cursor:pointer;' title='" . get_tooltip($fields) . "' class='fa fa-question-circle'></i></label>
+				<div class='col-xs-8'>";
+
+			$output_string .= "<div class='col-xs-8'>";
+
+			$innerhtmlval = $db_result[0][$fields];
+			
+			if(array_key_exists($fields, $this->dropdown_element_type)){
+				$innerhtmlval = $db_result[0][$fields] = $this->dropdown_element_type[$fields][$innerhtmlval]['option'];
+			}
+			
+			$element = array('label' => $fields, 'element' => 'div', 'properties' => array('class' => '', 'name' => $fields, 'innerHTML' => $innerhtmlval));
+
+			$output_string .= $this -> create_closed_html_tag($element);
+
+			$output_string .= "</div>";
+
+			$output_string .= "</div>
+			</div>";
+		}
+
+		$output_string .= $this -> form_close_tag();
+
+		$output_string .= $this -> close_panel();
+
+		if ($this -> debug_mode != 0) {
+			$output_string .= $this -> show_debug_mode();
+		}
+
+		return $this -> form_output_string = $output_string;
+	}
+
+	private function create_single_column_edit_form() {
+		if ($this -> form_output_string !== "")
+			$this -> form_output_string = "";
+
+		$this -> view_or_edit_mode = 'edit';
+
+		$db_result = $this -> db_results();
+
+		$this -> fields = $this -> _get_fields_names_from_table_result();
+
+		$this -> panel_title = $this -> panel_title == "" ? get_phrase($this -> db_table) . ' ' . get_phrase('edit') : $this -> panel_title;
+
+		$output_string = $this -> open_panel();
+
+		$output_string .= $this -> form_open_tag();
+
+		$output_string .= "<div class='row'><div class='col-xs-12'><ul class='nav nav-pills'>
+							<li>
+								<a id='btnBack' onclick='go_back();' class='btn btn-default'><i class='fa fa-arrow-left'></i> " . get_phrase('back') . "</a>		
+							</li>
+										
+						</ul></div></div>";
+
+		foreach ($this->fields as $fields) {
+
+			$output_string .= "<div class='form-group'>
+				<label class='control-label col-xs-4'>" . get_phrase($fields) . " <i style='cursor:pointer;' title='" . get_tooltip($fields) . "' class='fa fa-question-circle'></i></label>
+				<div class='col-xs-8'>";
+
+			$output_string .= "<div class='col-xs-8'>";
+
+			$output_string .= $this->_change_field_type($fields,$db_result[0][$fields]);
+
+			$output_string .= "</div>";
+
+			$output_string .= "</div>
+			</div>";
+		}
+
+		$output_string .= $this -> form_close_tag();
+
+		$output_string .= $this -> close_panel();
+
+		//$this->set_internal_debug($this->db_results());
+
+		if ($this -> debug_mode != 0) {
+			$output_string .= $this -> show_debug_mode();
+		}
 		
-		$cnt = 0;
-		/**
-		 * $elem = {"Progress_Measure_title":"De","verification_tool":"De",
-		 * "assessment_method":"De","weight":"3","compassion_connect_mapping":"2"}
-		 *
-		 * $this -> selected_list_fields = {"0":"lead_bio_fields_id",
-		 * "Data Type ID":"lead_bio_fields.datatype_id","Field Name":"lead_bio_fields.lead_bio_fields_name",
-		 * "Data Type":"datatype.datatype_name","Is Field Unique?":"lead_bio_fields.is_field_unique",
-		 * "Is Field Null?":"lead_bio_fields.is_field_null","Default Value":"lead_bio_fields.default_value"}
-		 *
-		 * $fields_with_type = ["is_field_unique","is_field_null"]
-		 *
-		 * $flipped_selected_fields = {"lead_bio_fields_id":0,"lead_bio_fields.datatype_id":"Data Type ID",
-		 * "lead_bio_fields.lead_bio_fields_name":"Field Name","datatype.datatype_name":"Data Type",
-		 * "lead_bio_fields.is_field_unique":"Is Field Unique?",
-		 * "lead_bio_fields.is_field_null":"Is Field Null?","lead_bio_fields.default_value":"Default Value"}
-		 *
-		 * $flipped_without_dots = ["lead_bio_fields_id","datatype_id","lead_bio_fields_name","datatype_name",
-		 * "is_field_unique","is_field_null","default_value"]
-		 *
-		 * $reflipped  = {"lead_bio_fields_id":0,"datatype_id":1,"lead_bio_fields_name":2,"datatype_name":3,
-		 * "is_field_unique":4,"is_field_null":5,"default_value":6}
-		 *
-		 *
-		 */
-		//$flipped_selected_fields = array_flip($this -> selected_list_fields);
+		$output_string .= $this -> jquery_script();
 
-		$flipped_without_dots = array();
+		$output_string .= $this -> style_script();
 
-		foreach ($this -> selected_list_fields as $key => $value) {
-
-			$piece = $value;
-
-			if (substr_count($value, ".")) {
-				$explode = explode(".", $value);
-				$piece = $explode[1];
-			}
-
-			$flipped_without_dots[] = $piece;
-		}
-
-		$reflipped = array_flip($flipped_without_dots);
-
-		foreach ($elem as $key => $value) {
-			if ($this -> view_or_edit_mode == 'view') {
-                 if(is_array($this->replace_field_value)&& array_key_exists($key, $this->replace_field_value))
-                 {
-                 	$human_readable_val=$this->replace_field_value[$key][$value];
-                 	
-                 	$fields[] = array('element' => 'div', 'label' => $result_combine[$key], 
-                 	'properties' => array('innerHTML' => ucfirst($human_readable_val), 'class' => '', 'id' => '', 
-                 	'style' => 'margin-top:8px;', $this -> view_or_edit_mode == 'view' ? '' : 'value' => $human_readable_val));
-                 }else{
-                 	
-                 	$fields[] = array('element' => 'div', 'label' => $result_combine[$key], 
-                 	'properties' => array('innerHTML' => ucfirst($value), 'class' => '', 'id' => '', 
-                 	'style' => 'margin-top:8px;', $this -> view_or_edit_mode == 'view' ? '' : 'value' => $value));
-                 }
-
-			}elseif($this -> view_or_edit_mode == 'add'){
-				$fields[] = array('element' => 'div', 'label' => $result_combine[$key], 
-                 	'properties' => array('innerHTML' => ucfirst($value), 'class' => '', 'id' => '', 
-                 	'style' => 'margin-top:8px;'));
-			} 
-			else {
-
-				$x = "";
-
-				if (array_key_exists($key, $reflipped)) {
-					$x = $key;
-				}
-
-				if (in_array($x, $fields_with_type)) {
-
-					$element = "select";
-
-					$options = array();
-
-					/**
-					 * $fields_options = [[{"option":"Zero"},{"option":"One"},
-					 * {"option":"Two","properties":{"selected":"selected"}},{"option":"Three"}],
-					 * [{"option":"Test"},{"option":"Test 0"},{"option":"Test 2"}]]
-					 *
-					 *
-					 * 'options' => array('yes' => array('option' => 'Yes'), 'no' => array('option' => 'No','properties'=>array('selected'=>'selected'))))
-					 */
-
-					foreach ($fields_options as $option_value) {
-
-						if ($option_value[0] == $key) {
-							foreach ($option_value[1] as $option_key => $inner_value) {
-
-								if ($option_key == $value) {
-									$options[$option_key]['option'] = $inner_value['option'];
-									$options[$option_key]['properties']['selected'] = 'selected';
-								} else {
-									$options[$option_key]['option'] = $inner_value['option'];
-								}
-
-							}
-						}
-
-					}
-
-					$fields[] = array('element' => $element, 'label' => $result_combine[$key], 'properties' => array('class' => '', 'value' => $value, 'name' => $key, 'id' => '', 'style' => 'margin-top:8px;'), 'options' => $options);
-					$cnt++;
-
-				} else {
-
-					$fields[] = array('element' => 'input', 'label' => $result_combine[$key], 'properties' => array('class' => '', 'name' => $key, 'value' => $value, 'id' => '', 'style' => 'margin-top:8px;'));
-
-				}
-
-			}
-		}
-
-		$this -> fields = $fields;
-
-		return $this -> create_single_column_form();
+		return $this -> form_output_string = $output_string;
 	}
 
 	private $extra_list_action = array();
@@ -1483,7 +1381,7 @@ class Utility_forms {
 			foreach ($this->extra_list_action as $row) {
 				$output .= "
 					<li>
-						<a href='" . base_url() . "index.php/" . $row['href'] . '/'.$primary_key.'/'."'>
+						<a href='" . base_url() . "index.php/" . $row['href'] . '/' . $primary_key . '/' . "'>
 							<i class='fa fa-" . $row['icon'] . "'></i>
 								" . $row['label'] . "
 						</a>
@@ -1496,14 +1394,10 @@ class Utility_forms {
 		return $output;
 	}
 
-	private $add_form = false;
+	private $add_form = true;
 
-	function set_add_form() {
-		$this -> add_form = true;
-	}
-
-	function get_add_form() {
-		return $this -> add_form;
+	function unset_add_button() {
+		$this -> add_form = false;
 	}
 
 	private $view_or_edit_mode = 'view';
@@ -1516,88 +1410,15 @@ class Utility_forms {
 		return $this -> view_or_edit_mode;
 	}
 
-	private function make_human_readables($element) {
-
-		return ucwords(str_replace("_", " ", $element));
-	}
-
-	private $hidden_fields = array();
-
-	function set_hidden_fields($hidden_fields) {
-		$this -> hidden_fields = $hidden_fields;
-	}
-
-	private function get_hidden_fields() {
-		return $this -> hidden_fields;
-	}
-	
-	private $field_swap = array();
-	
-	public function set_field_swap($replace_array){
-		$this->field_swap = $replace_array;
-	}
-	
-	public function get_field_swap(){
-		return $this->field_swap;
-	}	
-
-	private function hide_fields($hidden_fields) {
-		$this->get_field_swap();
-		
-		$all_fields = array_column($this -> CI -> db -> field_data($this -> db_table), 'name');
-		
-		$fields = array();
-		
-		if(empty($this->field_swap)){
-			$fields = array_diff($all_fields, $hidden_fields);
-		}else{
-			
-			$fields = array_diff($all_fields, $hidden_fields);
-			
-			foreach ($fields as $key => $value) {
-			    if (isset($this->field_swap[$value])) {
-			        $fields[$key] = $this->field_swap[$value];
-			    }
-			}
-			
-			
-		}
-
-		return $fields;
-	}
-
-	private function _get_fields_from_table() {
-
-		$this -> get_hidden_fields();
-
-		$table_fields = $this -> hide_fields($this -> hidden_fields);
-
-		$human_readable_labels = array_map(array($this, "make_human_readables"), $table_fields);
-
-		return array_combine($human_readable_labels, $table_fields);
-
-	}
-	
-	private function append_table_alias_to_field($element){
-		$aliased_field = $element;
-		
-		if($this->CI->db->field_exists($element,$this->db_table)){
-			$aliased_field = $this->db_table.".".$element;
-		}
-		return $aliased_field;
-	}
-	
-	private function _get_fields_from_table_with_table_alias(){
-		$this -> get_hidden_fields();
-
-		$table_fields = $this -> hide_fields($this -> hidden_fields);
-		
-		$append_table_alias = array_map(array($this, "append_table_alias_to_field"), $table_fields);
-
-		$human_readable_labels = array_map(array($this, "make_human_readables"), $table_fields);
-
-		return array_combine($human_readable_labels, $append_table_alias);
-	}
+	// private $hidden_fields = array();
+// 
+	// function set_hidden_fields($hidden_fields) {
+		// $this -> hidden_fields = $hidden_fields;
+	// }
+// 
+	// private function get_hidden_fields() {
+		// return $this -> hidden_fields;
+	// }
 
 	private $hide_delete_button = false;
 
@@ -1609,52 +1430,239 @@ class Utility_forms {
 		return $this -> hide_delete_button;
 	}
 
-	private function _get_primary_key_field() {
+	private function _get_primary_key_field($table_name = "") {
 
-		$field_data = $this -> CI -> db -> field_data($this -> db_table);
+		if ($table_name == "") {
+			$table_name = $this -> db_table;
+		}
 
-		$field_name = array_column($field_data, 'name');
-		$field_primary_key = array_column($field_data, 'primary_key');
+		$field_data = $this -> CI -> db -> field_data($table_name);
 
-		$combined = array_combine($field_name, $field_primary_key);
+		$fields = array_column($field_data, 'name');
+		$primary_key_field = array_column($field_data, 'primary_key');
 
-		$primary_key_field = array_search(1, $combined);
+		$primary_key_field_name = array_combine($primary_key_field, $fields);
 
-		return $primary_key_field;
+		return $primary_key_field_name[1];
 	}
 
-	function render_item_list() {
-		$add = "#";
-		$view = "#";
-		$edit = "#";
-		$delete = "#";
+	function _get_fields_names_from_table_result() {
 
-		$this -> get_hide_delete_button();
+		$this -> set_data_limit(1, 0);
+		$db_result = $this -> db_results();
 
-		$this -> get_list_action();
-		$this -> get_add_form();
+		$fields = $db_result[0];
 
-		$this -> get_replace_field_value();
+		unset($fields[$this -> _get_primary_key_field()]);
 
-		if (!empty($this -> list_action)) {
-			extract($this -> list_action);
+		return array_keys($fields);
+	}
+
+	private $form_type = 'single_column';
+
+	public function set_add_form_type($form_type) {
+		$this -> form_type = $form_type;
+	}
+
+	private function get_add_form_type() {
+		return $this -> form_type;
+	}
+	
+	private $db_transaction_message = "";
+	
+	private $db_transaction_success_flag = false;
+	
+	private $callback_insert = null;
+	private $callback_before_insert = null;
+	private $callback_after_insert = null;
+
+	public function callback_insert($callback = null)
+	{
+		$this->callback_insert = $callback;
+
+		return $this;
+	}
+	
+	public function callback_before_insert($callback = null)
+	{
+		$this->callback_before_insert = $callback;
+
+		return $this;
+	}		
+	
+	public function callback_after_insert($callback = null)
+	{
+		$this->callback_after_insert = $callback;
+
+		return $this;
+	}
+	
+	function save_form_data(){
+		
+		
+		$this->CI->db->trans_start();
+		
+		if($this->callback_insert != null){
+			call_user_func($this->callback_insert,$this->CI->input->post());
+		}else{
+			if($this->form_type == 'single_column'){
+				
+				$post_data = $this->CI->input->post();
+				
+				if($this->callback_before_insert != null){
+					$post_data  = call_user_func($this->callback_before_insert,$this->CI->input->post());
+				}	
+				
+				$this->CI->db->insert($this->db_table,$post_data);
+		
+				$insert_id = $this->CI->db->insert_id();
+					
+				if($this->callback_after_insert != null){							
+					call_user_func($this->callback_after_insert,$this->CI->input->post(),$insert_id);
+				}
+					
+				
+			}elseif($this->form_type == 'multi_column'){
+				
+				$full_post_array = $this->CI->input->post();
+							
+				$array_width = count(array_shift($this->CI->input->post()));
+				
+				$array_keys = array_keys($full_post_array);
+				
+				$batch_array = array();
+				
+				for($i=0;$i<$array_width;$i++){
+					foreach($array_keys as $field){
+						$batch_array[$i][$field] = $full_post_array[$field][$i];
+					}
+				}
+				
+				$this->CI->db->insert_batch($this->db_table, $batch_array);
+			}
+		}	
+		
+		if ($this->CI->db->trans_status() === FALSE)
+		{
+			        $this->CI->db->trans_rollback();
+					
+					$this->db_transaction_message = "Error Occurred";
+					
+					$this->db_transaction_success_flag = false;
 		}
-		//print_r($view);
+		else
+		{
+			        $this->CI->db->trans_commit();
+					
+					$this->db_transaction_message = "Data inserted successful";
+					
+					$this->db_transaction_success_flag = true;
+		}
+			
+	}
+	
+	private function edit_form_data(){
+		$this->CI->db->trans_start();
+		
+		$this->CI->db->where(array($this->_get_primary_key_field()=>$this->CI->uri->segment(4)));
+		
+		$this->CI->db->update($this->db_table,$this->CI->input->post());
+		
+		if ($this->CI->db->trans_status() === FALSE)
+		{
+			        $this->CI->db->trans_rollback();
+					
+					$this->db_transaction_message = "Error Occurred";
+					
+					$this->db_transaction_success_flag = false;
+		}
+		else
+		{
+			        $this->CI->db->trans_commit();
+					
+					$this->db_transaction_message = "Data inserted successful";
+					
+					$this->db_transaction_success_flag = true;
+		}	
+	}
+	
+	private function delete_record_data(){
+		$this->CI->db->where(array($this->_get_primary_key_field()=>$this->CI->uri->segment(4)));
+		$this->CI->db->delete($this->db_table);
+	}
+	
+	private $required_fields = array();
+	
+	public function set_required_fields($required_fields){
+		$this->required_fields = $required_fields;
+	}
+	
+	private function _check_get_primary_key_field_of_join_in_ref_to_primary_field($field){
+		
+		$primary_key_field = "";
+		
+		foreach ($this->join as $join_table => $join_keys) {
+				$fields_for_joined_table = array_column($this -> CI -> db -> field_data($join_table), 'name');
+	
+					if (in_array($field, $fields_for_joined_table)) {						
+						$primary_key_field = $join_keys[1];
+					}
+		}
+		
+		return $primary_key_field;			
+	}
+	
+	function render() {
+		
 
-		$list_array = $this -> db_results(false);
+		$output = "";
+		
+		if ($this -> form_output_string !== "")
+			$this -> form_output_string = "";
 
-		$output = $this -> open_panel();
+		if ($this -> CI -> uri -> segment(3) && !$this->CI->input->post() && $this -> CI -> uri -> segment(3) != 'delete') {
+			
+				if ($this -> CI -> uri -> segment(3) == 'view' || $this -> CI -> uri -> segment(3) == 'edit') {
+				$this -> form_type = 'single_column';
+				}
+	
+				$form = "create_" . $this -> form_type . "_" . $this -> CI -> uri -> segment(3) . "_form";
+	
+				return $this -> $form();
+			
+		} elseif($this->CI->input->post() && $this -> CI -> uri -> segment(3) == 'add'){
+				
+			$this->save_form_data();
+			
+			redirect(base_url() . 'index.php/'.$this->CI->router-> fetch_class().'/'.$this->CI->router-> fetch_method());		
+						
+		}elseif($this->CI->input->post() && $this -> CI -> uri -> segment(3) == 'edit'){
+				
+			$this->edit_form_data();
+			
+			redirect(base_url() . 'index.php/'.$this->CI->router-> fetch_class().'/'.$this->CI->router-> fetch_method());		
+		
+		}elseif($this -> CI -> uri -> segment(3) == 'delete'){
+				
+			$this->delete_record_data();
+			
+			redirect(base_url() . 'index.php/'.$this->CI->router-> fetch_class().'/'.$this->CI->router-> fetch_method());		
+		}
+
+		$list_array = $this -> assign_primary_key_as_row_keys_for_db_results();
+
+		$output .= $this -> open_panel();
 		if ($this -> add_form) {
 			$output .= "
 						<div class='row'>
 							<div class='col-xs-12'>									
 									<ul class='nav nav-pills'>
 										<li>
-											<a href='" . base_url() . "index.php/" . $add['href'] . "' class='btn btn-default'> ".get_phrase('add_new_record')." 
+											<a href='" . base_url() . "index.php/" . $this -> CI -> router -> fetch_class() . "/" . $this -> CI -> router -> fetch_method() . "/add' class='btn btn-default'> " . get_phrase('add_new_record') . " 
 												<i class='fa fa-plus'></i></a>
 										</li>
 										<li>
-											<a id='btnBack' onclick='go_back();' class='btn btn-default'><i class='fa fa-arrow-left'></i> ".get_phrase('back')."</a>		
+											<a id='btnBack' onclick='go_back();' class='btn btn-default'><i class='fa fa-arrow-left'></i> " . get_phrase('back') . "</a>		
 										</li>
 										
 									</ul>
@@ -1663,44 +1671,35 @@ class Utility_forms {
 					<hr/>	
 			";
 		}
-
+		
+		if($this->db_transaction_success_flag){
+			$output .= "<div class='row' id='save_message'><div class='col-xs-12' style='text-align:center;color:red;'>".$this->db_transaction_message."<hr/></div></div>";
+		}
+		
 		$output .= "
 				<div class='row'>
 						<div class='col-xs-12'>
 							<table class='table datatable'>
-								<thead><tr><th>".get_phrase('action')."</th>";
-		$header_elem = $this -> get_selected_fields();
+								<thead><tr><th class=''>" . get_phrase('action') . "</th>";
 
-		if (empty($this -> get_selected_fields())) {
-			$header_elem = $this -> _get_fields_from_table();
-		}
-		/**
-		 * Remove the first element (red) from an array, and return
-		 * the value of the removed element
-		 */
-		array_shift($header_elem);
-		
-        // print_r($list_array);
-         
-		foreach ($header_elem as $key => $value) {
+		foreach ($this->_get_fields_names_from_table_result() as $value) {
 
-			$output .= "<th>" . get_phrase($key) . " <i style='cursor:pointer;' title='" . get_tooltip($key) . "' class='fa fa-question-circle'></i></th>";
+			if (!empty($this -> display_as)) {
+				if (array_key_exists($value, $this -> display_as)) {
+					$value = $this -> display_as[$value];
+				}
+			}
+
+			$output .= "<th>" . get_phrase($value) . " <i style='cursor:pointer;' title='" . get_tooltip($value) . "' class='fa fa-question-circle'></i></th>";
 
 		}
-		$output .= "</tr></thead>
-								<tbody>";
-		foreach ($list_array as $row) {
-			//print_r($row);
-			$primary_key_field = $this -> _get_primary_key_field();
-
-			$primary_key = $row[$primary_key_field];
-
-			array_shift($row);
+		$output .= "</tr></thead><tbody>";
+		foreach ($list_array as $primary_key => $row) {
 
 			$output .= "<tr>";
 			$output .= "<td>
 										
-											<div class='btn-group left-dropdown'>
+						<div class='btn-group left-dropdown'>
 											
 												<a class='btn btn-default' href='#'>Action</a>
 												
@@ -1712,17 +1711,15 @@ class Utility_forms {
 												<ul class='dropdown-menu' role='menu'>
 													
 													<li>
-														<a href='" . base_url() . "index.php/" . $view['href'] . "/" . $this -> db_table . "/" . $primary_key . "'>
-															<i class='fa fa-eye'></i>
-																View
+														<a href='" . base_url() . "index.php/" . $this -> CI -> router -> fetch_class() . "/" . $this -> CI -> router -> fetch_method() . "/view/" . $primary_key . "'> <i class='fa fa-eye'></i> " . get_phrase('view') . " 
+															
 														</a>
 													</li>
 													<li class='divider'></li>
 													
 													<li>
-														<a href='" . base_url() . "index.php/" . $edit['href'] . "/" . $this -> db_table . "/" . $primary_key . "'>
-															<i class='fa fa-pencil'></i>
-																Edit
+														<a href='" . base_url() . "index.php/" . $this -> CI -> router -> fetch_class() . "/" . $this -> CI -> router -> fetch_method() . "/edit/" . $primary_key . "'> <i class='fa fa-pencil'></i> " . get_phrase('edit') . " 
+															
 														</a>
 													</li>
 													<li class='divider'></li>";
@@ -1730,26 +1727,29 @@ class Utility_forms {
 
 				$output .= "<li>
 													
-														<a href='" . base_url() . "index.php/" . $delete['href'] . "/" . $this -> db_table . "/" . $primary_key . "'>
-															<i class='fa fa-trash'></i>
-																Delete
+														<a href='" . base_url() . "index.php/" . $this -> CI -> router -> fetch_class() . "/" . $this -> CI -> router -> fetch_method() . "/delete/" . $primary_key . "'> <i class='fa fa-times'></i> " . get_phrase('delete') . " 
+															
 														</a>
 													</li>
 													<li class='divider'></li>";
 			}
 			$output .= $this -> additional_list_action($primary_key);
 			$output .= "</ul>
-											</div>
+											</div>		
 								
-										</td>";
-			
-			
+						</td>";
+
 			foreach ($row as $key => $td_value) {
-				if (is_array($this -> replace_field_value) && array_key_exists($key, $this -> replace_field_value)) {
-					$output .= "<td>" . $this -> replace_field_value[$key][$td_value] . "</td>"; ;
-				} else {
-					$output .= "<td>" . $td_value . "</td>";
+					
+				if($this->_check_get_primary_key_field_of_join_in_ref_to_primary_field($key) != ""){
+					$key = $this->_check_get_primary_key_field_of_join_in_ref_to_primary_field($key);
 				}
+				 
+				if(array_key_exists($key, $this->dropdown_element_type)){
+					$td_value = $this->dropdown_element_type[$key][$td_value]['option'];
+				}
+				
+				$output .= "<td>" . $td_value . "</td>";
 
 			}
 			$output .= "</tr>";
@@ -1763,28 +1763,15 @@ class Utility_forms {
 
 		$output .= $this -> use_datatable();
 
-		return $output;
-	}
+		if ($this -> debug_mode != 0) {
+			$output .= $this -> show_debug_mode();
+		}
 
-	private $replace_field_value = "";
+		$output .= $this -> jquery_script();
 
-	public function set_replace_field_value($replace_field_value_array) {
-		$this -> replace_field_value = $replace_field_value_array;
-		//array($field => $replace_field_value_array);
-	}
+		$output .= $this -> style_script();
 
-	private function get_replace_field_value() {
-		return $this -> replace_field_value;
-	}
-
-	private $table_primary_key;
-
-	public function set_table_primary_key($table_primary_key) {
-		$this -> table_primary_key = $table_primary_key;
-	}
-
-	private function get_table_primary_key() {
-		return $this -> table_primary_key;
+		return $this -> form_output_string = $output;
 	}
 
 	function set_use_datatable($use_datatable) {
@@ -1822,42 +1809,6 @@ class Utility_forms {
 		}
 
 		return $output;
-	}
-	
-	private $form_type = 'single_column';
-	
-	function render_form($form_type = "single_form") {
-
-		if ($this -> form_output_string !== "")
-			$this -> form_output_string = "";
-
-		$this -> form_output_string .= $this -> open_panel();
-		$this -> form_output_string .= $this -> form_open_tag();
-
-		if ($form_type == 'multi_form'){
-			$this->form_type = 'multi_column';
-			$this -> form_output_string .= $this -> create_multi_column_form();
-		}	
-		elseif ($form_type == 'single_form')
-			$this -> form_output_string .= $this -> create_single_column_form();
-		elseif ($form_type == 'single_view_form')
-			$this -> form_output_string .= $this -> build_single_form_fields();
-		
-			
-			
-		$this -> form_output_string .= $this -> form_close_tag();
-		$this -> form_output_string .= $this -> close_panel();
-
-		if ($this -> debug_mode != 0) {
-			$this -> form_output_string .= $this -> show_debug_mode();
-		}
-
-		$this -> form_output_string .= $this -> jquery_script();
-
-		$this -> form_output_string .= $this -> style_script();
-
-		return $this -> form_output_string;
-
 	}
 
 }

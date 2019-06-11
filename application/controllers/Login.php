@@ -30,7 +30,7 @@ class Login extends CI_Controller {
     public function index() {
 
         if ($this->session->userdata('user_login') == 1)  
-        	redirect(base_url() . 'Dashboard', 'refresh');
+        	redirect(base_url() . 'dashboard', 'refresh');
 
         $this->load->view('backend/login');
     }
@@ -74,12 +74,6 @@ class Login extends CI_Controller {
 			$this->session->set_userdata('role_id', $row->role_id);	
 			$this->session->set_userdata('profile_name', $this->crud_model->get_type_name_by_id('profile',$row->profile_id));
 			
-			
-			
-			// $scope = $this->db->get_where("scope",array("user_id"=>$row->user_id));
-// 			
-			// $this->session->set_userdata('two_way', $scope->two_way);
-			// $this->session->set_userdata('scope_type', $scope->type);
 			
 						
             return 'success';

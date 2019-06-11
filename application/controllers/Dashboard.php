@@ -18,7 +18,7 @@ class Dashboard extends CI_Controller {
         $this->load->model('crud_model');
         $this->load->database();
         $this->load->library('session');
-		$this->session->set_userdata('view_type','Dashboard');
+		$this->session->set_userdata('view_type','dashboard');
         /* cache control */
 		$this->output->set_header('Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0');
 		$this->output->set_header('Pragma: no-cache');

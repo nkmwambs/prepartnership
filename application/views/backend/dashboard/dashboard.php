@@ -1,9 +1,4 @@
 
-<?php
-  $not_to_show_object = $this -> db -> select(array('lead_bio_info_column')) -> get_where('lead_bio_fields', array('show_field' => 0)) -> result_array();
-  $hidden_fields = array_column($not_to_show_object, 'lead_bio_info_column');
-  print_r($hidden_fields);
-?>
 <div class='row'>
 <div class="col-xs-12">
 	<form id="rootwizard-2" method="post" action="" class="form-wizard validate">
@@ -143,7 +138,7 @@
 						<hr>
 					<div class="row">
 					<div class="col-xs-12">
-						<table class="table table-striped">
+						<table id='tbl_assessment_form' class="table table-striped">
 							<thead>
 								<tr style="font-style: italic;">
 									<th><?=get_phrase("progress_measure");?></th>
@@ -167,7 +162,7 @@
 									</td>
 									
 									<td>
-	                                     <select class="custom-select" multiple>
+	                                     <select class="custom-select select2" multiple>
 											<option value="method1"><?=get_phrase('records-review');?></option>
 											<option value="method2"><?=get_phrase('focused_discussions');?></option>
 											
@@ -633,266 +628,6 @@
 					
 					</div>
 					</div>
-
-						<!--<div class="row">
-							
-							
-							
-							<div class="col-xs-5"><h3>Progress Measures</h3> </div>
-							
-							
-							
-							<div class="col-xs-4"><h3>Score</h3> </div>
-							
-							<div class="col-xs-3"><h3>Comments</h3> </div>
-						</div>
-						
-						<div class='row'>
-	                       <div class="col-xs-5">
-								<div class="form-group">
-									<label class="control-label" for="updated_by"></label> 1: Church has a documented and operational vision, mission & strategy for Ministry including C&Y 
-									
-								</div>
-							</div>
-							
-							  <div class="col-xs-4">
-								<div class="form-group">
-									<label class="control-label" for="updated_by"></label> YES
-									
-								</div>
-							</div>
-							
-							  <div class="col-xs-3">
-								<div class="form-group">
-									
-									<textarea class="form-control autogrow" name="about" id="about"  rows="2" placeholder="Comments"></textarea>
-								</div>
-							</div>
-							
-							
-							<div class="col-xs-5">
-								<div class="form-group">
-									<label class="control-label" for="updated_by"></label> 2: Church has a well-defined and operational Leadership and Governance structure 
-									
-								</div>
-							</div>
-							
-							  <div class="col-xs-4">
-								<div class="form-group">
-									<label class="control-label" for="updated_by"></label> No
-									
-								</div>
-							</div>
-							
-							  <div class="col-xs-3">
-								<div class="form-group">
-									
-									<textarea class="form-control autogrow" name="about" id="about"  rows="2" placeholder="Comments"></textarea>
-								</div>
-							</div>
-							
-							
-							<div class="col-xs-5">
-								<div class="form-group">
-									<label class="control-label" for="updated_by"></label> 3: Church has operational Human Resource policies and guidelines
-									
-								</div>
-							</div>
-							
-							  <div class="col-xs-4">
-								<div class="form-group">
-									<label class="control-label" for="updated_by"></label> No
-									
-								</div>
-							</div>
-							
-							  <div class="col-xs-3">
-								<div class="form-group">
-									
-									<textarea class="form-control autogrow" name="about" id="about"  rows="2" placeholder="Comments"></textarea>
-								</div>
-							</div>
-							
-							
-							<div class="col-xs-5">
-								<div class="form-group">
-									<label class="control-label" for="updated_by"></label> 4: Church has an adequate pool of qualified human resource for the Ministry (Employees and Volunteers)
-									
-								</div>
-							</div>
-							
-							  <div class="col-xs-4">
-								<div class="form-group">
-									<label class="control-label" for="updated_by"></label> Yes
-									
-								</div>
-							</div>
-							
-							  <div class="col-xs-3">
-								<div class="form-group">
-									
-									<textarea class="form-control autogrow" name="about" id="about"  rows="2" placeholder="Comments"></textarea>
-								</div>
-							</div>
-							
-							
-							<div class="col-xs-5">
-								<div class="form-group">
-									<label class="control-label" for="updated_by"></label> 5: Church has operational administration  and financial management procedures and policies
-									
-								</div>
-							</div>
-							
-							  <div class="col-xs-4">
-								<div class="form-group">
-									<label class="control-label" for="updated_by"></label> Yes
-									
-								</div>
-							</div>
-							
-							  <div class="col-xs-3">
-								<div class="form-group">
-									
-									<textarea class="form-control autogrow" name="about" id="about"  rows="2" placeholder="Comments"></textarea>
-								</div>
-							</div>
-							
-							
-							<div class="col-xs-5">
-								<div class="form-group">
-									<label class="control-label" for="updated_by"></label> 6: Church has adequate physical infrastructure and space for all its ministries.
-									
-								</div>
-							</div>
-							
-							  <div class="col-xs-4">
-								<div class="form-group">
-									<label class="control-label" for="updated_by"></label> No
-									
-								</div>
-							</div>
-							
-							  <div class="col-xs-3">
-								<div class="form-group">
-									
-									<textarea class="form-control autogrow" name="about" id="about"  rows="2" placeholder="Comments"></textarea>
-								</div>
-							</div>
-							
-							
-							<div class="col-xs-5">
-								<div class="form-group">
-									<label class="control-label" for="updated_by"></label> 7: Church has sound Biblical doctrine and is implementing a strategy to reach out and disciple people of all ages
-									
-								</div>
-							</div>
-							
-							  <div class="col-xs-4">
-								<div class="form-group">
-									<label class="control-label" for="updated_by"></label> No
-									
-								</div>
-							</div>
-							
-							  <div class="col-xs-3">
-								<div class="form-group">
-									
-									<textarea class="form-control autogrow" name="about" id="about"  rows="2" placeholder="Comments"></textarea>
-								</div>
-							</div>
-							
-							
-							<div class="col-xs-5">
-								<div class="form-group">
-									<label class="control-label" for="updated_by"></label> 8: Church is using church & community mobilization approaches for advocacy and networking in the community
-									
-								</div>
-							</div>
-							
-							  <div class="col-xs-4">
-								<div class="form-group">
-									<label class="control-label" for="updated_by"></label> No
-									
-								</div>
-							</div>
-							
-							  <div class="col-xs-3">
-								<div class="form-group">
-									
-									<textarea class="form-control autogrow" name="about" id="about"  rows="2" placeholder="Comments"></textarea>
-								</div>
-							</div>
-							
-							
-							<div class="col-xs-5">
-								<div class="form-group">
-									<label class="control-label" for="updated_by"></label> 9: Church participates in ongoing learning activities including ministry to   children and youth and Implements Action Plans
-									
-								</div>
-							</div>
-							
-							  <div class="col-xs-4">
-								<div class="form-group">
-									<label class="control-label" for="updated_by"></label> Yes
-									
-								</div>
-							</div>
-							
-							  <div class="col-xs-3">
-								<div class="form-group">
-									
-									<textarea class="form-control autogrow" name="about" id="about"  rows="2" placeholder="Comments"></textarea>
-								</div>
-							</div>
-							
-							
-							<div class="col-xs-5">
-								<div class="form-group">
-									<label class="control-label" for="updated_by"></label> 10:Church identifies and addresses prioritized needs of the whole person, including children living in poverty e.g. livelihoods, education, social justice. etc.
-									
-								</div>
-							</div>
-							
-							  <div class="col-xs-4">
-								<div class="form-group">
-									<label class="control-label" for="updated_by"></label> No
-									
-								</div>
-							</div>
-							
-							  <div class="col-xs-3">
-								<div class="form-group">
-									
-									<textarea class="form-control autogrow" name="about" id="about"  rows="2" placeholder="Comments"></textarea>
-								</div>
-							</div>
-							
-							
-							<div class="col-xs-5">
-								<div class="form-group">
-									<label class="control-label" for="updated_by"></label> 11: Church has vibrant CY Ministry
-									
-								</div>
-							</div>
-							
-							  <div class="col-xs-4">
-								<div class="form-group">
-									<label class="control-label" for="updated_by"></label> No
-									
-								</div>
-							</div>
-							
-							  <div class="col-xs-3">
-								<div class="form-group">
-									
-									<textarea class="form-control autogrow" name="about" id="about"  rows="2" placeholder="Comments"></textarea>
-								</div>
-							</div>
-
-                        </div> -->
-                        
-                        
-                        
                         <div class='row'>
 
 							<div class="col-xs-12">
@@ -911,7 +646,7 @@
 							<div class="col-xs-12">
 								<div class="form-group">
 									
-									<button class="btn btn-primary" name="btnSave" id="btnSave" >SAVE</button>
+									
 									<button class="btn btn-primary" name="btnSubmit" id="btnSubmit" >Submit</button>
 								</div>
 							</div>
@@ -942,4 +677,20 @@
 	</form>
 </div>
 </div>
+
+<script>
+    $(document).ready(function(){
+    	
+    	var table_id=$('#tbl_assessment_form');
+    	
+    	table_id.find($('select[multiple]')).not('.select2').addClass('select2');
+	
+	    table_id.find($('select')).not('[multiple]').addClass('form-control');
+	
+	    table_id.find(('tr th:first')).css('width','350px');
+	     
+	    table_id.find(('td')).css('width','150px');
+    });
+	
+</script>
 

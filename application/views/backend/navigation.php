@@ -1,4 +1,3 @@
-
 <header class="navbar navbar-fixed-top"><!-- set fixed position by adding class "navbar-fixed-top" -->
 		
 		<div class="navbar-inner">
@@ -205,4 +204,3 @@
 				</ul>
     </div>
     </header>
-
