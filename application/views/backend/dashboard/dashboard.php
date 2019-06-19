@@ -1,4 +1,5 @@
 <?php //create an array that has the following keys: FCP, Risk and param
+$test=$this->crud_model->test_grouping();
 
 $grid_array=$this->crud_model->build_dashboard_array('2019-03-31');
 
