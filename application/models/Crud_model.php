@@ -78,20 +78,19 @@ class Crud_model extends CI_Model {
 
 	function get_connect_mappings() {
 		//Get the coonect mapping from the table 'compassion_connect_mapping'
-		$connect_mappings = $this -> db -> select(array('compassion_connect_mapping_id','lead_score_parameter','lead_score_stage')) -> get('compassion_connect_mapping') -> result_object();
+		$connect_mappings = $this -> db -> select(array('compassion_connect_mapping_id', 'lead_score_parameter', 'lead_score_stage')) -> get('compassion_connect_mapping') -> result_object();
 
 		//Build the array to be used in the controller 'Settings' in the method add_assemessment
 		//$count = 1;
 		//$build_dropdown_array[] = array('option' => 'No Connect Match');
 
-		
 		foreach ($connect_mappings as $connect_value) {
-			
-			$str_lead_score_stage='Lead Score Criteria -' . ' ' . $connect_value -> lead_score_stage . ' : ';
-			
-			$str_lead_score_stage=$connect_value->compassion_connect_mapping_id==1?'':$str_lead_score_stage;
-			
-			$build_dropdown_array[$connect_value->compassion_connect_mapping_id]['option'] = $str_lead_score_stage . $connect_value -> lead_score_parameter;
+
+			$str_lead_score_stage = 'Lead Score Criteria -' . ' ' . $connect_value -> lead_score_stage . ' : ';
+
+			$str_lead_score_stage = $connect_value -> compassion_connect_mapping_id == 1 ? '' : $str_lead_score_stage;
+
+			$build_dropdown_array[$connect_value -> compassion_connect_mapping_id]['option'] = $str_lead_score_stage . $connect_value -> lead_score_parameter;
 			//$count++;
 		}
 
@@ -756,18 +755,18 @@ class Crud_model extends CI_Model {
 	}
 
 	public function derive_option_values_from_table($table_name, $key_field, $option_text_field) {
-		
+
 		$table_results = $this -> db -> get($table_name) -> result_object();
 
 		$array_of_keys = array_column($table_results, $key_field);
 
-		$array_of_text= array_column($table_results, $option_text_field);
+		$array_of_text = array_column($table_results, $option_text_field);
 
 		return array_combine($array_of_keys, $array_of_text);
 
 	}
 
-	public function derive_dropdown_options_from_table($table_name,$key_fields,$option_text_field){
+	public function derive_dropdown_options_from_table($table_name, $key_fields, $option_text_field) {
 		$types = $this -> db -> get($table_name) -> result_object();
 
 		$type_array = array();
@@ -775,8 +774,279 @@ class Crud_model extends CI_Model {
 		foreach ($types as $type) {
 			$type_array[$type -> $key_fields]['option'] = ucfirst($type -> $option_text_field);
 		}
-		
+
 		return $type_array;
-	}	
+	}
+
+	//Finance dashboard
+	private function fcps_with_risk() {
+
+		$fcp_array = array();
+
+		//KE0200 array
+		$fcp_array[1]['fcp_id'] = 'KE0200';
+		$fcp_array[1]['risk'] = 'High';
+
+		//KE0215 array
+		$fcp_array[2]['fcp_id'] = 'KE0215';
+		$fcp_array[2]['risk'] = 'Low';
+
+		//KE0300 array
+		$fcp_array[3]['fcp_id'] = 'KE0300';
+		$fcp_array[3]['risk'] = 'Medium';
+
+		//KE0320 array
+		$fcp_array[4]['fcp_id'] = 'KE0320';
+		$fcp_array[4]['risk'] = 'High';
+
+		//KE0540 array
+		$fcp_array[5]['fcp_id'] = 'KE0540';
+		$fcp_array[5]['risk'] = 'Medium';
+
+		return $fcp_array;
+	}
+
+	private function dashboard_parameters() {
+
+		$dashboard_params = array();
+
+		//Parameters array
+		$dashboard_params[1]['param_name'] = 'MFR Submitted';
+		$dashboard_params[1]['result_method'] = 'has_mfr_submitted';
+		$dashboard_params[1]['requested'] = 'no';
+
+		$dashboard_params[2]['param_name'] = 'Bank Statement uploaded';
+		$dashboard_params[2]['result_method'] = 'has_bank_statement_uploaded';
+		$dashboard_params[2]['requested'] = 'no';
+
+		$dashboard_params[3]['param_name'] = 'Bank Balance';
+		$dashboard_params[3]['result_method'] = 'compute_bank_balance';
+		$dashboard_params[3]['requested'] = 'no';
+
+
+		$dashboard_params[4]['param_name'] = 'Oustanding Cheques';
+		$dashboard_params[4]['result_method'] = 'compute_outstanding_cheques';
+		$dashboard_params[4]['requested'] = 'no';
+
+		$dashboard_params[5]['param_name'] = 'Deposit in transit';
+		$dashboard_params[5]['result_method'] = 'compute_deposit_in_transit';
+		$dashboard_params[5]['requested'] = 'no';
+
+		$dashboard_params[6]['param_name'] = 'Bank Reconciliation';
+		$dashboard_params[6]['result_method'] = 'check_bank_reconcile_correct';
+		$dashboard_params[6]['requested'] = 'no';
+
+		$dashboard_params[7]['param_name'] = 'Confirm Petty Cash';
+		$dashboard_params[7]['result_method'] = 'confirm_petty_cash';
+		$dashboard_params[7]['requested'] = 'yes';
+
+		return $dashboard_params;
+	}
+
+	private function mfr_submission_data() {
+
+		$mfr_submission_data = array();
+
+		//KE0200 array
+		$mfr_submission_data[1]['fcp_id'] = 'KE0200';
+		$mfr_submission_data[1]['closure_date'] = '2019-03-31';
+		$mfr_submission_data[1]['submitted'] = 1;
+		$mfr_submission_data[1]['submission_date'] = '2019-04-05';
+
+		//KE0215 array
+		$mfr_submission_data[2]['fcp_id'] = 'KE0215';
+		$mfr_submission_data[2]['closure_date'] = '2019-03-31';
+		$mfr_submission_data[2]['submitted'] = 0;
+		$mfr_submission_data[2]['submission_date'] = '2019-04-10';
+
+		//KE0300 array
+		$mfr_submission_data[3]['fcp_id'] = 'KE0300';
+		$mfr_submission_data[3]['closure_date'] = '2019-03-31';
+		$mfr_submission_data[3]['submitted'] = 1;
+		$mfr_submission_data[3]['submission_date'] = '2019-04-02';
+
+		//KE0320 array
+		$mfr_submission_data[4]['fcp_id'] = 'KE0320';
+		$mfr_submission_data[4]['closure_date'] = '2019-03-31';
+		$mfr_submission_data[4]['submitted'] = 1;
+		$mfr_submission_data[4]['submission_date'] = '2019-04-03';
+
+		//KE0540 array
+		$mfr_submission_data[5]['fcp_id'] = 'KE0540';
+		$mfr_submission_data[5]['closure_date'] = '2019-03-31';
+		$mfr_submission_data[5]['submitted'] = 0;
+		$mfr_submission_data[5]['submission_date'] = '2019-07-04';
+
+		return $mfr_submission_data;
+
+	}
+
+	private function bank_statement_uploaded_data() {
+
+		$bank_statement_uploaded_data = array();
+
+		//KE0200 array
+		$bank_statement_uploaded_data[1]['fcp_id'] = 'KE0200';
+		$bank_statement_uploaded_data[1]['file_exists'] = true;
+		$bank_statement_uploaded_data[1]['closure_date'] = '2019-03-31';
+
+		//KE0215 array
+		$bank_statement_uploaded_data[2]['fcp_id'] = 'KE0215';
+		$bank_statement_uploaded_data[2]['file_exists'] = false;
+		$bank_statement_uploaded_data[2]['closure_date'] = '2019-03-31';
+
+		//KE0300 array
+		$bank_statement_uploaded_data[3]['fcp_id'] = 'KE0300';
+		$bank_statement_uploaded_data[3]['file_exists'] = false;
+		$bank_statement_uploaded_data[3]['closure_date'] = '2019-03-31';
+
+		//KE0320 array
+		$bank_statement_uploaded_data[4]['fcp_id'] = 'KE0320';
+		$bank_statement_uploaded_data[4]['file_exists'] = true;
+		$bank_statement_uploaded_data[4]['closure_date'] = '2019-03-31';
+
+		//KE0540 array
+		$bank_statement_uploaded_data[5]['fcp_id'] = 'KE0540';
+		$bank_statement_uploaded_data[5]['file_exists'] = true;
+		$bank_statement_uploaded_data[5]['closure_date'] = '2019-03-31';
+
+		return $bank_statement_uploaded_data;
+
+	}
+
+	private function bank_cash_balance_data() {
+
+		$bank_cash_balance_data = array();
+
+		//KE0200 array
+		$bank_cash_balance_data[1]['fcp_id'] = 'KE0200';
+		$bank_cash_balance_data[1]['closure_date'] = '2019-03-31';
+		$bank_cash_balance_data[1]['account_type'] = 'BC';
+		$bank_cash_balance_data[1]['balance_amount'] = 12509.60;
+
+		//KE0215 array
+		$bank_cash_balance_data[2]['fcp_id'] = 'KE0215';
+		$bank_cash_balance_data[2]['closure_date'] = '2019-03-31';
+		$bank_cash_balance_data[2]['account_type'] = 'BC';
+		$bank_cash_balance_data[2]['balance_amount'] = 10000300.52;
+
+		//KE0300 array
+		$bank_cash_balance_data[3]['fcp_id'] = 'KE0300';
+		$bank_cash_balance_data[3]['closure_date'] = '2019-03-31';
+		$bank_cash_balance_data[3]['account_type'] = 'BC';
+		$bank_cash_balance_data[3]['balance_amount'] = 757880.12;
+
+		//KE0320 array
+		$bank_cash_balance_data[4]['fcp_id'] = 'KE0320';
+		$bank_cash_balance_data[4]['closure_date'] = '2019-03-31';
+		$bank_cash_balance_data[4]['account_type'] = 'BC';
+		$bank_cash_balance_data[4]['balance_amount'] = 376898.02;
+
+		//KE0540 array
+		$bank_cash_balance_data[5]['fcp_id'] = 'KE0540';
+		$bank_cash_balance_data[5]['closure_date'] = '2019-03-31';
+		$bank_cash_balance_data[5]['account_type'] = 'BC';
+		$bank_cash_balance_data[5]['balance_amount'] = 476987.00;
+
+		return $bank_cash_balance_data;
+
+	}
+
+	private function has_mfr_submitted($fcp, $month_submitted) {
+
+		$mfr_submitted_data = $this -> mfr_submission_data();
+
+		$yes_no_flag = 'No';
+
+		foreach ($mfr_submitted_data as $submitted) {
+
+			if ($submitted['fcp_id'] == $fcp && $submitted['closure_date'] == $month_submitted && $submitted['submitted'] == 1) {
+
+				$yes_no_flag = 'Yes';
+			}
+
+		}
+		return $yes_no_flag;
+	}
+
+	private function has_bank_statement_uploaded($fcp, $month_uploaded) {
+
+		$bank_statement_submitted = $this -> bank_statement_uploaded_data();
+
+		$yes_no_flag = 'No';
+
+		foreach ($bank_statement_submitted as $submitted) {
+
+			if ($submitted['fcp_id'] == $fcp && $submitted['closure_date'] == $month_uploaded) {
+
+				$yes_no_flag = $submitted['file_exists'] ? 'Yes' : 'No';
+			}
+
+		}
+		return $yes_no_flag;
+	}
+
+	private function compute_bank_balance($fcp, $month_computed) {
+		
+		$bank_cash_balance_data=$this->bank_cash_balance_data();
+		
+		$balance_amount=0.00;
+		
+		foreach ($bank_cash_balance_data as $submitted) {
+
+			if ($submitted['fcp_id'] == $fcp && $submitted['closure_date'] == $month_computed && $submitted['account_type']=='BC') {
+
+				$balance_amount = $submitted['balance_amount'];
+			}
+
+		}
+		return number_format($balance_amount,2);
+	}
+
+	private function compute_outstanding_cheques($fcp, $month) {
+		return 1000.00;
+	}
+
+	private function compute_deposit_in_transit($fcp, $month) {
+		return 1000.00;
+	}
+
+	private function check_bank_reconcile_correct($fcp, $month) {
+		return 'No';
+	}
+
+	private function confirm_petty_cash($fcp, $month) {
+		return 'Yes';
+	}
+
+	public function build_dashboard_array($dashboard_month) {
+
+		$fcps_array_with_risk = $this -> fcps_with_risk();
+
+		$parameters_array = $this -> dashboard_parameters();
+
+		$final_grid_array = array();
+
+		$final_grid_array['fcps_with_risks'] = array();
+
+		$final_grid_array['parameters'] = array();
+
+		foreach ($fcps_array_with_risk as $fcp_with_risk) {
+
+			$final_grid_array['fcps_with_risks'][$fcp_with_risk['fcp_id']]['risk'] = $fcp_with_risk['risk'];
+
+			foreach ($parameters_array as $key => $value) {
+				$final_grid_array['fcps_with_risks'][$fcp_with_risk['fcp_id']]['params'][$key] = call_user_func(array($this, $value['result_method']), $fcp_with_risk['fcp_id'], $dashboard_month);
+			}
+
+		}
+
+		foreach ($parameters_array as $key => $value) {
+
+			$final_grid_array['parameters'][$value['requested']][$key] = $value['param_name'];
+		}
+
+		return $final_grid_array;
+	}
 
 }
