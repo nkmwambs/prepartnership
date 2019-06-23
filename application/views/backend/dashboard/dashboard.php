@@ -1,13 +1,4 @@
 <?php 
-// $month = '2019-03-31';
-// $merge_array = array_merge(
-							// $this->finance_model->transactions_raised_in_month_not_cleared('CHQ', $month, 'outstanding_cheque_amount'),
-							// $this->finance_model->transactions_raised_in_past_not_cleared('CHQ', $month, 'outstanding_cheque_amount'),
-							// $this->finance_model->transactions_raised_in_month_cleared_in_future('CHQ', $month, 'outstanding_cheque_amount'),
-							// $this->finance_model->transactions_raised_in_past_cleared_in_future('CHQ', $month, 'outstanding_cheque_amount')
-							// );
-// print_r($merge_array);							
-
 
 $grid_array = $this -> finance_model -> build_dashboard_array('2019-03-31');
 
