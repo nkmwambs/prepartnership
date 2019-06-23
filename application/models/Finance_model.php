@@ -797,8 +797,7 @@ class Finance_model extends CI_Model {
 
 		$yes_no_flag = 'No';
 
-		if (round($compute_bank_reconcile, 2) == round($statement_balance, 2)) {
-
+		if (round($compute_bank_reconcile, 2) == round($statement_balance, 2) && $this->has_mfr_submitted($fcp, $month) == "Yes") {
 			$yes_no_flag = 'Yes';
 		}
 
