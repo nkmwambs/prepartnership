@@ -1,6 +1,7 @@
 <?php
 class Finance_model extends CI_Model {
 
+	private $table_prefix = '';
 
 	function __construct() {
 		parent::__construct();
@@ -10,8 +11,6 @@ class Finance_model extends CI_Model {
 	}
 
 	//General Methods
-
-	private $table_prefix = '';
 
 	private function get_table_prefix() {
 
@@ -418,39 +417,6 @@ class Finance_model extends CI_Model {
 		return $bank_cash_balance_data;
 	}
 
-	private function prod_deposit_in_transit_data_model($month) {
-
-		$transaction_arrays = array();
-
-		$transactions_raised_in_month_not_cleared = $this -> transactions_raised_in_month_not_cleared('CR', $month, 'deposit_in_transit_amount');
-		$transactions_raised_in_past_not_cleared = $this -> transactions_raised_in_past_not_cleared('CR', $month, 'deposit_in_transit_amount');
-		$transactions_raised_in_month_cleared_in_future = $this -> transactions_raised_in_month_cleared_in_future('CR', $month, 'deposit_in_transit_amount');
-		$transactions_raised_in_past_cleared_in_future = $this -> transactions_raised_in_past_cleared_in_future('CR', $month, 'deposit_in_transit_amount');
-
-		$fcps_array = array_column($this -> prod_fcps_with_risk_model(), 'fcp_id');
-
-		$merge_array = array();
-
-		$merge_array = array_merge($transactions_raised_in_month_not_cleared, $transactions_raised_in_past_not_cleared, $transactions_raised_in_month_cleared_in_future, $transactions_raised_in_past_cleared_in_future);
-		$cnt = 0;
-
-		foreach ($fcps_array as $fcp) {
-
-			$sum_fcp_deposit_in_transit = 0;
-			foreach ($merge_array as $transaction) {
-				if ($fcp == $transaction['fcp_id']) {
-					$sum_fcp_deposit_in_transit += $transaction['deposit_in_transit_amount'];
-					$transaction_arrays[$cnt]['fcp_id'] = $transaction['fcp_id'];
-					$transaction_arrays[$cnt]['closure_date'] = $month;
-					$transaction_arrays[$cnt]['deposit_in_transit_amount'] = $sum_fcp_deposit_in_transit;
-				}
-			}
-			$cnt++;
-		}
-
-		return $transaction_arrays;
-	}
-
 	//We will have to pass month aurgumet in prod models
 	private function prod_mfr_submission_data_model($month) {
 		$mfr_submission_data = array();
@@ -466,39 +432,6 @@ class Finance_model extends CI_Model {
 		}
 
 		return $mfr_submission_data;
-	}
-
-	private function prod_outstanding_cheques_data_model($month) {
-
-		$transaction_arrays = array();
-
-		$transactions_raised_in_month_not_cleared = $this -> transactions_raised_in_month_not_cleared('CHQ', $month, 'outstanding_cheque_amount');
-		$transactions_raised_in_past_not_cleared = $this -> transactions_raised_in_past_not_cleared('CHQ', $month, 'outstanding_cheque_amount');
-		$transactions_raised_in_month_cleared_in_future = $this -> transactions_raised_in_month_cleared_in_future('CHQ', $month, 'outstanding_cheque_amount');
-		$transactions_raised_in_past_cleared_in_future = $this -> transactions_raised_in_past_cleared_in_future('CHQ', $month, 'outstanding_cheque_amount');
-
-        //Return FCPs
-		$fcps_array = array_column($this -> prod_fcps_with_risk_model(), 'fcp_id');
-
-		$merge_array = array();
-
-		$merge_array = array_merge($transactions_raised_in_month_not_cleared, $transactions_raised_in_past_not_cleared, $transactions_raised_in_month_cleared_in_future, $transactions_raised_in_past_cleared_in_future);
-		$cnt = 0;
-
-		foreach ($fcps_array as $fcp) {
-			$sum_fcp_deposit_in_transit = 0;
-			foreach ($merge_array as $transaction) {
-				if ($fcp == $transaction['fcp_id']) {
-					$sum_fcp_deposit_in_transit += $transaction['outstanding_cheque_amount'];
-					$transaction_arrays[$cnt]['fcp_id'] = $transaction['fcp_id'];
-					$transaction_arrays[$cnt]['closure_date'] = $month;
-					$transaction_arrays[$cnt]['outstanding_cheque_amount'] = $sum_fcp_deposit_in_transit;
-				}
-			}
-			$cnt++;
-		}
-
-		return $transaction_arrays;
 	}
 
 	private function prod_dashboard_parameters_model() {
@@ -517,7 +450,6 @@ class Finance_model extends CI_Model {
 		return $dashboard_params;
 	}
 
-
 	//Switch Environment method for model (prod/test) called in callback methods and build_dashboard_array method
 
 	public function switch_environment($month, $test_method, $prod_method) {
@@ -532,7 +464,16 @@ class Finance_model extends CI_Model {
 
 	//Transaction methods
 
-	private function transactions_raised_in_past_not_cleared($vtype, $month, $amount_key = "outstanding_cheque_amount") {
+	function get_uncleared_transactions($vtype, $month) {
+
+		$amount_key = "";
+
+		if ($vtype == 'CHQ') {
+			$amount_key = "outstanding_cheque_amount";
+		} elseif ('CR') {
+			$amount_key = "deposit_in_transit_amount";
+		}
+
 		$transaction_array = array();
 
 		$first_day_of_month = date('Y-m-01', strtotime($month));
@@ -541,9 +482,24 @@ class Finance_model extends CI_Model {
 		$this -> db -> select_sum('totals');
 		$this -> db -> select(array('hID', 'icpNo', 'TDate', 'ChqState', 'clrMonth', 'VType'));
 		$this -> db -> group_by(array('VType', 'icpNo'));
-		$this -> db -> where(array('TDate<' => $first_day_of_month));
-		//In Between condition
-		$data = $this -> db -> get_where($this -> table_prefix . 'voucher_header', array('VType' => $vtype, 'ChqState' => 0, 'clrMonth' => '0000-00-00')) -> result_array();
+
+		$condition_array = array();
+
+		$where_string = "VType = '" . $vtype . "' AND (";
+		//transactions_raised_in_month_not_cleared
+		$where_string .= "(TDate BETWEEN '" . $first_day_of_month . "' AND '" . $last_day_of_month . "' AND ChqState = 0 AND clrMonth = '0000-00-00')";
+		//transactions_raised_in_month_cleared_in_future
+		$where_string .= " OR (TDate BETWEEN '" . $first_day_of_month . "' AND '" . $last_day_of_month . "' AND ChqState = 1 AND clrMonth = '" . $last_day_of_month . "')";
+		//transactions_raised_in_past_cleared_in_future
+		$where_string .= " OR (TDate <= '" . $first_day_of_month . "' AND ChqState = 1 AND clrMonth = '" . $last_day_of_month . "')";
+		//transactions_raised_in_past_not_cleared
+		$where_string .= " OR (TDate <= '" . $first_day_of_month . "' AND ChqState = 0 AND clrMonth = '0000-00-00')";
+
+		$where_string .= ")";
+
+		$this -> db -> where($where_string);
+
+		$data = $this -> db -> get($this -> table_prefix . 'voucher_header') -> result_array();
 
 		foreach ($data as $transaction) {
 
@@ -554,78 +510,43 @@ class Finance_model extends CI_Model {
 		}
 
 		return $transaction_array;
+
 	}
 
-	private function transactions_raised_in_month_not_cleared($vtype, $month, $amount_key = "outstanding_cheque_amount") {
-		$transaction_array = array();
+	function prod_deposit_in_transit_data_model($month) {
 
-		$first_day_of_month = date('Y-m-01', strtotime($month));
-		$last_day_of_month = date('Y-m-t', strtotime($month));
+		$transaction_arrays = array();
 
-		$this -> db -> select_sum('totals');
-		$this -> db -> select(array('hID', 'icpNo', 'TDate', 'ChqState', 'clrMonth', 'VType'));
-		$this -> db -> group_by(array('VType', 'icpNo'));
-		$this -> db -> where(array('TDate>=' => $first_day_of_month, 'TDate<=' => $last_day_of_month));
-		//In Between condition
-		$data = $this -> db -> get_where($this -> table_prefix . 'voucher_header', array('VType' => $vtype, 'ChqState' => 0, 'clrMonth' => '0000-00-00')) -> result_array();
+		$get_uncleared_transactions = $this -> get_uncleared_transactions('CR', $month);
 
-		foreach ($data as $transaction) {
-
-			$transaction_array[$transaction['hID']]['fcp_id'] = $transaction['icpNo'];
-			$transaction_array[$transaction['hID']]['closure_date'] = $transaction['TDate'];
-			$transaction_array[$transaction['hID']][$amount_key] = $transaction['totals'];
-
+		$cnt = 0;
+		foreach ($get_uncleared_transactions as $transaction) {
+			$transaction_arrays[$cnt]['fcp_id'] = $transaction['fcp_id'];
+			$transaction_arrays[$cnt]['closure_date'] = $month;
+			$transaction_arrays[$cnt]['deposit_in_transit_amount'] = $transaction['deposit_in_transit_amount'];
+			$cnt++;
 		}
 
-		return $transaction_array;
+		return $transaction_arrays;
 	}
 
-	private function transactions_raised_in_month_cleared_in_future($vtype, $month, $amount_key = "outstanding_cheque_amount") {
-		$transaction_array = array();
+	private function prod_outstanding_cheques_data_model($month) {
 
-		$first_day_of_month = date('Y-m-01', strtotime($month));
-		$last_day_of_month = date('Y-m-t', strtotime($month));
+		$transaction_arrays = array();
 
-		$this -> db -> select_sum('totals');
-		$this -> db -> select(array('hID', 'icpNo', 'TDate', 'ChqState', 'clrMonth', 'VType'));
-		$this -> db -> group_by(array('VType', 'icpNo'));
-		$this -> db -> where(array('TDate>=' => $first_day_of_month, 'TDate<=' => $last_day_of_month));
-		//In Between condition
-		$data = $this -> db -> get_where($this -> table_prefix . 'voucher_header', array('VType' => $vtype, 'ChqState' => 1, 'clrMonth >' => $last_day_of_month)) -> result_array();
+		$get_uncleared_transactions = $this -> get_uncleared_transactions('CHQ', $month);
 
-		foreach ($data as $transaction) {
+		$cnt = 0;
 
-			$transaction_array[$transaction['hID']]['fcp_id'] = $transaction['icpNo'];
-			$transaction_array[$transaction['hID']]['closure_date'] = $transaction['TDate'];
-			$transaction_array[$transaction['hID']][$amount_key] = $transaction['totals'];
+		foreach ($get_uncleared_transactions as $transaction) {
 
+			$transaction_arrays[$cnt]['fcp_id'] = $transaction['fcp_id'];
+			$transaction_arrays[$cnt]['closure_date'] = $month;
+			$transaction_arrays[$cnt]['outstanding_cheque_amount'] = $transaction['outstanding_cheque_amount'];
+			$cnt++;
 		}
 
-		return $transaction_array;
-	}
-
-	private function transactions_raised_in_past_cleared_in_future($vtype, $month, $amount_key = "outstanding_cheque_amount") {
-		$transaction_array = array();
-
-		$first_day_of_month = date('Y-m-01', strtotime($month));
-		$last_day_of_month = date('Y-m-t', strtotime($month));
-
-		$this -> db -> select_sum('totals');
-		$this -> db -> select(array('hID', 'icpNo', 'TDate', 'ChqState', 'clrMonth', 'VType'));
-		$this -> db -> group_by(array('VType', 'icpNo'));
-		$this -> db -> where(array('TDate<' => $first_day_of_month));
-		//In Between condition
-		$data = $this -> db -> get_where($this -> table_prefix . 'voucher_header', array('VType' => $vtype, 'ChqState' => 1, 'clrMonth >' => $last_day_of_month)) -> result_array();
-
-		foreach ($data as $transaction) {
-
-			$transaction_array[$transaction['hID']]['fcp_id'] = $transaction['icpNo'];
-			$transaction_array[$transaction['hID']]['closure_date'] = $transaction['TDate'];
-			$transaction_array[$transaction['hID']][$amount_key] = $transaction['totals'];
-
-		}
-
-		return $transaction_array;
+		return $transaction_arrays;
 	}
 
 }

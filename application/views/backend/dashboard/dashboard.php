@@ -1,5 +1,10 @@
 <?php 
 
+print_r($this->finance_model->get_uncleared_transactions('CR', '2019-03-31'));
+
+print_r($this->finance_model->prod_deposit_in_transit_data_model('2019-03-31'));
+
+
 $grid_array = $this -> finance_dashboard -> build_dashboard_array($month);
 
 $none_requested_params = isset($grid_array['parameters']['no']) ? $grid_array['parameters']['no'] : array();
