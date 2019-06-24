@@ -8,6 +8,9 @@ class Finance_model extends CI_Model {
 
 		$this -> load -> config('dev_config');
 		$this -> get_table_prefix();
+		$this -> load -> library('Finance_testData');
+
+		$this -> testModels = new Finance_testData();
 	}
 
 	//General Methods
@@ -50,286 +53,145 @@ class Finance_model extends CI_Model {
 		return $group_by_fcp_id_array;
 	}
 
-	//Test Models Methods
+	//Callback Methods
 
-	public function test_fcps_with_risk_model() {
+	private function callback_mfr_submitted($fcp, $month_submitted) {
 
-		$fcp_array = array();
+		$mfr_submitted_data = $this -> switch_environment($month_submitted, 'test_mfr_submission_data_model', 'prod_mfr_submission_data_model');
 
-		//KE0200 array
-		$fcp_array[1]['fcp_id'] = 'KE0200';
-		$fcp_array[1]['risk'] = 'High';
+		$group = $this -> group_data_by_fcp_id($mfr_submitted_data);
 
-		//KE0215 array
-		$fcp_array[2]['fcp_id'] = 'KE0215';
-		$fcp_array[2]['risk'] = 'Low';
+		$yes_no_flag = 'No';
 
-		//KE0300 array
-		$fcp_array[3]['fcp_id'] = 'KE0300';
-		$fcp_array[3]['risk'] = 'Medium';
+		//Check if the fcp has an Mfr submitted in the $month_submitted
+		if (isset($group[$fcp])) {
+			if ($group[$fcp]['closure_date'] == $month_submitted && $group[$fcp]['submitted'] == 1) {
+				$yes_no_flag = 'Yes';
+			}
 
-		//KE0320 array
-		$fcp_array[4]['fcp_id'] = 'KE0320';
-		$fcp_array[4]['risk'] = 'High';
-
-		//KE0540 array
-		$fcp_array[5]['fcp_id'] = 'KE0540';
-		$fcp_array[5]['risk'] = 'Medium';
-
-		return $fcp_array;
+		}
+		return $yes_no_flag;
 	}
 
-	public function test_dashboard_parameters_model() {
-		$dashboard_params = array();
+	private function callback_bank_statement_uploaded($fcp, $month_uploaded) {
 
-		$dashboard_params[1]['dashboard_parameter_name'] = 'MFR Submitted';
-		$dashboard_params[1]['result_method'] = 'callback_mfr_submitted';
-		$dashboard_params[1]['is_requested'] = 'no';
-		$dashboard_params[1]['display_on_dashboard'] = 'yes';
+		$bank_statement_submitted = $this -> switch_environment($month_uploaded, 'test_bank_statement_uploaded_model', 'prod_bank_statement_uploaded_model');
 
-		$dashboard_params[2]['dashboard_parameter_name'] = 'Bank Statement uploaded';
-		$dashboard_params[2]['result_method'] = 'callback_bank_statement_uploaded';
-		$dashboard_params[2]['is_requested'] = 'no';
-		$dashboard_params[2]['display_on_dashboard'] = 'yes';
+		$group = $this -> group_data_by_fcp_id($bank_statement_submitted);
 
-		$dashboard_params[3]['dashboard_parameter_name'] = 'Book Bank Balance';
-		$dashboard_params[3]['result_method'] = 'callback_book_bank_balance';
-		$dashboard_params[3]['is_requested'] = 'no';
-		$dashboard_params[3]['display_on_dashboard'] = 'no';
+		$yes_no_flag = 'No';
 
-		$dashboard_params[4]['dashboard_parameter_name'] = 'Statement Bank Balance';
-		$dashboard_params[4]['result_method'] = 'callback_statement_bank_balance';
-		$dashboard_params[4]['is_requested'] = 'no';
-		$dashboard_params[4]['display_on_dashboard'] = 'no';
+		//Check if the fcp has an Mfr submitted in the $month_submitted
+		if (isset($group[$fcp]['closure_date'])) {
+			if ($group[$fcp]['closure_date'] == $month_uploaded) {
 
-		$dashboard_params[5]['dashboard_parameter_name'] = 'Oustanding Cheques';
-		$dashboard_params[5]['result_method'] = 'callback_outstanding_cheques';
-		$dashboard_params[5]['is_requested'] = 'no';
-		$dashboard_params[5]['display_on_dashboard'] = 'no';
+				$yes_no_flag = $group[$fcp]['file_exists'] ? 'Yes' : 'No';
+			}
+		}
 
-		$dashboard_params[6]['dashboard_parameter_name'] = 'Deposit in transit';
-		$dashboard_params[6]['result_method'] = 'callback_deposit_in_transit';
-		$dashboard_params[6]['is_requested'] = 'no';
-		$dashboard_params[6]['display_on_dashboard'] = 'no';
-
-		$dashboard_params[7]['dashboard_parameter_name'] = 'Bank Reconciliation';
-		$dashboard_params[7]['result_method'] = 'callback_bank_reconcile_correct';
-		$dashboard_params[7]['is_requested'] = 'no';
-		$dashboard_params[7]['display_on_dashboard'] = 'yes';
-
-		return $dashboard_params;
+		return $yes_no_flag;
 	}
 
-	public function test_bank_statement_uploaded_model() {
+	private function callback_book_bank_balance($fcp, $month_computed) {
 
-		$bank_statement_uploaded_data = array();
+		$bank_cash_balance_data = $this -> switch_environment($month_computed, 'test_book_bank_cash_balance_data_model', 'prod_book_bank_cash_balance_data_model');
 
-		//KE0200 array
-		$bank_statement_uploaded_data[1]['fcp_id'] = 'KE0200';
-		$bank_statement_uploaded_data[1]['file_exists'] = true;
-		$bank_statement_uploaded_data[1]['closure_date'] = '2019-03-31';
+		$group = $this -> group_data_by_fcp_id($bank_cash_balance_data);
 
-		//KE0215 array
-		$bank_statement_uploaded_data[2]['fcp_id'] = 'KE0215';
-		$bank_statement_uploaded_data[2]['file_exists'] = false;
-		$bank_statement_uploaded_data[2]['closure_date'] = '2019-03-31';
+		$balance_amount = 0.00;
 
-		//KE0300 array
-		$bank_statement_uploaded_data[3]['fcp_id'] = 'KE0300';
-		$bank_statement_uploaded_data[3]['file_exists'] = false;
-		$bank_statement_uploaded_data[3]['closure_date'] = '2019-03-31';
+		//Check if the fcp has an Mfr submitted in the $month_submitted
+		if (isset($group[$fcp])) {
+			if ($group[$fcp]['closure_date'] == $month_computed && $group[$fcp]['account_type'] == 'BC') {
 
-		//KE0320 array
-		$bank_statement_uploaded_data[4]['fcp_id'] = 'KE0320';
-		$bank_statement_uploaded_data[4]['file_exists'] = true;
-		$bank_statement_uploaded_data[4]['closure_date'] = '2019-03-31';
+				$balance_amount = $group[$fcp]['balance_amount'];
+			}
+		}
 
-		//KE0540 array
-		$bank_statement_uploaded_data[5]['fcp_id'] = 'KE0540';
-		$bank_statement_uploaded_data[5]['file_exists'] = true;
-		$bank_statement_uploaded_data[5]['closure_date'] = '2019-03-31';
-
-		return $bank_statement_uploaded_data;
-
+		return number_format($balance_amount, 2);
 	}
 
-	public function test_book_bank_cash_balance_data_model() {
+	private function callback_statement_bank_balance($fcp, $month_computed) {
 
-		$bank_cash_balance_data = array();
+		$statement_bank_balance_data = $this -> switch_environment($month_computed, 'test_statement_bank_balance_data_model', 'prod_statement_bank_balance_data_model');
 
-		//KE0200 array
-		$bank_cash_balance_data[1]['fcp_id'] = 'KE0200';
-		$bank_cash_balance_data[1]['closure_date'] = '2019-03-31';
-		$bank_cash_balance_data[1]['account_type'] = 'BC';
-		$bank_cash_balance_data[1]['balance_amount'] = 12509.60;
+		$statement_bank_balance_amount = 0.00;
 
-		//KE0215 array
-		$bank_cash_balance_data[2]['fcp_id'] = 'KE0215';
-		$bank_cash_balance_data[2]['closure_date'] = '2019-03-31';
-		$bank_cash_balance_data[2]['account_type'] = 'BC';
-		$bank_cash_balance_data[2]['balance_amount'] = 10000300.52;
+		$group = $this -> group_data_by_fcp_id($statement_bank_balance_data);
 
-		//KE0300 array
-		$bank_cash_balance_data[3]['fcp_id'] = 'KE0300';
-		$bank_cash_balance_data[3]['closure_date'] = '2019-03-31';
-		$bank_cash_balance_data[3]['account_type'] = 'BC';
-		$bank_cash_balance_data[3]['balance_amount'] = 757880.12;
+		//Check if the fcp has an Mfr submitted in the $month_submitted
+		if (isset($group[$fcp])) {
+			if ($group[$fcp]['closure_date'] == $month_computed) {
 
-		//KE0320 array
-		$bank_cash_balance_data[4]['fcp_id'] = 'KE0320';
-		$bank_cash_balance_data[4]['closure_date'] = '2019-03-31';
-		$bank_cash_balance_data[4]['account_type'] = 'BC';
-		$bank_cash_balance_data[4]['balance_amount'] = 376898.02;
+				$statement_bank_balance_amount = $group[$fcp]['statement_amount'];
+			}
+		}
 
-		//KE0540 array
-		$bank_cash_balance_data[5]['fcp_id'] = 'KE0540';
-		$bank_cash_balance_data[5]['closure_date'] = '2019-03-31';
-		$bank_cash_balance_data[5]['account_type'] = 'BC';
-		$bank_cash_balance_data[5]['balance_amount'] = 476987.00;
-
-		return $bank_cash_balance_data;
-
+		return number_format($statement_bank_balance_amount, 2);
 	}
 
-	public function test_deposit_in_transit_data_model() {
+	private function callback_outstanding_cheques($fcp, $month) {
 
-		$deposit_in_transit_data = array();
+		$outstanding_cheques_data = $this -> switch_environment($month, 'test_outstanding_cheques_data_model', 'prod_outstanding_cheques_data_model');
 
-		//KE0200 array
-		$deposit_in_transit_data[1]['fcp_id'] = 'KE0200';
-		$deposit_in_transit_data[1]['deposit_in_transit_amount'] = 3330.49;
-		$deposit_in_transit_data[1]['closure_date'] = '2019-03-31';
+		$outstanding_cheques_amount = 0.00;
 
-		//KE0215 array
-		$deposit_in_transit_data[2]['fcp_id'] = 'KE0215';
-		$deposit_in_transit_data[2]['deposit_in_transit_amount'] = 8987.29;
-		$deposit_in_transit_data[2]['closure_date'] = '2019-03-31';
+		$group = $this -> group_data_by_fcp_id($outstanding_cheques_data);
 
-		//KE0300 array
-		$deposit_in_transit_data[3]['fcp_id'] = 'KE0300';
-		$deposit_in_transit_data[3]['deposit_in_transit_amount'] = 27987.19;
-		$deposit_in_transit_data[3]['closure_date'] = '2019-03-31';
+		//Check if the fcp has an Mfr submitted in the $month_submitted
+		if (isset($group[$fcp])) {
+			if ($group[$fcp]['closure_date'] == $month) {
 
-		//KE0320 array
-		$deposit_in_transit_data[4]['fcp_id'] = 'KE0320';
-		$deposit_in_transit_data[4]['deposit_in_transit_amount'] = 4098.89;
-		$deposit_in_transit_data[4]['closure_date'] = '2019-03-31';
+				$outstanding_cheques_amount = $group[$fcp]['outstanding_cheque_amount'];
+			}
+		}
 
-		//KE0540 array
-		$deposit_in_transit_data[5]['fcp_id'] = 'KE0540';
-		$deposit_in_transit_data[5]['deposit_in_transit_amount'] = 40456.89;
-		$deposit_in_transit_data[5]['closure_date'] = '2019-03-31';
-
-		return $deposit_in_transit_data;
-
+		return number_format($outstanding_cheques_amount, 2);
 	}
 
-	public function test_mfr_submission_data_model() {
+	private function callback_deposit_in_transit($fcp, $month) {
 
-		$mfr_submission_data = array();
+		$deposit_in_transit_data = $this -> switch_environment($month, 'test_deposit_in_transit_data_model', 'prod_deposit_in_transit_data_model');
 
-		//KE0200 array
-		$mfr_submission_data[1]['fcp_id'] = 'KE0200';
-		$mfr_submission_data[1]['closure_date'] = '2019-03-31';
-		$mfr_submission_data[1]['submitted'] = 1;
-		$mfr_submission_data[1]['submission_date'] = '2019-04-05';
+		$deposit_in_transit_amount = 0.00;
 
-		//KE0215 array
-		$mfr_submission_data[2]['fcp_id'] = 'KE0215';
-		$mfr_submission_data[2]['closure_date'] = '2019-03-31';
-		$mfr_submission_data[2]['submitted'] = 0;
-		$mfr_submission_data[2]['submission_date'] = '2019-04-10';
+		$group = $this -> group_data_by_fcp_id($deposit_in_transit_data);
 
-		//KE0300 array
-		$mfr_submission_data[3]['fcp_id'] = 'KE0300';
-		$mfr_submission_data[3]['closure_date'] = '2019-03-31';
-		$mfr_submission_data[3]['submitted'] = 1;
-		$mfr_submission_data[3]['submission_date'] = '2019-04-02';
+		//Check if the fcp has an Mfr submitted in the $month_submitted
+		if (isset($group[$fcp])) {
+			if ($group[$fcp]['closure_date'] == $month) {
 
-		//KE0320 array
-		$mfr_submission_data[4]['fcp_id'] = 'KE0320';
-		$mfr_submission_data[4]['closure_date'] = '2019-03-31';
-		$mfr_submission_data[4]['submitted'] = 1;
-		$mfr_submission_data[4]['submission_date'] = '2019-04-03';
+				$deposit_in_transit_amount = $group[$fcp]['deposit_in_transit_amount'];
+			}
+		}
 
-		//KE0540 array
-		$mfr_submission_data[5]['fcp_id'] = 'KE0540';
-		$mfr_submission_data[5]['closure_date'] = '2019-03-31';
-		$mfr_submission_data[5]['submitted'] = 0;
-		$mfr_submission_data[5]['submission_date'] = '2019-07-04';
-
-		return $mfr_submission_data;
+		return number_format($deposit_in_transit_amount, 2);
 	}
 
-	public function test_outstanding_cheques_data_model() {
+	private function callback_bank_reconcile_correct($fcp, $month) {
 
-		$outstanding_cheques_data = array();
+		$book_bank_balance = str_replace(',', '', $this -> callback_book_bank_balance($fcp, $month));
 
-		//KE0200 array
-		$outstanding_cheques_data[1]['fcp_id'] = 'KE0200';
-		$outstanding_cheques_data[1]['outstanding_cheque_amount'] = 300000.89;
-		$outstanding_cheques_data[1]['closure_date'] = '2019-03-31';
+		$statement_balance = str_replace(',', '', $this -> callback_statement_bank_balance($fcp, $month));
 
-		//KE0215 array
-		$outstanding_cheques_data[2]['fcp_id'] = 'KE0215';
-		$outstanding_cheques_data[2]['outstanding_cheque_amount'] = 17789.34;
-		$outstanding_cheques_data[2]['closure_date'] = '2019-03-31';
+		$outstanding_cheques = str_replace(',', '', $this -> callback_outstanding_cheques($fcp, $month));
 
-		//KE0300 array
-		$outstanding_cheques_data[3]['fcp_id'] = 'KE0300';
-		$outstanding_cheques_data[3]['outstanding_cheque_amount'] = 889750.23;
-		$outstanding_cheques_data[3]['closure_date'] = '2019-03-31';
+		$deposit_in_transit = str_replace(',', '', $this -> callback_deposit_in_transit($fcp, $month));
 
-		//KE0320 array
-		$outstanding_cheques_data[4]['fcp_id'] = 'KE0320';
-		$outstanding_cheques_data[4]['outstanding_cheque_amount'] = 435678.00;
-		$outstanding_cheques_data[4]['closure_date'] = '2019-03-31';
+		$compute_bank_reconcile = ($book_bank_balance + $outstanding_cheques) - $deposit_in_transit;
 
-		//KE0540 array
-		$outstanding_cheques_data[5]['fcp_id'] = 'KE0540';
-		$outstanding_cheques_data[5]['outstanding_cheque_amount'] = 29879.70;
-		$outstanding_cheques_data[5]['closure_date'] = '2019-03-31';
+		$yes_no_flag = 'No';
 
-		return $outstanding_cheques_data;
+		if (round($compute_bank_reconcile, 2) == round($statement_balance, 2) && $this -> callback_mfr_submitted($fcp, $month) == "Yes") {
+			$yes_no_flag = 'Yes';
+		}
 
-	}
-
-	public function test_statement_bank_balance_data_model() {
-
-		$statement_bank_balance_data = array();
-
-		//KE0200 array
-		$statement_bank_balance_data[1]['fcp_id'] = 'KE0200';
-		$statement_bank_balance_data[1]['statement_amount'] = 23998.90;
-		$statement_bank_balance_data[1]['closure_date'] = '2019-03-31';
-
-		//KE0215 array
-		$statement_bank_balance_data[2]['fcp_id'] = 'KE0215';
-		$statement_bank_balance_data[2]['statement_amount'] = 100298.60;
-		$statement_bank_balance_data[2]['closure_date'] = '2019-03-31';
-
-		//KE0300 array
-		$statement_bank_balance_data[3]['fcp_id'] = 'KE0300';
-		$statement_bank_balance_data[3]['statement_amount'] = 1619643.16;
-		$statement_bank_balance_data[3]['closure_date'] = '2019-03-31';
-
-		//KE0320 array
-		$statement_bank_balance_data[4]['fcp_id'] = 'KE0320';
-		$statement_bank_balance_data[4]['statement_amount'] = 238989.71;
-		$statement_bank_balance_data[4]['closure_date'] = '2019-03-31';
-
-		//KE0540 array
-		$statement_bank_balance_data[5]['fcp_id'] = 'KE0540';
-		$statement_bank_balance_data[5]['statement_amount'] = 97600.81;
-		$statement_bank_balance_data[5]['closure_date'] = '2019-03-31';
-
-		return $statement_bank_balance_data;
-
+		return $yes_no_flag;
 	}
 
 	//Prod Models Methods
 
-	public function prod_fcps_with_risk_model() {
+	private function prod_fcps_with_risk_model() {
 
 		$fcp_array = array();
 
@@ -344,7 +206,7 @@ class Finance_model extends CI_Model {
 		return $fcp_array;
 	}
 
-	public function prod_bank_statement_uploaded_model($month_bank_statement_uploaded) {
+	private function prod_bank_statement_uploaded_model($month_bank_statement_uploaded) {
 
 		$files = array();
 		try {
@@ -383,7 +245,7 @@ class Finance_model extends CI_Model {
 
 	}
 
-	public function prod_statement_bank_balance_data_model($month) {
+	private function prod_statement_bank_balance_data_model($month) {
 
 		$statement_bank_balance_data = array();
 
@@ -399,7 +261,7 @@ class Finance_model extends CI_Model {
 		return $statement_bank_balance_data;
 	}
 
-	public function prod_book_bank_cash_balance_data_model($month) {
+	private function prod_book_bank_cash_balance_data_model($month) {
 
 		$bank_cash_balance_data = array();
 
@@ -419,7 +281,7 @@ class Finance_model extends CI_Model {
 		return $bank_cash_balance_data;
 	}
 
-	public function prod_deposit_in_transit_data_model($month) {
+	private function prod_deposit_in_transit_data_model($month) {
 
 		$transaction_arrays = array();
 
@@ -453,7 +315,7 @@ class Finance_model extends CI_Model {
 	}
 
 	//We will have to pass month aurgumet in prod models
-	public function prod_mfr_submission_data_model($month) {
+	private function prod_mfr_submission_data_model($month) {
 		$mfr_submission_data = array();
 
 		$data = $this -> db -> get_where($this -> table_prefix . 'opfundsbalheader', array('closureDate' => $month)) -> result_array();
@@ -469,7 +331,7 @@ class Finance_model extends CI_Model {
 		return $mfr_submission_data;
 	}
 
-	public function prod_outstanding_cheques_data_model($month) {
+	private function prod_outstanding_cheques_data_model($month) {
 
 		$transaction_arrays = array();
 
@@ -501,7 +363,7 @@ class Finance_model extends CI_Model {
 		return $transaction_arrays;
 	}
 
-	public function prod_dashboard_parameters_model() {
+	private function prod_dashboard_parameters_model() {
 		$dashboard_params = array();
 
 		$data = $this -> db -> get($this -> table_prefix . 'dashboard_parameter') -> result_array();
@@ -517,13 +379,14 @@ class Finance_model extends CI_Model {
 		return $dashboard_params;
 	}
 
+	//Test model methods
 
 	//Switch Environment method for model (prod/test) called in callback methods and build_dashboard_array method
 
-	public function switch_environment($month, $test_method, $prod_method) {
+	private function switch_environment($month, $test_method, $prod_method) {
 
 		if ($this -> config -> item('environment') == 'test') {
-			return $this -> $test_method();
+			return $this -> testModels -> $test_method();
 		} elseif ($this -> config -> item('environment') == 'prod') {
 
 			return $this -> $prod_method($month);

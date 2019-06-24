@@ -1,6 +1,6 @@
 <?php 
 
-$grid_array = $this -> finance_model -> build_dashboard_array('2019-03-31');
+$grid_array = $this -> finance_dashboard -> build_dashboard_array('2019-03-31');
 
 $none_requested_params = isset($grid_array['parameters']['no']) ? $grid_array['parameters']['no'] : array();
 

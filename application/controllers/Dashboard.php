@@ -15,9 +15,11 @@ class Dashboard extends CI_Controller {
 
     function __construct() {
         parent::__construct();
+        
         $this->load->model('crud_model');
 		
-		$this->load->model('finance_model');
+		//$this->load->model('finance_model');
+		$this->load->library('finance_dashboard');
 		
         $this->load->database();
         $this->load->library('session');
