@@ -38,10 +38,23 @@ class Dashboard extends CI_Controller {
         if ($this->session->userdata('user_login') != 1)  
         	redirect(base_url() . 'login', 'refresh');
 		
-        $page_data['page_title']='Dashboard';
+        $page_data['month']=date('Y-m-t');
+		$page_data['page_title']='Dashboard';
 		$page_data['page_name']='dashboard';
 		$page_data['view_type']='dashboard';
         $this->load->view('backend/index',$page_data);
     }
+	public function dashboard($month){
+		
+		if ($this->session->userdata('user_login') != 1)  
+        	redirect(base_url() . 'login', 'refresh');
+		
+	    $page_data['month']=date('Y-m-t',$month);
+        $page_data['page_title']='Dashboard';
+		$page_data['page_name']='dashboard';
+		$page_data['view_type']='dashboard';
+        $this->load->view('backend/index',$page_data);
+	}
+	
 
 }

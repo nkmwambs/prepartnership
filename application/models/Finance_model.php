@@ -477,6 +477,7 @@ class Finance_model extends CI_Model {
 		$transactions_raised_in_month_cleared_in_future = $this -> transactions_raised_in_month_cleared_in_future('CHQ', $month, 'outstanding_cheque_amount');
 		$transactions_raised_in_past_cleared_in_future = $this -> transactions_raised_in_past_cleared_in_future('CHQ', $month, 'outstanding_cheque_amount');
 
+        //Return FCPs
 		$fcps_array = array_column($this -> prod_fcps_with_risk_model(), 'fcp_id');
 
 		$merge_array = array();

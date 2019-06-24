@@ -1,6 +1,6 @@
 <?php 
 
-$grid_array = $this -> finance_dashboard -> build_dashboard_array('2019-03-31');
+$grid_array = $this -> finance_dashboard -> build_dashboard_array($month);
 
 $none_requested_params = isset($grid_array['parameters']['no']) ? $grid_array['parameters']['no'] : array();
 
@@ -72,6 +72,28 @@ if(empty($none_requested_params) && empty($requested_params)){
 	</div>
 </div>
 <hr/>
+
+<div class="row">
+	
+		<div class="col-xs-4">
+		
+			<a href="#" id='btn_last_month' type='submit' class='btn btn-success pull-left'><i class='fa fa-angle-left'></i> Previous Month</a>
+			
+		</div>
+		
+	   <div class="col-xs-4" style="text-align: center;">
+			<span><h4><?php echo date('F Y', strtotime($month)); ?></h4> </span>
+			
+	   </div>
+	   	<div class="col-xs-4">
+			
+			<a id='btn_next_month' type='submit' href="#" class='btn btn-success pull-right'>Next Month <i class='fa fa-angle-right'></i></a>
+			
+		</div>
+	
+	
+</div>
+<hr />
 <div class='row'>
 	<div class='col-xs-12'>
 		
@@ -158,4 +180,22 @@ if(empty($none_requested_params) && empty($requested_params)){
 		});
 	});
 
+$('#btn_last_month ,#btn_next_month').on('click',function(ev){
+	
+	if($(this).attr('id')=='btn_last_month')
+	{
+		 var href='<?=base_url();?>dashboard/dashboard/<?=strtotime(date('Y-m-t',strtotime('last day of previous month',strtotime($month))));?>';
+		 
+		 window.location.href=href;
+	}
+	else
+	{
+		var href='<?=base_url();?>dashboard/dashboard/<?=strtotime(date('Y-m-t',strtotime('last day of next month',strtotime($month))));?>';
+		 
+		 window.location.href=href;
+	}
+	
+	ev.preventDefault();
+	
+});
 </script>
