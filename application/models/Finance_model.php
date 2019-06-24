@@ -1,7 +1,6 @@
 <?php
 class Finance_model extends CI_Model {
 
-	private $testModels;
 
 	function __construct() {
 		parent::__construct();
@@ -79,7 +78,7 @@ class Finance_model extends CI_Model {
 		return $fcp_array;
 	}
 
-	public function test_dashboard_parameters_model() {
+	private function test_dashboard_parameters_model() {
 		$dashboard_params = array();
 
 		$dashboard_params[1]['dashboard_parameter_name'] = 'MFR Submitted';
@@ -120,7 +119,7 @@ class Finance_model extends CI_Model {
 		return $dashboard_params;
 	}
 
-	public function test_bank_statement_uploaded_model() {
+	private function test_bank_statement_uploaded_model() {
 
 		$bank_statement_uploaded_data = array();
 
@@ -153,7 +152,7 @@ class Finance_model extends CI_Model {
 
 	}
 
-	public function test_book_bank_cash_balance_data_model() {
+	private function test_book_bank_cash_balance_data_model() {
 
 		$bank_cash_balance_data = array();
 
@@ -191,7 +190,7 @@ class Finance_model extends CI_Model {
 
 	}
 
-	public function test_deposit_in_transit_data_model() {
+	private function test_deposit_in_transit_data_model() {
 
 		$deposit_in_transit_data = array();
 
@@ -224,7 +223,7 @@ class Finance_model extends CI_Model {
 
 	}
 
-	public function test_mfr_submission_data_model() {
+	private function test_mfr_submission_data_model() {
 
 		$mfr_submission_data = array();
 
@@ -261,7 +260,7 @@ class Finance_model extends CI_Model {
 		return $mfr_submission_data;
 	}
 
-	public function test_outstanding_cheques_data_model() {
+	private function test_outstanding_cheques_data_model() {
 
 		$outstanding_cheques_data = array();
 
@@ -294,7 +293,7 @@ class Finance_model extends CI_Model {
 
 	}
 
-	public function test_statement_bank_balance_data_model() {
+	private function test_statement_bank_balance_data_model() {
 
 		$statement_bank_balance_data = array();
 
@@ -344,7 +343,7 @@ class Finance_model extends CI_Model {
 		return $fcp_array;
 	}
 
-	public function prod_bank_statement_uploaded_model($month_bank_statement_uploaded) {
+	private function prod_bank_statement_uploaded_model($month_bank_statement_uploaded) {
 
 		$files = array();
 		try {
@@ -383,7 +382,7 @@ class Finance_model extends CI_Model {
 
 	}
 
-	public function prod_statement_bank_balance_data_model($month) {
+	private function prod_statement_bank_balance_data_model($month) {
 
 		$statement_bank_balance_data = array();
 
@@ -399,7 +398,7 @@ class Finance_model extends CI_Model {
 		return $statement_bank_balance_data;
 	}
 
-	public function prod_book_bank_cash_balance_data_model($month) {
+	private function prod_book_bank_cash_balance_data_model($month) {
 
 		$bank_cash_balance_data = array();
 
@@ -419,7 +418,7 @@ class Finance_model extends CI_Model {
 		return $bank_cash_balance_data;
 	}
 
-	public function prod_deposit_in_transit_data_model($month) {
+	private function prod_deposit_in_transit_data_model($month) {
 
 		$transaction_arrays = array();
 
@@ -453,7 +452,7 @@ class Finance_model extends CI_Model {
 	}
 
 	//We will have to pass month aurgumet in prod models
-	public function prod_mfr_submission_data_model($month) {
+	private function prod_mfr_submission_data_model($month) {
 		$mfr_submission_data = array();
 
 		$data = $this -> db -> get_where($this -> table_prefix . 'opfundsbalheader', array('closureDate' => $month)) -> result_array();
@@ -469,7 +468,7 @@ class Finance_model extends CI_Model {
 		return $mfr_submission_data;
 	}
 
-	public function prod_outstanding_cheques_data_model($month) {
+	private function prod_outstanding_cheques_data_model($month) {
 
 		$transaction_arrays = array();
 
@@ -501,7 +500,7 @@ class Finance_model extends CI_Model {
 		return $transaction_arrays;
 	}
 
-	public function prod_dashboard_parameters_model() {
+	private function prod_dashboard_parameters_model() {
 		$dashboard_params = array();
 
 		$data = $this -> db -> get($this -> table_prefix . 'dashboard_parameter') -> result_array();
@@ -626,52 +625,6 @@ class Finance_model extends CI_Model {
 		}
 
 		return $transaction_array;
-	}
-
-	//Main render array methods
-
-	public function build_dashboard_array($dashboard_month) {
-
-		//$test = new Finance_testData();
-
-		$fcps_array_with_risk = '';
-
-		if ($this -> config -> item('environment') == 'test') {
-			$fcps_array_with_risk = $this -> testModels -> test_fcps_with_risk_model();
-		} elseif ($this -> config -> item('environment') == 'prod') {
-			$fcps_array_with_risk = $this -> prod_fcps_with_risk_model();
-		}
-
-		$parameters_array = $this -> switch_environment('', 'test_dashboard_parameters_model', 'prod_dashboard_parameters_model');
-
-		$final_grid_array = array();
-
-		$final_grid_array['fcps_with_risks'] = array();
-
-		$final_grid_array['parameters'] = array();
-
-		foreach ($fcps_array_with_risk as $fcp_with_risk) {
-
-			$final_grid_array['fcps_with_risks'][$fcp_with_risk['fcp_id']]['risk'] = $fcp_with_risk['risk'];
-
-			foreach ($parameters_array as $key => $value) {
-
-				if ($value['display_on_dashboard'] == 'yes') {
-
-					$final_grid_array['fcps_with_risks'][$fcp_with_risk['fcp_id']]['params'][$key] = call_user_func(array($this, $value['result_method']), $fcp_with_risk['fcp_id'], $dashboard_month);
-				}
-			}
-
-		}
-
-		foreach ($parameters_array as $key => $value) {
-			if ($value['display_on_dashboard'] == 'yes') {
-				$final_grid_array['parameters'][$value['is_requested']][$key] = $value['dashboard_parameter_name'];
-			}
-
-		}
-
-		return $final_grid_array;
 	}
 
 }
