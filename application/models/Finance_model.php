@@ -483,8 +483,6 @@ class Finance_model extends CI_Model {
 		$this -> db -> select(array('hID', 'icpNo', 'TDate', 'ChqState', 'clrMonth', 'VType'));
 		$this -> db -> group_by(array('VType', 'icpNo'));
 
-		$condition_array = array();
-
 		$where_string = "VType = '" . $vtype . "' AND (";
 		//transactions_raised_in_month_not_cleared
 		$where_string .= "(TDate BETWEEN '" . $first_day_of_month . "' AND '" . $last_day_of_month . "' AND ChqState = 0 AND clrMonth = '0000-00-00')";
@@ -500,13 +498,14 @@ class Finance_model extends CI_Model {
 		$this -> db -> where($where_string);
 
 		$data = $this -> db -> get($this -> table_prefix . 'voucher_header') -> result_array();
-
+		
+		$cnt = 0;
 		foreach ($data as $transaction) {
 
-			$transaction_array[$transaction['hID']]['fcp_id'] = $transaction['icpNo'];
-			$transaction_array[$transaction['hID']]['closure_date'] = $transaction['TDate'];
-			$transaction_array[$transaction['hID']][$amount_key] = $transaction['totals'];
-
+			$transaction_array[$cnt]['fcp_id'] = $transaction['icpNo'];
+			$transaction_array[$cnt]['closure_date'] = $transaction['TDate'];
+			$transaction_array[$cnt][$amount_key] = $transaction['totals'];
+			$cnt++;
 		}
 
 		return $transaction_array;
