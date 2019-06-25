@@ -12,6 +12,8 @@ class Finance_model extends CI_Model {
 
 	//General Methods
 
+	//General Methods
+
 	private function get_table_prefix() {
 
 		$this -> table_prefix = $this -> config -> item('table_prefix');
@@ -382,54 +384,31 @@ class Finance_model extends CI_Model {
 	}
 
 	private function prod_statement_bank_balance_data_model($month) {
+		
+		$this->db->cache_on();
+		$statement_bank_balance = $this -> db -> get_where('view_funds_statement_balance', array('closure_date' => $month)) -> result_array();
+		$this->db->cache_on();
 
-		$statement_bank_balance_data = array();
-
-		$data = $this -> db -> get_where($this -> table_prefix . 'statementbal', array('month' => $month)) -> result_array();
-
-		foreach ($data as $statement_balance) {
-
-			$statement_bank_balance_data[$statement_balance['balID']]['fcp_id'] = $statement_balance['icpNo'];
-			$statement_bank_balance_data[$statement_balance['balID']]['closure_date'] = $statement_balance['month'];
-			$statement_bank_balance_data[$statement_balance['balID']]['statement_amount'] = $statement_balance['amount'];
-
-		}
-		return $statement_bank_balance_data;
+		return $statement_bank_balance;
 	}
 
 	private function prod_book_bank_cash_balance_data_model($month) {
 
-		$bank_cash_balance_data = array();
-
-		$data = $this -> db -> get_where($this -> table_prefix . 'cashbal', array('month' => $month)) -> result_array();
-
-		foreach ($data as $cash_balance) {
-			//Populate Cash Balances
-			if ($cash_balance['accNo'] == 'BC') {
-				$bank_cash_balance_data[$cash_balance['balID']]['fcp_id'] = $cash_balance['icpNo'];
-				$bank_cash_balance_data[$cash_balance['balID']]['closure_date'] = $cash_balance['month'];
-				$bank_cash_balance_data[$cash_balance['balID']]['account_type'] = $cash_balance['accNo'];
-				$bank_cash_balance_data[$cash_balance['balID']]['balance_amount'] = $cash_balance['amount'];
-			}
-
-		}
+	
+		$this->db->cache_on();
+		$bank_cash_balance_data = $this -> db -> get_where('view_book_bank_balance', array('closure_date' => $month)) -> result_array();
+		$this->db->cache_off();
 
 		return $bank_cash_balance_data;
 	}
 
 	//We will have to pass month aurgumet in prod models
 	private function prod_mfr_submission_data_model($month) {
-		$mfr_submission_data = array();
 
-		$data = $this -> db -> get_where($this -> table_prefix . 'opfundsbalheader', array('closureDate' => $month)) -> result_array();
+		$this->db->cache_on();
+			$mfr_submission_data = $this -> db -> get_where('view_opening_funds_balance', array('closure_date' => $month)) -> result_array();
+		$this->db->cache_off();	
 
-		foreach ($data as $mfr_submission) {
-
-			$mfr_submission_data[$mfr_submission['balHdID']]['fcp_id'] = $mfr_submission['icpNo'];
-			$mfr_submission_data[$mfr_submission['balHdID']]['closure_date'] = $mfr_submission['closureDate'];
-			$mfr_submission_data[$mfr_submission['balHdID']]['submitted'] = $mfr_submission['submitted'];
-			$mfr_submission_data[$mfr_submission['balHdID']]['submission_date'] = $mfr_submission['stmp'];
-		}
 
 		return $mfr_submission_data;
 	}
@@ -467,46 +446,45 @@ class Finance_model extends CI_Model {
 	function get_uncleared_transactions($vtype, $month) {
 
 		$amount_key = "";
+		$table = "";
 
 		if ($vtype == 'CHQ') {
 			$amount_key = "outstanding_cheque_amount";
+			$table = 'view_voucher_with_oustanding_cheques';
 		} elseif ('CR') {
 			$amount_key = "deposit_in_transit_amount";
+			$table = 'view_voucher_with_deposit_deposit_in_transit';
 		}
-
-		$transaction_array = array();
 
 		$first_day_of_month = date('Y-m-01', strtotime($month));
 		$last_day_of_month = date('Y-m-t', strtotime($month));
+		
+		$this->db->cache_on();
+		
+		$this -> db -> select_sum($amount_key);
+		$this -> db -> select(array('fcp_id', 'voucher_raised_date', 'clearance_state', 'clearance_date', 'voucher_type'));
+		$this -> db -> group_by(array('voucher_type', 'fcp_id'));
 
-		$this -> db -> select_sum('totals');
-		$this -> db -> select(array('hID', 'icpNo', 'TDate', 'ChqState', 'clrMonth', 'VType'));
-		$this -> db -> group_by(array('VType', 'icpNo'));
-
-		$where_string = "VType = '" . $vtype . "' AND (";
+		$condition_array = array();
+		
+		//Query string conditions
+		$where_string = "(";
 		//transactions_raised_in_month_not_cleared
-		$where_string .= "(TDate BETWEEN '" . $first_day_of_month . "' AND '" . $last_day_of_month . "' AND ChqState = 0 AND clrMonth = '0000-00-00')";
+		$where_string .= "(voucher_raised_date BETWEEN '" . $first_day_of_month . "' AND '" . $last_day_of_month . "' AND clearance_state = 0 AND clearance_date = '0000-00-00')";
 		//transactions_raised_in_month_cleared_in_future
-		$where_string .= " OR (TDate BETWEEN '" . $first_day_of_month . "' AND '" . $last_day_of_month . "' AND ChqState = 1 AND clrMonth = '" . $last_day_of_month . "')";
+		$where_string .= " OR (voucher_raised_date BETWEEN '" . $first_day_of_month . "' AND '" . $last_day_of_month . "' AND clearance_state = 1 AND clearance_date > '" . $last_day_of_month . "')";
 		//transactions_raised_in_past_cleared_in_future
-		$where_string .= " OR (TDate <= '" . $first_day_of_month . "' AND ChqState = 1 AND clrMonth = '" . $last_day_of_month . "')";
+		$where_string .= " OR (voucher_raised_date <= '" . $first_day_of_month . "' AND clearance_state = 1 AND clearance_date > '" . $last_day_of_month . "')";
 		//transactions_raised_in_past_not_cleared
-		$where_string .= " OR (TDate <= '" . $first_day_of_month . "' AND ChqState = 0 AND clrMonth = '0000-00-00')";
+		$where_string .= " OR (voucher_raised_date <= '" . $first_day_of_month . "' AND clearance_state = 0 AND clearance_date = '0000-00-00')";
 
 		$where_string .= ")";
 
 		$this -> db -> where($where_string);
 
-		$data = $this -> db -> get($this -> table_prefix . 'voucher_header') -> result_array();
+		$transaction_array = $this -> db -> get($table) -> result_array();
 		
-		$cnt = 0;
-		foreach ($data as $transaction) {
-
-			$transaction_array[$cnt]['fcp_id'] = $transaction['icpNo'];
-			$transaction_array[$cnt]['closure_date'] = $transaction['TDate'];
-			$transaction_array[$cnt][$amount_key] = $transaction['totals'];
-			$cnt++;
-		}
+		$this->db->cache_off();
 
 		return $transaction_array;
 
@@ -517,32 +495,29 @@ class Finance_model extends CI_Model {
 		$transaction_arrays = array();
 
 		$get_uncleared_transactions = $this -> get_uncleared_transactions('CR', $month);
-
-		$cnt = 0;
-		foreach ($get_uncleared_transactions as $transaction) {
-			$transaction_arrays[$cnt]['fcp_id'] = $transaction['fcp_id'];
-			$transaction_arrays[$cnt]['closure_date'] = $month;
-			$transaction_arrays[$cnt]['deposit_in_transit_amount'] = $transaction['deposit_in_transit_amount'];
-			$cnt++;
+		
+		foreach ($get_uncleared_transactions as $hid=>$transaction) {
+			$transaction_arrays[$transaction['fcp_id']]['fcp_id'] = $transaction['fcp_id'];
+			$transaction_arrays[$transaction['fcp_id']]['closure_date'] = $month;
+			$transaction_arrays[$transaction['fcp_id']]['deposit_in_transit_amount'] = $transaction['deposit_in_transit_amount'];
 		}
 
 		return $transaction_arrays;
 	}
 
-	private function prod_outstanding_cheques_data_model($month) {
+	 function prod_outstanding_cheques_data_model($month) {
 
 		$transaction_arrays = array();
-
+		
 		$get_uncleared_transactions = $this -> get_uncleared_transactions('CHQ', $month);
 
-		$cnt = 0;
+		$fcps_array = array_column($get_uncleared_transactions, 'fcp_id');
 
-		foreach ($get_uncleared_transactions as $transaction) {
+		foreach ($get_uncleared_transactions as $row_key=>$transaction) {
 
-			$transaction_arrays[$cnt]['fcp_id'] = $transaction['fcp_id'];
-			$transaction_arrays[$cnt]['closure_date'] = $month;
-			$transaction_arrays[$cnt]['outstanding_cheque_amount'] = $transaction['outstanding_cheque_amount'];
-			$cnt++;
+			$transaction_arrays[$transaction['fcp_id']]['fcp_id'] = $transaction['fcp_id'];
+			$transaction_arrays[$transaction['fcp_id']]['closure_date'] = $month;
+			$transaction_arrays[$transaction['fcp_id']]['outstanding_cheque_amount'] = $transaction['outstanding_cheque_amount'];
 		}
 
 		return $transaction_arrays;

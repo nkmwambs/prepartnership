@@ -123,13 +123,13 @@ class Finance_dashboard{
 
 		$outstanding_cheques_amount = 0.00;
 
-		$group = $this -> group_data_by_fcp_id($outstanding_cheques_data);
+		//$group = $this -> group_data_by_fcp_id($outstanding_cheques_data);
 
 		//Check if the fcp has an Mfr submitted in the $month_submitted
-		if (isset($group[$fcp])) {
-			if ($group[$fcp]['closure_date'] == $month) {
+		if (isset($outstanding_cheques_data[$fcp])) {
+			if ($outstanding_cheques_data[$fcp]['closure_date'] == $month) {
 
-				$outstanding_cheques_amount = $group[$fcp]['outstanding_cheque_amount'];
+				$outstanding_cheques_amount = $outstanding_cheques_data[$fcp]['outstanding_cheque_amount'];
 			}
 		}
 
@@ -142,13 +142,13 @@ class Finance_dashboard{
 
 		$deposit_in_transit_amount = 0.00;
 
-		$group = $this -> group_data_by_fcp_id($deposit_in_transit_data);
+		//$group = $this -> group_data_by_fcp_id($deposit_in_transit_data);
 
 		//Check if the fcp has an Mfr submitted in the $month_submitted
-		if (isset($group[$fcp])) {
-			if ($group[$fcp]['closure_date'] == $month) {
+		if (isset($deposit_in_transit_data[$fcp])) {
+			if ($deposit_in_transit_data[$fcp]['closure_date'] == $month) {
 
-				$deposit_in_transit_amount = $group[$fcp]['deposit_in_transit_amount'];
+				$deposit_in_transit_amount = $deposit_in_transit_data[$fcp]['deposit_in_transit_amount'];
 			}
 		}
 
