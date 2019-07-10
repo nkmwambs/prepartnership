@@ -34,6 +34,28 @@ class Leads extends CI_Controller {
 		
 		$status = 'Active';
 		
+		//Required Fields
+		$required_array = array('lead_status');
+		
+		$required_fields = $this->db->get_where('lead_bio_fields',array('is_field_null'=>0));
+		
+		if($required_fields->num_rows() >0 ){
+			$columns = array_column($required_fields->result_array(), 'lead_bio_info_column');
+			$required_array = array_merge($required_array,$columns);
+		}
+		
+		$crud->required_fields($required_array);
+		
+		//Columns to show
+		
+		$unset_fields = $this->db->get_where('lead_bio_fields',array('show_field'=>0));
+		
+		if($unset_fields->num_rows() > 0){
+			$columns = array_column($unset_fields->result_array(), 'lead_bio_info_column');
+			
+			$crud->unset_columns($columns);			
+		}
+		
 		//Status filter
 		$crud->where(array('lead_status'=>$status));
 		
@@ -44,7 +66,10 @@ class Leads extends CI_Controller {
 		$crud->set_relation('assessment_milestones_id', 'assessment_milestones', 'milestone_name');
 		
 		//Display in Human Readable
-		$crud->display_as('assessment_id',get_phrase('assessment'));
+		$crud->display_as('assessment_milestones_id',get_phrase('assessment'));
+		
+		//Hide Assessment Milestone id field on add form
+		$crud->unset_fields(array('assessment_milestones_id'));
 		
 		//Unset delete and Edit
 		$crud -> unset_delete();
@@ -52,6 +77,10 @@ class Leads extends CI_Controller {
 		//Add a leads assessment action button
 		$crud->add_action(get_phrase('assess_lead'), '', 'leads/lead_assessment', 'fa-book');
 
+		//Callback
+		$crud->callback_after_insert(array($this,'insert_assessment_milestone_id'));
+		
+		
 		$output = $crud -> render();
 		$page_data['page_name'] = 'leads_information';
 		$page_data['view_type'] = 'leads';
@@ -59,6 +88,17 @@ class Leads extends CI_Controller {
 		$output = array_merge($page_data, (array)$output);
 
 		$this -> load -> view('backend/index', $output);
+	}
+
+	function insert_assessment_milestone_id($post_array,$primary_key){
+		
+		$first_milestone = $this->db->get_where('assessment_milestones',array('milestones_insert_after_id'=>'1'))->row();
+		$data['assessment_milestones_id'] = $first_milestone->assessment_milestones_id;
+		
+		$this->db->where(array('leads_bio_information_id'=>$primary_key));
+		$this->db->update('leads_bio_information',$data);
+		
+		return true;
 	}
 
 	function closed_leads_information() {

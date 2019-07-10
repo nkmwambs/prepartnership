@@ -45,7 +45,9 @@ class Settings extends CI_Controller {
 		$crud -> unset_fields(array('lead_bio_info_column'));
 
 		//Display as in human readable fields
-		$crud -> display_as('datatype_id', get_phrase('datatype')) -> display_as('lead_bio_fields_name', get_phrase('field_name'));
+		$crud -> display_as('datatype_id', get_phrase('datatype')) 
+		-> display_as('lead_bio_fields_name', get_phrase('field_name'))
+		-> display_as('is_field_null',get_phrase('is_field_required?'));
 
 		//Set relationship
 		$crud -> set_relation('datatype_id', 'datatype', 'datatype_name');
@@ -57,7 +59,10 @@ class Settings extends CI_Controller {
 		$crud -> field_type('is_suspended', 'dropdown', array(get_phrase('no'), get_phrase('yes')));
 		
 		//Set Mandatory Fields
-		$crud->required_fields(array('lead_bio_fields_name','datatype_id'));
+		$crud->required_fields(array('datatype_id'));
+		
+		//Hide fields on Edit
+		//$crud->unset_edit_fields(array('lead_bio_fields_name'));
 
 		//Callback
 		$crud -> callback_after_insert(array($this, 'construct_lead_bio_info_column'));
@@ -77,7 +82,8 @@ class Settings extends CI_Controller {
 	}
 
 	function readonly_field_on_edit_form ($value, $primary_key) {
-            return '<input class="form-control" readonly="readonly" type="text" value="'.$value.'" style="width:462px">';
+            //return '<input class="form-control" readonly="readonly" type="text" value="'.$value.'" style="width:462px">';
+			return '<div>'.$value.'</div>';
 	}
 	
 	function modify_column_name($post_array, $primary_key) {
