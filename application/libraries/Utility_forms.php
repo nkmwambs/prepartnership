@@ -134,6 +134,8 @@ class Utility_forms {
 	private $use_datatable = true;
 
 	private $data_limit = array();
+	
+	private $dropdown_element_type = array();
 
 	function __construct() {
 		$this -> CI = &get_instance();
@@ -1162,7 +1164,6 @@ class Utility_forms {
 		return $rows_with_primary_key_as_key;
 	}
 
-	private $dropdown_element_type = array();
 
 	public function set_dropdown_element_type($dropdown_element_type = array()) {
 		$this -> dropdown_element_type[] = $dropdown_element_type;
@@ -1213,7 +1214,7 @@ class Utility_forms {
 
 		$db_result = $this -> db_results();
 
-		$record = $db_result[0];
+		$record = $this->_set_fields_after_checking_if_records_return_null();;
 
 		/*
 		 $table_details has 3 aurguments: table name key 0; field holding key of key=1;
@@ -1231,7 +1232,7 @@ class Utility_forms {
 		foreach ($options_from_table as $option) {
 			$options_array[$option -> $option_field_key] = array('option' => $option -> $option_field_text);
 
-			if ($option -> $option_field_text == $record[$option_field_text]) {
+			if (isset($record[$option_field_text]) && ($option -> $option_field_text == $record[$option_field_text])) {
 				$options_array[$option -> $option_field_key]['properties'] = array('selected' => 'selected');
 			}
 		}
@@ -1279,7 +1280,9 @@ class Utility_forms {
 
 			$output_string .= "<div class='col-xs-8'>";
 
-			$innerhtmlval = $db_result[0][$fields];
+			//$innerhtmlval = $db_result[0][$fields];
+			$innerhtmlval = $this->_set_fields_after_checking_if_records_return_null();
+			$innerhtmlval = $innerhtmlval{$fields};
 			
 			if(array_key_exists($fields, $this->dropdown_element_type)){
 				$innerhtmlval = $db_result[0][$fields] = $this->dropdown_element_type[$fields][$innerhtmlval]['option'];
@@ -1445,13 +1448,30 @@ class Utility_forms {
 
 		return $primary_key_field_name[1];
 	}
-
+	
+	function _set_fields_after_checking_if_records_return_null(){
+		$fields = array();
+		
+		if(!isset($db_result[0])){
+			if(!empty($this->fields_to_show)){
+				$fields = array_flip($this->fields_to_show);
+			}else{
+				$fields = array_flip(array_column($this->CI->db->field_data($this->db_table), 'name'));
+			}
+			
+		}else{
+			$fields = $db_result[0];
+		}
+		
+		return $fields;
+	}
+	
 	function _get_fields_names_from_table_result() {
 
 		$this -> set_data_limit(1, 0);
 		$db_result = $this -> db_results();
 
-		$fields = $db_result[0];
+		$fields = $this->_set_fields_after_checking_if_records_return_null();
 
 		unset($fields[$this -> _get_primary_key_field()]);
 
@@ -1587,8 +1607,29 @@ class Utility_forms {
 	}
 	
 	private function delete_record_data(){
+		
+		$this->CI->db->trans_start();
+		
 		$this->CI->db->where(array($this->_get_primary_key_field()=>$this->CI->uri->segment(4)));
+		
 		$this->CI->db->delete($this->db_table);
+		
+		if ($this->CI->db->trans_status() === FALSE)
+		{
+			        $this->CI->db->trans_rollback();
+					
+					$this->db_transaction_message = "Error Occurred";
+					
+					$this->db_transaction_success_flag = false;
+		}
+		else
+		{
+			        $this->CI->db->trans_commit();
+					
+					$this->db_transaction_message = "Data deleted successful";
+					
+					$this->db_transaction_success_flag = true;
+		}
 	}
 	
 	private $required_fields = array();
@@ -1613,7 +1654,6 @@ class Utility_forms {
 	}
 	
 	function render() {
-		
 
 		$output = "";
 		
@@ -1810,5 +1850,8 @@ class Utility_forms {
 
 		return $output;
 	}
-
+	
+	function addNumbers($a,$b){
+		return $a + $b;
+	}
 }

@@ -1,17 +1,21 @@
-<?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');?>
+<?php 
+foreach($css_files as $file): ?>
+    <link type="text/css" rel="stylesheet" href="<?php echo $file; ?>" />
+ 
+<?php endforeach; ?>
+<?php foreach($js_files as $file): ?>
+ 
+    <script src="<?php echo $file; ?>"></script>
+<?php endforeach; ?>
+
+<hr />
 <div class="row">
-	<div class="col-xs-12">	
-		<?=$output;?>
+	<div class="col-sm-12">
+		<?php echo $output; ?>
 	</div>
 </div>
+ 
+
 <script>
-	$('#frm_bio .is_field_null').on('change',function(){
-		
-		if($(this).val()=='no')
-		{
-			//Go to parent the is_field_null and move to the next td and get the iput field
-			$(this).parent().next().find('input').addClass('required').prop('placeholder','Place here a value');
-		}
-	});
 	
-</script>
+</script> 

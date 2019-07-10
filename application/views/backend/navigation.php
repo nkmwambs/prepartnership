@@ -34,14 +34,14 @@
             </a>
             <ul>
             	<li class="<?=get_access('active_leads','leads');?>">
-            		<a href="<?php echo base_url();?>leads/leads_information/view_leads_bio_information/active">
+            		<a href="<?php echo base_url();?>leads/active_leads_information">
             			<i class='entypo-sound'></i>
             			<span> <?=get_phrase('active_leads');?></span>
             		</a>
             	</li>
             	
             	<li class="<?=get_access('closed_leads','leads');?>">
-            		<a href="<?php echo base_url();?>leads/leads_information/view_leads_bio_information/closed">
+            		<a href="<?php echo base_url();?>leads/closed_leads_information">
             			<i class='entypo-mute'></i>
             			<span> <?=get_phrase('closed_leads');?></span>
             		</a>
@@ -60,11 +60,7 @@
                         <span><i class="fa fa-cog"></i> <?php echo get_phrase('general_settings'); ?></span>
                     </a>
                 </li>
-                <!-- <li class="<?php if ($page_name == 'sms_settings') echo 'active'; ?> sms_settings">
-                    <a href="<?php echo base_url(); ?>index.php?settings/sms_settings">
-                        <span><i class="fa fa-mobile"></i> <?php echo get_phrase('sms_settings'); ?></span>
-                    </a>
-                </li> -->
+                
                 <li class="<?php echo get_access('language_settings','settings');?> <?php if ($page_name == 'manage_language') echo 'active'; ?> language_settings">
                     <a href="<?php echo base_url(); ?>settings/manage_language">
                         <span><i class="fa fa-info"></i> <?php echo get_phrase('language_settings'); ?></span>
@@ -76,16 +72,16 @@
                     </a>
                     <ul>
                     	<li class="<?php echo get_access('lead_bio_settings','settings');?> <?php if ($page_name == 'assessment_settings') echo 'active'; ?>">
-                    		<a href="<?=base_url();?>settings/assessment_settings/view_lead_bio_fields">
+                    		<a href="<?=base_url();?>settings/leads_bio_field">
                     			<span>
                     				<i class="fa fa-globe"></i>
-                    					<?=get_phrase('lead_bio_fields');?>
+                    					<?=get_phrase('leads_bio_fields');?>
                     			</span>	
                     		</a>
                     	</li>
                     	
                     	<li class="<?php echo get_access('assessment_milestones','settings');?> <?php if ($page_name == 'assessment_settings') echo 'active'; ?>">
-                    		<a href="<?=base_url();?>settings/assessment_settings/view_assessment_milestones">
+                    		<a href="<?=base_url();?>settings/assessment_milestones">
                     			<span>
                     				<i class="fa fa-list"></i>
                     					<?=get_phrase('assessment_milestones');?>
@@ -94,16 +90,16 @@
                     	</li>
                     	
                     	<li class="<?php echo get_access('connect_progress_measures','settings');?> <?php if ($page_name == 'assessment_settings') echo 'active'; ?>">
-                    		<a href="<?=base_url();?>settings/assessment_settings/view_compassion_connect_progress_measures">
+                    		<a href="<?=base_url();?>settings/compassion_stage">
                     			<span>
                     				<i class="fa fa-line-chart"></i>
-                    					<?=get_phrase('connect_progress_measures');?>
+                    					<?=get_phrase('connect_stage');?>
                     			</span>	
                     		</a>
                     	</li>
                     	
                     	<li class="<?php echo get_access('assessment_progress_measures','settings');?> <?php if ($page_name == 'assessment_settings') echo 'active'; ?>">
-                    		<a href="<?=base_url();?>settings/assessment_settings/view_progress_measures">
+                    		<a href="<?=base_url();?>settings/assessment_progress_measures">
                     			<span>
                     				<i class="fa fa-bar-chart"></i>
                     					<?=get_phrase('assessment_progress_measures');?>
