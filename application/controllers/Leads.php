@@ -38,7 +38,7 @@ class Leads extends CI_Controller {
 		//Required Fields
 		$required_array = array('lead_status');
 		
-		$required_fields = $this->db->get_where('lead_bio_fields',array('is_field_null'=>0));
+		$required_fields = $this->db->get_where('lead_bio_fields',array('is_field_null'=>1));
 		
 		if($required_fields->num_rows() >0 ){
 			$columns = array_column($required_fields->result_array(), 'lead_bio_info_column');
