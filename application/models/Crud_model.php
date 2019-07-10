@@ -779,6 +779,22 @@ class Crud_model extends CI_Model {
 
 		return $type_array;
 	}
+	
+	public function get_fields_to_display()
+      {
+            $field_to_display=$this->db->get_where('lead_bio_fields',array('show_field'=>1))->result_array();
+            
+            $field_name_array=array_column($field_to_display, 'lead_bio_info_column');
+            
+            return $field_name_array;
+      }
+	
+	
+public function get_lead_bio_info_as_a_row($lead_id){
+            
+            //Get the lead bio data as a row
+            return $this -> db -> get_where('leads_bio_information', array('leads_bio_information_id' => $lead_id)) -> row();
+      }
 
 	
 

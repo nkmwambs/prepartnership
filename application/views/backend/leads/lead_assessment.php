@@ -1,3 +1,5 @@
+<?php //print_r($human_readable_fields); ?>
+
 
 <div class='row'>
 <div class="col-xs-12">
@@ -42,61 +44,31 @@
 					<!-- The Static Bio information Fields-->
 
 					<div class="row">
+						<div class='col-xs-12'>
+							<h2>Leads Profile Information</h2>
+						<?php
+						  foreach ($human_readable_fields as $label_data) {
+						  	
+							?>  
+						<div class='row'>
+						<?php 
+						 foreach ($label_data as $label => $label_value) {
+						 	?>
+						 	<div class="col-xs-4">
+							
+								<label class=""><?= ucwords($label) . ':'; ?> </label>&nbsp;&nbsp;<span><?= $label_value; ?></span>
 
-						<h2>Leads Profile Information</h2>
+							
+						</div>
+						 <?php } ?>
+						</div>
+						<?php } ?>
+							
+						</div>
+
 						
-						<div class="col-xs-4">
-							<div class="form-group">
-								<label class="control-label" for="Lead_name">Lead Name: </label><span>Enchoro Munyi PCEA</span>
-
-							</div>
-						</div>
-						<div class="col-xs-4">
-							<div class="form-group">
-								<label class="control-label" for="Lead_name">Phone Contants: </label><span>073455567/073390998</span>
-
-							</div>
-						</div>
-						<div class="col-xs-4">
-							<div class="form-group">
-								<label class="control-label" for="Lead_name">Mail Address: </label><span>Ngong Town</span>
-
-							</div>
-						</div>
-						<div class="col-xs-4">
-							<div class="form-group">
-								<label class="control-label" for="Lead_name">Pastor's name: </label><span>Rev. Diba</span>
-
-							</div>
-						</div>
-						<div class="col-xs-4">
-							<div class="form-group">
-								<label class="control-label" for="Lead_name">Email Address: </label><span>enchoromunyi@hotmail.com</span>
-
-							</div>
-						</div>
-
-						<div class="col-xs-4">
-							<div class="form-group">
-								<label class="control-label" for="Lead_name">Land size </label><span> Two acres </span>
-
-							</div>
-						</div>
-
-						<div class="col-xs-4">
-							<div class="form-group">
-								<label class="control-label" for="Lead_name">Plot No: </label><span>Ng/west/20167</span>
-
-							</div>
-						</div>
-						<div class="col-xs-4">
-							<div class="form-group">
-								<label class="control-label" for="Lead_name">Congragation size: </label><span>1000</span>
-
-							</div>
-						</div>
-
 					</div>
+						
 					<hr>
 					<!--Changing content based on assessment-->
 
@@ -141,11 +113,11 @@
 						<table id='tbl_assessment_form' class="table table-striped">
 							<thead>
 								<tr style="font-style: italic;">
-									<th><?=get_phrase("progress_measure");?></th>
-									<th><?=get_phrase("verication_tools");?></th>
-									<th><?=get_phrase("method_of_assessment");?></th>
-									<th><?=get_phrase("score");?></th>
-									<th><?=get_phrase("comment");?></th>
+									<th><?= get_phrase("progress_measure"); ?></th>
+									<th><?= get_phrase("verication_tools"); ?></th>
+									<th><?= get_phrase("method_of_assessment"); ?></th>
+									<th><?= get_phrase("score"); ?></th>
+									<th><?= get_phrase("comment"); ?></th>
 								</tr>
 							</thead>
 							
@@ -157,14 +129,14 @@
 									
 									<td>
 	                                     <select class="custom-select" multiple>
-											<option value="progress_measure1_tool"><?=get_phrase('functional_strategic_document');?> </option>
+											<option value="progress_measure1_tool"><?= get_phrase('functional_strategic_document'); ?> </option>
 										 </select>
 									</td>
 									
 									<td>
 	                                     <select class="custom-select select2" multiple>
-											<option value="method1"><?=get_phrase('records-review');?></option>
-											<option value="method2"><?=get_phrase('focused_discussions');?></option>
+											<option value="method1"><?= get_phrase('records-review'); ?></option>
+											<option value="method2"><?= get_phrase('focused_discussions'); ?></option>
 											
 										 </select>
 									</td>
@@ -172,8 +144,8 @@
 									<td>
 	                                     <select >
 											
-											<option value="score0"><?=get_phrase('no');?></option>
-											<option value="score1"><?=get_phrase('yes');?> </option>
+											<option value="score0"><?= get_phrase('no'); ?></option>
+											<option value="score1"><?= get_phrase('yes'); ?> </option>
 										 </select>
 									</td>
 									
@@ -189,8 +161,8 @@
 									
 									<td>
 	                                     <select class="custom-select" multiple>
-											<option value="1"><?=get_phrase('documented_selection_process_for_ministry_leaders');?> </option>
-											<option value="2"><?=get_phrase('church_organizational_chart');?> </option>
+											<option value="1"><?= get_phrase('documented_selection_process_for_ministry_leaders'); ?> </option>
+											<option value="2"><?= get_phrase('church_organizational_chart'); ?> </option>
 											
 											
 										 </select>
@@ -198,8 +170,8 @@
 									
 									<td>
 	                                     <select class="custom-select" multiple>
-											<option value="method1"><?=get_phrase('records-review');?></option>
-											<option value="method2"><?=get_phrase('focused_discussions');?></option>
+											<option value="method1"><?= get_phrase('records-review'); ?></option>
+											<option value="method2"><?= get_phrase('focused_discussions'); ?></option>
 											
 										 </select>
 									</td>
@@ -207,8 +179,8 @@
 									<td>
 	                                     <select >
 											
-											<option value="score0"><?=get_phrase('no');?></option>
-											<option value="score1"><?=get_phrase('yes');?> </option>
+											<option value="score0"><?= get_phrase('no'); ?></option>
+											<option value="score1"><?= get_phrase('yes'); ?> </option>
 										 </select>
 									</td>
 									
@@ -223,8 +195,8 @@
 									
 									<td>
 	                                     <select class="custom-select" multiple>
-											<option value="1"><?=get_phrase('evidence_of_adherence_to_statutory_HR_structures');?> </option>
-											<option value="2"><?=get_phrase('annual_financial_statement  ');?> </option>
+											<option value="1"><?= get_phrase('evidence_of_adherence_to_statutory_HR_structures'); ?> </option>
+											<option value="2"><?= get_phrase('annual_financial_statement  '); ?> </option>
 											
 											
 										 </select>
@@ -232,8 +204,8 @@
 									
 									<td>
 	                                     <select class="custom-select" multiple>
-											<option value="method1"><?=get_phrase('records-review');?></option>
-											<option value="method2"><?=get_phrase('focused_discussions');?></option>
+											<option value="method1"><?= get_phrase('records-review'); ?></option>
+											<option value="method2"><?= get_phrase('focused_discussions'); ?></option>
 											
 										 </select>
 									</td>
@@ -241,8 +213,8 @@
 									<td>
 	                                     <select >
 											
-											<option value="score0"><?=get_phrase('no');?></option>
-											<option value="score1"><?=get_phrase('yes');?> </option>
+											<option value="score0"><?= get_phrase('no'); ?></option>
+											<option value="score1"><?= get_phrase('yes'); ?> </option>
 										 </select>
 									</td>
 									
@@ -258,7 +230,7 @@
 									
 									<td>
 	                                     <select class="custom-select" multiple>
-											<option value="1"><?=get_phrase('availability_of_employees_and_volunteers_for_CY_ministry_in_the_church');?> </option>
+											<option value="1"><?= get_phrase('availability_of_employees_and_volunteers_for_CY_ministry_in_the_church'); ?> </option>
 											
 											
 											
@@ -267,8 +239,8 @@
 									
 									<td>
 	                                     <select class="custom-select" multiple>
-											<option value="method1"><?=get_phrase('records-review');?></option>
-											<option value="method2"><?=get_phrase('focused_discussions');?></option>
+											<option value="method1"><?= get_phrase('records-review'); ?></option>
+											<option value="method2"><?= get_phrase('focused_discussions'); ?></option>
 											
 										 </select>
 									</td>
@@ -276,8 +248,8 @@
 									<td>
 	                                     <select >
 											
-											<option value="score0"><?=get_phrase('no');?></option>
-											<option value="score1"><?=get_phrase('yes');?> </option>
+											<option value="score0"><?= get_phrase('no'); ?></option>
+											<option value="score1"><?= get_phrase('yes'); ?> </option>
 										 </select>
 									</td>
 									
@@ -292,7 +264,7 @@
 									
 									<td>
 	                                     <select class="custom-select" multiple>
-											<option value="1"><?=get_phrase('evidence_of_Operational_procedures_&_financial_records');?> </option>
+											<option value="1"><?= get_phrase('evidence_of_Operational_procedures_&_financial_records'); ?> </option>
 											
 											
 											
@@ -301,8 +273,8 @@
 									
 									<td>
 	                                     <select class="custom-select" multiple>
-											<option value="method1"><?=get_phrase('records-review');?></option>
-											<option value="method2"><?=get_phrase('focused_discussions');?></option>
+											<option value="method1"><?= get_phrase('records-review'); ?></option>
+											<option value="method2"><?= get_phrase('focused_discussions'); ?></option>
 											
 										 </select>
 									</td>
@@ -310,8 +282,8 @@
 									<td>
 	                                     <select >
 											
-											<option value="score0"><?=get_phrase('no');?></option>
-											<option value="score1"><?=get_phrase('yes');?> </option>
+											<option value="score0"><?= get_phrase('no'); ?></option>
+											<option value="score1"><?= get_phrase('yes'); ?> </option>
 										 </select>
 									</td>
 									
@@ -326,8 +298,8 @@
 									
 									<td>
 	                                     <select class="custom-select" multiple>
-											<option value="1"><?=get_phrase('a_vailability_of_adequate_space');?> </option>
-											<option value="1"><?=get_phrase('safe_child_environment');?> </option>
+											<option value="1"><?= get_phrase('a_vailability_of_adequate_space'); ?> </option>
+											<option value="1"><?= get_phrase('safe_child_environment'); ?> </option>
 											
 											
 										 </select>
@@ -336,16 +308,16 @@
 									<td>
 	                                     <select class="custom-select" multiple>
 											
-											<option value="method2"><?=get_phrase('focused_discussions');?></option>
-											<option value="method3"><?=get_phrase('observation');?> </option>
+											<option value="method2"><?= get_phrase('focused_discussions'); ?></option>
+											<option value="method3"><?= get_phrase('observation'); ?> </option>
 										 </select>
 									</td>
 									
 									<td>
 	                                     <select >
 											
-											<option value="score0"><?=get_phrase('no');?></option>
-											<option value="score1"><?=get_phrase('yes');?> </option>
+											<option value="score0"><?= get_phrase('no'); ?></option>
+											<option value="score1"><?= get_phrase('yes'); ?> </option>
 										 </select>
 									</td>
 									
@@ -360,24 +332,24 @@
 									
 									<td>
 	                                     <select class="custom-select" multiple>
-											<option value="1"><?=get_phrase('documented_statement_of_faith_or_constitution');?> </option>
-											<option value="1"><?=get_phrase('evidence_of_operational_evangelism_&_discipleship Programs');?> </option>
+											<option value="1"><?= get_phrase('documented_statement_of_faith_or_constitution'); ?> </option>
+											<option value="1"><?= get_phrase('evidence_of_operational_evangelism_&_discipleship Programs'); ?> </option>
 										 </select>
 									</td>
 									
 									<td>
 	                                     <select class="custom-select" multiple>
 											
-											<option value="method2"><?=get_phrase('focused_discussions');?></option>
-											<option value="method3"><?=get_phrase('observation');?> </option>
+											<option value="method2"><?= get_phrase('focused_discussions'); ?></option>
+											<option value="method3"><?= get_phrase('observation'); ?> </option>
 										 </select>
 									</td>
 									
 									<td>
 	                                     <select >
 											
-											<option value="score0"><?=get_phrase('no');?></option>
-											<option value="score1"><?=get_phrase('yes');?> </option>
+											<option value="score0"><?= get_phrase('no'); ?></option>
+											<option value="score1"><?= get_phrase('yes'); ?> </option>
 										 </select>
 									</td>
 									
@@ -392,7 +364,7 @@
 									
 									<td>
 	                                     <select class="custom-select" multiple>
-											<option value="1"><?=get_phrase('evidence_of_church_&_community_mobilization_methodologies');?> </option>
+											<option value="1"><?= get_phrase('evidence_of_church_&_community_mobilization_methodologies'); ?> </option>
 											
 										 </select>
 									</td>
@@ -400,16 +372,16 @@
 									<td>
 	                                     <select class="custom-select" multiple>
 											
-											<option value="method2"><?=get_phrase('observation');?></option>
-											<option value="method3"><?=get_phrase('focused_discussions');?> </option>
+											<option value="method2"><?= get_phrase('observation'); ?></option>
+											<option value="method3"><?= get_phrase('focused_discussions'); ?> </option>
 										 </select>
 									</td>
 									
 									<td>
 	                                     <select >
 											
-											<option value="score0"><?=get_phrase('no');?></option>
-											<option value="score1"><?=get_phrase('yes');?> </option>
+											<option value="score0"><?= get_phrase('no'); ?></option>
+											<option value="score1"><?= get_phrase('yes'); ?> </option>
 										 </select>
 									</td>
 									
@@ -424,25 +396,25 @@
 									
 									<td>
 	                                     <select class="custom-select" multiple>
-											<option value="1"><?=get_phrase('no_of_learning_activities_church_has_participated_in');?> </option>
-											<option value="1"><?=get_phrase('percentage_of_plans_of_action_implemented');?> </option>
+											<option value="1"><?= get_phrase('no_of_learning_activities_church_has_participated_in'); ?> </option>
+											<option value="1"><?= get_phrase('percentage_of_plans_of_action_implemented'); ?> </option>
 											
 										 </select>
 									</td>
 									
 									<td>
 	                                     <select class="custom-select" multiple>
-											<option value="method1"><?=get_phrase('records_review');?></option>
-											<option value="method2"><?=get_phrase('observation');?></option>
-											<option value="method3"><?=get_phrase('focused_discussions');?> </option>
+											<option value="method1"><?= get_phrase('records_review'); ?></option>
+											<option value="method2"><?= get_phrase('observation'); ?></option>
+											<option value="method3"><?= get_phrase('focused_discussions'); ?> </option>
 										 </select>
 									</td>
 									
 									<td>
 	                                     <select >
 											
-											<option value="score0"><?=get_phrase('no');?></option>
-											<option value="score1"><?=get_phrase('yes');?> </option>
+											<option value="score0"><?= get_phrase('no'); ?></option>
+											<option value="score1"><?= get_phrase('yes'); ?> </option>
 										 </select>
 									</td>
 									
@@ -458,7 +430,7 @@
 									
 									<td>
 	                                     <select class="custom-select" multiple>
-											<option value="1"><?=get_phrase('evidence_of_holistic_gospel_ministry_in_the_church');?> </option>
+											<option value="1"><?= get_phrase('evidence_of_holistic_gospel_ministry_in_the_church'); ?> </option>
 											
 											
 										 </select>
@@ -467,16 +439,16 @@
 									<td>
 	                                     <select class="custom-select" multiple>
 											
-											<option value="method2"><?=get_phrase('observation');?></option>
-											<option value="method3"><?=get_phrase('focused_discussions');?> </option>
+											<option value="method2"><?= get_phrase('observation'); ?></option>
+											<option value="method3"><?= get_phrase('focused_discussions'); ?> </option>
 										 </select>
 									</td>
 									
 									<td>
 	                                     <select >
 											
-											<option value="score0"><?=get_phrase('no');?></option>
-											<option value="score1"><?=get_phrase('yes');?> </option>
+											<option value="score0"><?= get_phrase('no'); ?></option>
+											<option value="score1"><?= get_phrase('yes'); ?> </option>
 										 </select>
 									</td>
 									
@@ -492,7 +464,7 @@
 									
 									<td>
 	                                     <select class="custom-select" multiple>
-											<option value="1"><?=get_phrase('evidence_of_CY_program_activities');?> </option>
+											<option value="1"><?= get_phrase('evidence_of_CY_program_activities'); ?> </option>
 											
 											
 										 </select>
@@ -501,16 +473,16 @@
 									<td>
 	                                     <select class="custom-select" multiple>
 											
-											<option value="method2"><?=get_phrase('observation');?></option>
-											<option value="method3"><?=get_phrase('focused_discussions');?> </option>
+											<option value="method2"><?= get_phrase('observation'); ?></option>
+											<option value="method3"><?= get_phrase('focused_discussions'); ?> </option>
 										 </select>
 									</td>
 									
 									<td>
 	                                     <select >
 											
-											<option value="score0"><?=get_phrase('no');?></option>
-											<option value="score1"><?=get_phrase('yes');?> </option>
+											<option value="score0"><?= get_phrase('no'); ?></option>
+											<option value="score1"><?= get_phrase('yes'); ?> </option>
 										 </select>
 									</td>
 									
@@ -525,8 +497,8 @@
 									
 									<td>
 	                                     <select class="custom-select" multiple>
-											<option value="1"><?=get_phrase('documented_no._of_congregation_sensitization_meetings_held');?> </option>
-											<option value="1"><?=get_phrase('church_activity_program');?> </option>
+											<option value="1"><?= get_phrase('documented_no._of_congregation_sensitization_meetings_held'); ?> </option>
+											<option value="1"><?= get_phrase('church_activity_program'); ?> </option>
 											
 										 </select>
 									</td>
@@ -534,16 +506,16 @@
 									<td>
 	                                     <select class="custom-select" multiple>
 											
-											<option value="method2"><?=get_phrase('observation');?></option>
-											<option value="method3"><?=get_phrase('focused_discussions');?> </option>
+											<option value="method2"><?= get_phrase('observation'); ?></option>
+											<option value="method3"><?= get_phrase('focused_discussions'); ?> </option>
 										 </select>
 									</td>
 									
 									<td>
 	                                     <select >
 											
-											<option value="score0"><?=get_phrase('no');?></option>
-											<option value="score1"><?=get_phrase('yes');?> </option>
+											<option value="score0"><?= get_phrase('no'); ?></option>
+											<option value="score1"><?= get_phrase('yes'); ?> </option>
 										 </select>
 									</td>
 									
@@ -559,7 +531,7 @@
 									
 									<td>
 	                                     <select class="custom-select" multiple>
-											<option value="1"><?=get_phrase('evidence_of_good_report_about_the_church');?> </option>
+											<option value="1"><?= get_phrase('evidence_of_good_report_about_the_church'); ?> </option>
 											
 											
 										 </select>
@@ -569,8 +541,8 @@
 	                                     <select class="custom-select" multiple>
 											
 											
-											<option value="method1"><?=get_phrase('Interviews');?></option>
-											<option value="method2"><?=get_phrase('FGDs_with_influencers');?></option>
+											<option value="method1"><?= get_phrase('Interviews'); ?></option>
+											<option value="method2"><?= get_phrase('FGDs_with_influencers'); ?></option>
 											
 										 </select>
 									</td>
@@ -578,8 +550,8 @@
 									<td>
 	                                     <select >
 											
-											<option value="score0"><?=get_phrase('no');?></option>
-											<option value="score1"><?=get_phrase('yes');?> </option>
+											<option value="score0"><?= get_phrase('no'); ?></option>
+											<option value="score1"><?= get_phrase('yes'); ?> </option>
 										 </select>
 									</td>
 									
@@ -595,7 +567,7 @@
 									
 									<td>
 	                                     <select class="custom-select" multiple>
-											<option value="1"><?=get_phrase('evidence_of_good_report_about_the_church');?> </option>
+											<option value="1"><?= get_phrase('evidence_of_good_report_about_the_church'); ?> </option>
 											
 											
 										 </select>
@@ -604,8 +576,8 @@
 									<td>
 	                                     <select class="custom-select" multiple>
 											
-												<option value="method1"><?=get_phrase('Interviews');?></option>
-											<option value="method2"><?=get_phrase('FGDs_with_influencers');?></option>
+												<option value="method1"><?= get_phrase('Interviews'); ?></option>
+											<option value="method2"><?= get_phrase('FGDs_with_influencers'); ?></option>
 											
 										 </select>
 									</td>
@@ -613,8 +585,8 @@
 									<td>
 	                                     <select >
 											
-											<option value="score0"><?=get_phrase('no');?></option>
-											<option value="score1"><?=get_phrase('yes');?> </option>
+											<option value="score0"><?= get_phrase('no'); ?></option>
+											<option value="score1"><?= get_phrase('yes'); ?> </option>
 										 </select>
 									</td>
 									
@@ -632,8 +604,8 @@
 
 							<div class="col-xs-12">
 								<div class="form-group">
-									<label class="control-label" for="about"><?=get_phrase('general comment');?></label>
-									<textarea class="form-control autogrow" name="about" id="about" data-validate="minlength[10]" rows="5" placeholder="<?=get_phrase('general comment');?>"></textarea>
+									<label class="control-label" for="about"><?= get_phrase('general comment'); ?></label>
+									<textarea class="form-control autogrow" name="about" id="about" data-validate="minlength[10]" rows="5" placeholder="<?= get_phrase('general comment'); ?>"></textarea>
 								</div>
 							</div>
 
@@ -679,18 +651,17 @@
 </div>
 
 <script>
-    $(document).ready(function(){
-    	
-    	var table_id=$('#tbl_assessment_form');
-    	
-    	table_id.find($('select[multiple]')).not('.select2').addClass('select2');
-	
-	    table_id.find($('select')).not('[multiple]').addClass('form-control');
-	
-	    table_id.find(('tr th:first')).css('width','350px');
-	     
-	    table_id.find(('td')).css('width','150px');
-    });
-	
+	$(document).ready(function() {
+
+		var table_id = $('#tbl_assessment_form');
+
+		table_id.find($('select[multiple]')).not('.select2').addClass('select2');
+
+		table_id.find($('select')).not('[multiple]').addClass('form-control');
+
+		table_id.find(('tr th:first')).css('width', '350px');
+
+		table_id.find(('td')).css('width', '150px');
+	});
 </script>
 

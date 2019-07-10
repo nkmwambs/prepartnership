@@ -137,15 +137,42 @@ class Leads extends CI_Controller {
 		$this -> load -> view('backend/index', $output);
 	}
 	
-	function lead_assessment(){
+	function lead_assessment($lead_id = ''){
+		   if ($this -> session -> userdata('user_login') != 1)
+                 redirect(base_url() . 'index.php?login', 'refresh');
+
+            //get the keys that exists in the array comming from lead_bio_inform
+            //Get the lead bio info from table
+
+            $fields_to_show_array = $this -> crud_model -> get_fields_to_display();
+            $lead_bio_data = $this -> crud_model -> get_lead_bio_info_as_a_row($lead_id);
+
+            $make_keys_to_value = array_flip($fields_to_show_array);
+
+            //Build an value and key pair
+            $build_data_array = array();
+
+            foreach ($make_keys_to_value as $key => $field) {
+                  if (array_key_exists($key, $lead_bio_data)) {
+
+                        $explode_field_name = explode("_", $key);
+
+                        $implode_to_human_readable = implode(" ", $explode_field_name);
+
+                        $build_data_array[$implode_to_human_readable] = $lead_bio_data -> $key;
+                  }
+
+            }
+            //slice the array to group them in 3 columns on the lead_assessment view
+
+            $human_readable_output = array_chunk($build_data_array, 3, true);
+
+            $page_data['page_name'] = 'lead_assessment';
+            $page_data['view_type'] = "leads";
+            $page_data['human_readable_fields'] = $human_readable_output;
+            $page_data['page_title'] = get_phrase('lead_assessment');
+            $this -> load -> view('backend/index', $page_data);
 		
-		if ($this -> session -> userdata('user_login') != 1)
-			redirect(base_url() . 'index.php?login', 'refresh');
-		
-		$page_data['page_name'] = 'lead_assessment';
-		$page_data['view_type'] = 'leads';
-		$page_data['page_title'] = get_phrase('lead_assessment');
-		$this -> load -> view('backend/index', $page_data);
 	}
 	
 
