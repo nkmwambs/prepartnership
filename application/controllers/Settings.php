@@ -17,6 +17,8 @@ class Settings extends CI_Controller {
 		$this -> load -> database();
 		$this -> load -> library('session');
 		$this -> session -> set_userdata('view_type', 'settings');
+		$this -> load -> library('utility_forms');
+		$this -> load -> library('grocery_CRUD');
 
 		//set_use_datatable
 
@@ -26,292 +28,276 @@ class Settings extends CI_Controller {
 
 	}
 
-	private function load_library() {
-		$this -> load -> library('utility_forms');
-		return new Utility_forms();
-	}
-
-	/** ASSESSMENT SETTINGS **/
-	
-	public function assessment_milestone(){
+	function leads_bio_field() {
 		if ($this -> session -> userdata('user_login') != 1)
 			redirect(base_url() . 'index.php?login', 'refresh');
+
+		$crud = new grocery_CRUD();
+		$crud -> set_theme('tablestrap');
+		$crud -> set_table('lead_bio_fields');
+
+		//Unset Actions
+		$crud -> unset_clone();
+		$crud->unset_delete();
+
+		//Unset columns
+		$crud -> unset_columns(array('lead_bio_info_column'));
+		$crud -> unset_fields(array('lead_bio_info_column'));
+
+		//Display as in human readable fields
+		$crud -> display_as('datatype_id', get_phrase('datatype')) -> display_as('lead_bio_fields_name', get_phrase('field_name'));
+
+		//Set relationship
+		$crud -> set_relation('datatype_id', 'datatype', 'datatype_name');
+
+		//Set yes/no dropdown
+		$crud -> field_type('is_field_unique', 'dropdown', array(get_phrase('no'), get_phrase('yes')));
+		$crud -> field_type('show_field', 'dropdown', array(get_phrase('no'), get_phrase('yes')));
+		$crud -> field_type('is_field_null', 'dropdown', array(get_phrase('no'), get_phrase('yes')));
+		$crud -> field_type('is_suspended', 'dropdown', array(get_phrase('no'), get_phrase('yes')));
 		
-		$lib = $this->load_library();
+		//Set Mandatory Fields
+		$crud->required_fields(array('lead_bio_fields_name','datatype_id'));
+
+		//Callback
+		$crud -> callback_after_insert(array($this, 'construct_lead_bio_info_column'));
+		// Callback - To be used by Developers (More Development needed to check if the logged user is a developer)
+		// Set delete when a developer logs in
+		$crud -> callback_before_delete(array($this, 'delete_leads_bio_information_field'));
+		$crud -> callback_after_update(array($this, 'modify_column_name'));
+		$crud->callback_edit_field('lead_bio_fields_name',array($this,'readonly_field_on_edit_form'));
 		
-		$lib->set_db_table('assessment_milestone');
-		
-		$lib->set_dropdown_from_table(array('assessment_milestone','assessment_milestone_id','assessment_milestone_name','insert_after'));
-		
-		$lib->set_dropdown_from_range(array('assessment_period_in_days',1, 180));
-		
-		$lib->set_debug_mode(2);
-		/** Render the utility views to the codeigniter view array output **/
-		$page_data['output'] = $lib->render();
-		
-		//This is non utility lib implementation
+		$output = $crud -> render();
 		$page_data['page_name'] = 'assessment_settings';
 		$page_data['view_type'] = 'settings';
 		$page_data['page_title'] = get_phrase('assessment_settings');
-		$this -> load -> view('backend/index', $page_data);
+		$output = array_merge($page_data, (array)$output);
+
+		$this -> load -> view('backend/index', $output);
+	}
+
+	function readonly_field_on_edit_form ($value, $primary_key) {
+            return '<input class="form-control" readonly="readonly" type="text" value="'.$value.'" style="width:462px">';
 	}
 	
-	function leads_bio_field(){
-		if ($this -> session -> userdata('user_login') != 1)
-			redirect(base_url() . 'index.php?login', 'refresh');
-		
-		$lib = $this->load_library();
-		
-		$lib->set_debug_mode(2);
-		
-		//The primary table to list its records from
-		$lib->set_db_table('leads_bio_field');
-		
-		//Setting up yes/no option select tag						
-		//Can be done per individual fields and in this case no array is passed but the field as a string
-		 
-		$lib->set_dropdown_yes_no(array('is_field_null','show_field','is_suspended','is_field_unique'));						
-		
-		//Setting up table relationshps
-		
-		$lib->set_table_join(array(	'datatype'=>array('datatype_id','datatype_id')));
-		
-		/** Table listing view depandant settings **/
-		
-		//Fields to show on the table listing
-		$lib->set_fields_to_show(array(
-										'leads_bio_field_name',
-										'datatype_name',
-										'is_field_unique',
-										'is_field_null',
-										'default_value',
-										'show_field',
-										'is_suspended'
-										)
-									);
-									
-		$lib->set_fields_to_show_on_add(array(
-										'leads_bio_field_name',
-										'datatype_name',
-										'is_field_unique',
-										'is_field_null',
-										'default_value',
-										'show_field',
-										'is_suspended'
-										)
-									);							
-		
+	function modify_column_name($post_array, $primary_key) {
+		$this -> load -> dbforge();
 
-		$lib->set_fields_to_show_on_edit(array(
-										'leads_bio_field_name',
-										'datatype_name',
-										'is_field_unique',
-										'is_field_null',
-										'default_value',
-										'show_field',
-										'is_suspended'
-										)
-									);	
-									
-		$lib->set_fields_to_show_on_view(array(
-										'leads_bio_field_name',
-										'datatype_name',
-										'is_field_unique',
-										'is_field_null',
-										'default_value',
-										'show_field',
-										'is_suspended'
-										)
-									);	
-									
-		$lib->set_add_form_type('multi_column');																
-		
-		/** Render the utility views to the codeigniter view array output **/
-		$page_data['output'] = $lib->render();
-		
-		//This is non utility lib implementation
-		$page_data['page_name'] = 'assessment_settings';
-		$page_data['view_type'] = 'settings';
-		$page_data['page_title'] = get_phrase('assessment_settings');
-		$this -> load -> view('backend/index', $page_data);
-	}
-	
-	/*****SITE/SYSTEM SETTINGS*********/
-	function system_settings($param1 = '', $param2 = '', $param3 = '') {
-		if ($this -> session -> userdata('user_login') != 1)
-			redirect(base_url() . 'index.php?login', 'refresh');
+		//Get the lead_bio_fields updated record
+		$update_record = $this -> db -> get_where('lead_bio_fields', 
+		array('lead_bio_fields_id' => $primary_key)) -> row();
 
-		if ($param1 == 'do_update') {
+		//Get the datatype record of the update lead_bio_fields updated record
+		$datatype = $this -> db -> get_where('datatype', 
+		array('datatype_id' => $update_record -> datatype_id)) -> row();
 
-			$data['description'] = $this -> input -> post('system_name');
-			$this -> db -> where('type', 'system_name');
-			$this -> db -> update('settings', $data);
+		//Get old column name of the lead_bio_information from the lead_bio_fields lead_bio_info_column value
+		$old_colum_name = $update_record -> lead_bio_info_column;
 
-			$data['description'] = $this -> input -> post('system_title');
-			$this -> db -> where('type', 'system_title');
-			$this -> db -> update('settings', $data);
+		//Construct the new column name
+		$new_column_name = strtolower($this -> remove_special_characters_from_string($update_record -> lead_bio_fields_name));
 
-			$data['description'] = $this -> input -> post('address');
-			$this -> db -> where('type', 'address');
-			$this -> db -> update('settings', $data);
+		$fields = array($old_colum_name => array('name' => $new_column_name, 'type' => $datatype -> sql_type));
 
-			$data['description'] = $this -> input -> post('phone');
-			$this -> db -> where('type', 'phone');
-			$this -> db -> update('settings', $data);
+		$this -> dbforge -> modify_column('leads_bio_information', $fields);
 
-			$data['description'] = $this -> input -> post('system_email');
-			$this -> db -> where('type', 'system_email');
-			$this -> db -> update('settings', $data);
+		//Update the lead_bio_fields lead_bio_info_column field value
+		$this -> db -> where(array('lead_bio_fields_id' => $primary_key));
+		$this -> db -> update('lead_bio_fields', array('lead_bio_info_column' => $new_column_name));
 
-			$data['description'] = $this -> input -> post('system_name');
-			$this -> db -> where('type', 'system_name');
-			$this -> db -> update('settings', $data);
-
-			$data['description'] = $this -> input -> post('language');
-			$this -> db -> where('type', 'language');
-			$this -> db -> update('settings', $data);
-
-			$data['description'] = $this -> input -> post('text_align');
-			$this -> db -> where('type', 'text_align');
-			$this -> db -> update('settings', $data);
-
-			$data['description'] = $this -> input -> post('sidebar-collapsed');
-			$this -> db -> where('type', 'sidebar-collapsed');
-			$this -> db -> update('settings', $data);
-
-			$this -> session -> set_flashdata('flash_message', get_phrase('data_updated'));
-			redirect(base_url() . 'settings/system_settings/', 'refresh');
-		}
-		if ($param1 == 'upload_logo') {
-			move_uploaded_file($_FILES['userfile']['tmp_name'], 'uploads/logo.png');
-			$this -> session -> set_flashdata('flash_message', get_phrase('settings_updated'));
-			redirect(base_url() . 'settings/system_settings/', 'refresh');
-		}
-		if ($param1 == 'change_skin') {
-			$data['description'] = $param2;
-			$this -> db -> where('type', 'skin_colour');
-			$this -> db -> update('settings', $data);
-			$this -> session -> set_flashdata('flash_message', get_phrase('theme_selected'));
-			redirect(base_url() . 'settings/system_settings/', 'refresh');
-		}
-
-		$page_data['page_name'] = 'system_settings';
-		$page_data['view_type'] = 'settings';
-		$page_data['page_title'] = get_phrase('system_settings');
-		$page_data['settings'] = $this -> db -> get('settings') -> result_array();
-		$this -> load -> view('backend/index', $page_data);
+		return true;
 	}
 
-	/*****LANGUAGE SETTINGS*********/
-	function manage_language($param1 = '', $param2 = '', $param3 = '') {
-		if ($this -> session -> userdata('user_login') != 1)
-			redirect(base_url() . 'login', 'refresh');
+	function delete_leads_bio_information_field($primary_key) {
 
-		if ($param1 == 'edit_phrase') {
-			$page_data['edit_profile'] = $param2;
-		}
-		if ($param1 == 'update_phrase') {
-			$language = $param2;
-			$total_phrase = $this -> input -> post('total_phrase');
-			for ($i = 1; $i < $total_phrase; $i++) {
-				//$data[$language]	=	$this->input->post('phrase').$i;
-				$this -> db -> where('phrase_id', $i);
-				$this -> db -> update('language', array($language => $this -> input -> post('phrase' . $i)));
-			}
-			redirect(base_url() . 'settings/manage_language/edit_phrase/' . $language, 'refresh');
-		}
-		if ($param1 == 'do_update') {
-			$language = $this -> input -> post('language');
-			$data[$language] = $this -> input -> post('phrase');
-			$this -> db -> where('phrase_id', $param2);
-			$this -> db -> update('language', $data);
-			$this -> session -> set_flashdata('flash_message', get_phrase('settings_updated'));
-			redirect(base_url() . 'settings/manage_language/', 'refresh');
-		}
-		if ($param1 == 'add_phrase') {
-			$data['phrase'] = $this -> input -> post('phrase');
-			$this -> db -> insert('language', $data);
-			$this -> session -> set_flashdata('flash_message', get_phrase('settings_updated'));
-			redirect(base_url() . 'settings/manage_language/', 'refresh');
-		}
-		if ($param1 == 'add_language') {
-			$language = $this -> input -> post('language');
-			$this -> load -> dbforge();
-			$fields = array($language => array('type' => 'LONGTEXT'));
-			$this -> dbforge -> add_column('language', $fields);
+		$this -> load -> dbforge();
 
-			$this -> session -> set_flashdata('flash_message', get_phrase('settings_updated'));
-			redirect(base_url() . 'settings/manage_language/', 'refresh');
-		}
-		if ($param1 == 'delete_language') {
-			$language = $param2;
-			$this -> load -> dbforge();
-			$this -> dbforge -> drop_column('language', $language);
-			$this -> session -> set_flashdata('flash_message', get_phrase('settings_updated'));
+		$field_name = $this -> db -> get_where('lead_bio_fields', array('lead_bio_fields_id' => $primary_key)) -> row() -> lead_bio_info_column;
 
-			redirect(base_url() . 'settings/manage_language/', 'refresh');
-		}
-		$page_data['page_name'] = 'manage_language';
-		$page_data['view_type'] = 'settings';
-		$page_data['page_title'] = get_phrase('manage_language');
-		//$page_data['language_phrases'] = $this->db->get('language')->result_array();
-		$this -> load -> view('backend/index', $page_data);
+		$this -> dbforge -> drop_column('leads_bio_information', $field_name);
 	}
 
+	function remove_special_characters_from_string($string) {
+		$string = preg_replace('/\s+/', '_', $string);
+		// Replaces all spaces with hyphens - This is a better solution in the sense that it replaces
+		//multiple spaces with a single underscore which is usually the desired output.
 
-
-	function user_profiles($param1 = '', $param2 = '') {
-		if ($this -> session -> userdata('user_login') != 1)
-			redirect('login', 'refresh');
-
-		if ($param1 == "create") {
-
-			$msg = get_phrase('failure');
-
-			$data['name'] = $this -> input -> post('name');
-			$data['description'] = $this -> input -> post('description');
-			//$data['visibility'] = $this->input->post('visibility');
-
-			$this -> db -> insert("profile", $data);
-
-			if ($this -> db -> affected_rows() > 0) {
-				$msg = get_phrase('success');
-			}
-
-			$this -> session -> set_flashdata('flash_message', $msg);
-			redirect(base_url() . 'settings/user_profiles/', 'refresh');
-		}
-
-		$page_data['page_name'] = 'user_profiles';
-		$page_data['view_type'] = 'settings';
-		$page_data['page_title'] = get_phrase('user_profiles');
-		$this -> load -> view('backend/index', $page_data);
+		return preg_replace('/[^A-Za-z0-9\_]/', '', $string);
+		// Removes special chars.
 	}
 
-	function entitlement($param1 = "", $param2 = "") {
-		if ($this -> session -> userdata('user_login') != 1)
-			redirect('login', 'refresh');
+	function construct_lead_bio_info_column($post_array, $primary_key) {
+		//$updates_columns['lead_bio_info_column'] = strtolower(str_replace(" ", "_", $post_array['lead_bio_fields_name']));
 
-		$page_data['page_name'] = 'entitlement';
-		$page_data['profile_id'] = $param1;
-		$page_data['view_type'] = 'settings';
-		$page_data['page_title'] = get_phrase('entitlement');
-		$this -> load -> view('backend/index', $page_data);
+		$updates_columns['lead_bio_info_column'] = strtolower($this -> remove_special_characters_from_string($post_array['lead_bio_fields_name']));
+
+		$this -> db -> where(array('lead_bio_fields_id' => $primary_key));
+		$this -> db -> update('lead_bio_fields', $updates_columns);
+
+		$this -> alter_leads_bio_information($post_array, $updates_columns);
+
+		return true;
 	}
 
-	function update_entitlement($param1 = "", $param2 = "", $param3 = "") {
+	function alter_leads_bio_information($post_array, $updates_columns) {
 
-		if ($param3 === 'true') {
-			$data['entitlement_id'] = $param1;
-			$data['profile_id'] = $param2;
-			$this -> db -> insert("access", $data);
+		$this -> load -> dbforge();
+
+		$fields = array();
+
+		$field_name = $updates_columns['lead_bio_info_column'];
+
+		$datatype = $this -> db -> get_where('datatype', array('datatype_id' => $post_array['datatype_id'])) -> row();
+
+		$type = $datatype -> sql_type;
+
+		$fields[$field_name]['type'] = $type;
+		$fields[$field_name]['constraint'] = '100';
+
+		if ($post_array['is_field_unique'] == '1') {
+			$fields[$field_name]['unique'] = true;
 		} else {
-			$this -> db -> where(array("entitlement_id" => $param1, "profile_id" => $param2));
-			$this -> db -> delete("access");
+			$fields[$field_name]['unique'] = false;
 		}
 
-		//echo "Update Successful";
+		if ($post_array['default_value'] != "") {
+			$fields[$field_name]['default'] = $post_array['default_value'];
+		}
+
+		if ($post_array['is_field_null'] == '1') {
+			$fields[$field_name]['null'] = true;
+		} else {
+			$fields[$field_name]['null'] = false;
+		}
+
+		$this -> dbforge -> add_column('leads_bio_information', $fields);
+
+		return TRUE;
 	}
 
+	function assessment_milestones() {
+		if ($this -> session -> userdata('user_login') != 1)
+			redirect(base_url() . 'index.php?login', 'refresh');
+
+		$crud = new grocery_CRUD();
+		$crud -> set_theme('tablestrap');
+		$crud -> set_table('assessment_milestones');
+		
+		//Dropdown fields conversion
+		$crud->field_type('status', 'dropdown',array(get_phrase('suspended'),get_phrase('active')));
+		
+		//Unset Field Add /Edit
+		$crud->unset_fields(array('assessment_review_status'));
+		
+		//Avoid selection of "New Lead" Milestone
+		$crud->where(array('milestone_name<>'=>'New Lead'));
+		
+		//Order By - Not working
+		$crud->order_by('assessment_milestones_id');
+		
+		//Relation tables
+		$crud->set_relation('milestones_insert_after_id', 'insert_after_milestone', 'insert_after_milestone_name');
+		
+		//Display in human readable
+		$crud->display_as('milestones_insert_after_id',get_phrase('insert_after'))
+		->display_as('user_customized_review_status',get_phrase('customized_review_status'));
+		
+		//Set required fields
+		$crud->required_fields(array('milestone_name','milestones_insert_after_id','assessment_period_in_days'));
+		
+		//Callbacks
+		$crud->callback_after_insert(array($this,'update_insert_after_milestone'));
+		$crud->callback_field('assessment_period_in_days',array($this,'create_a_range_assessment_period_in_days_field'));
+		$crud->callback_after_insert(array($this,'update_assessment_review_status'));
+		
+		//Callbacks to be run by developers
+		// $crud->callback_after_update();
+		
+		$output = $crud -> render();
+		$page_data['page_name'] = 'assessment_settings';
+		$page_data['view_type'] = 'settings';
+		$page_data['page_title'] = get_phrase('assessment_milestones');
+		$output = array_merge($page_data, (array)$output);
+
+		$this -> load -> view('backend/index', $output);
+	}
+
+	
+	function update_assessment_review_status($post_array,$primary_key){
+		
+		$data['assessment_review_status'] = $post_array['milestone_name'].' In Progress';
+		
+		$this->db->where(array('assessment_milestones_id'=>$primary_key));
+		$this->db->update('assessment_milestones',$data);
+		
+		return true;
+	}
+	function create_a_range_assessment_period_in_days_field($value , $primary_key = null){
+		   return '<input class="form-control" name="assessment_period_in_days"  type="number" min = "1" max = "180" value="'.$value.'" style="width:462px">';
+	}
+	
+	function update_insert_after_milestone($post_array,$primary_key){
+		$data['insert_after_milestone_id'] = $primary_key;
+		$data['insert_after_milestone_name'] = $post_array['milestone_name'];
+		
+		$this->db->insert('insert_after_milestone',$data);
+		
+		return true;
+	}
+
+	function compassion_stage() {
+		if ($this -> session -> userdata('user_login') != 1)
+			redirect(base_url() . 'index.php?login', 'refresh');
+
+		$crud = new grocery_CRUD();
+		$crud -> set_theme('tablestrap');
+		$crud -> set_table('compassion_connect_mapping');
+		
+		//Where condition
+		$crud->where(array('lead_score_parameter<>'=>'No Match'));
+		
+		//Dropdowns
+		$crud->set_relation('lead_score_stage', 'connect_stage', 'connect_stage_name');
+		
+		//Unset delete and Edit
+		$crud->unset_delete();
+
+
+		$output = $crud -> render();
+		$page_data['page_name'] = 'assessment_settings';
+		$page_data['view_type'] = 'settings';
+		$page_data['page_title'] = get_phrase('compassion_stages');
+		$output = array_merge($page_data, (array)$output);
+
+		$this -> load -> view('backend/index', $output);
+	}
+
+	function assessment_progress_measures() {
+		if ($this -> session -> userdata('user_login') != 1)
+			redirect(base_url() . 'index.php?login', 'refresh');
+
+		$crud = new grocery_CRUD();
+		$crud -> set_theme('tablestrap');
+		$crud -> set_table('assessment_progress_measure');
+		
+		//Defined range of weights 
+		$crud->field_type('weight', 'dropdown',range(0,10));
+		$crud->field_type('status', 'dropdown',array(get_phrase('suspended'),get_phrase('active')));
+		
+		//Set relationship to CC mapping
+		$crud->set_relation('compassion_connect_mapping', 'compassion_connect_mapping', 'lead_score_parameter');		
+		
+		//Prevented actions
+		$crud->unset_delete();
+		
+		$output = $crud -> render();
+		$page_data['page_name'] = 'assessment_settings';
+		$page_data['view_type'] = 'settings';
+		$page_data['page_title'] = get_phrase('assessment_progress_measure');
+		$output = array_merge($page_data, (array)$output);
+
+		$this -> load -> view('backend/index', $output);
+		
+	}
 
 }
