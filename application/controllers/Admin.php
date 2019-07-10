@@ -75,9 +75,10 @@ public function list_lead_bio(){
 		
 		$build_list->set_add_form();
 		
-		$page_data['output'] = $build_list->render_item_list();
-		$page_data['account_type']	= "admin";
+		$page_data['lead_bio_fields_output'] = $build_list->render_item_list();
+		$page_data['view_type']	= "settings";
 		$page_data['page_name']	= "settings";
+		$page_data['page_title']	= "settings";
 		$this->load->view('backend/index',$page_data);
 	}
 public function view_assessment_milestones()
