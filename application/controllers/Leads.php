@@ -78,7 +78,7 @@ class Leads extends CI_Controller {
 		$crud->add_action(get_phrase('assess_lead'), '', 'leads/lead_assessment', 'fa-book');
 
 		//Callback
-		$crud->callback_after_insert(array($this,'insert_assessment_milestone_id'));
+		$crud->callback_after_insert(array($this,'insert_initial_assessment_milestone_id'));
 		
 		
 		$output = $crud -> render();
@@ -90,7 +90,7 @@ class Leads extends CI_Controller {
 		$this -> load -> view('backend/index', $output);
 	}
 
-	function insert_assessment_milestone_id($post_array,$primary_key){
+	function insert_initial_assessment_milestone_id($post_array,$primary_key){
 		
 		$first_milestone = $this->db->get_where('assessment_milestones',array('milestones_insert_after_id'=>'1'))->row();
 		$data['assessment_milestones_id'] = $first_milestone->assessment_milestones_id;
