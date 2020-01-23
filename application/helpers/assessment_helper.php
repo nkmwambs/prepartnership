@@ -28,4 +28,13 @@ if ( ! function_exists('dropdown_range_option'))
 		
 		return $options;
 	}
+}
+
+if ( ! function_exists('phrases_to_human_readable'))
+{
+
+	function phrases_to_human_readable($phrase){
+			
+		return ucwords(str_replace('_',' ',$phrase));;
+	}
 }	
