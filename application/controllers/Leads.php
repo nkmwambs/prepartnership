@@ -204,13 +204,6 @@ class Leads extends CI_Controller {
 	 */
 	private function _lead_profile_information($lead_id){
 		
-		// $lead_profile_information = [
-		// 	'lead_connect_id'=>'L-537746',
-		// 	'denomination'=>'Presbeterian',
-		// 	'lead_name'=>'PCEA Baraka',
-		// 	'congregation_size'=>154,
-		// 	'lead_location'=>'Nakuru',
-		// ];
 		$lead_profile_information = $this->db->
 			select(array('lead_connect_id','denomination','lead_name','congregation_size','lead_location'))->
 			get_where('leads_bio_information',
@@ -230,19 +223,23 @@ class Leads extends CI_Controller {
 		$this->db->join('assessment_milestones','assessment_milestones.assessment_milestones_id=assessment.assessment_milestones_id');
 		$this->db->where(array('assessment.leads_bio_information_id'=>$lead_id));
 		$this->db->where(array('assessment.assessment_milestones_id'=>$assessment_milestone_id));
-		$lead_assessment_information_raw = $this->db->get('assessment')->row_array();
+		$lead_assessment_information_raw = $this->db->get('assessment');
 
 
-		extract($lead_assessment_information_raw);
+		if($lead_assessment_information_raw->num_rows() > 0){
+			
+			extract($lead_assessment_information_raw->row_array());
 		
-		$lead_assessment_information['assessment_id'] = $assessment_id;
-		$lead_assessment_information['milestone_name'] = $milestone_name;
-		$lead_assessment_information['status_label'] = $user_customized_review_status !== ''?$user_customized_review_status:$assessment_review_status;
-		$lead_assessment_information['is_completed'] = $is_completed;
-		$lead_assessment_information['completion_date'] = date('jS F Y',strtotime($assessment_last_modified_date));
-		$lead_assessment_information['last_modified_by'] = $firstname.' '.$lastname;
-		$lead_assessment_information['assessment_result'] = $this->_lead_assessment_results($assessment_id);
-		$lead_assessment_information['general_comment'] = $comment;
+			$lead_assessment_information['assessment_id'] = $assessment_id;
+			$lead_assessment_information['milestone_name'] = $milestone_name;
+			$lead_assessment_information['status_label'] = $user_customized_review_status !== ''?$user_customized_review_status:$assessment_review_status;
+			$lead_assessment_information['is_completed'] = $is_completed;
+			$lead_assessment_information['completion_date'] = date('jS F Y',strtotime($assessment_last_modified_date));
+			$lead_assessment_information['last_modified_by'] = $firstname.' '.$lastname;
+			$lead_assessment_information['assessment_result'] = $this->_lead_assessment_results($assessment_id);
+			$lead_assessment_information['general_comment'] = $comment;
+		}
+		
 			
 
 		return $lead_assessment_information;
@@ -282,6 +279,7 @@ class Leads extends CI_Controller {
 
 	private function _progress_measure_verification_tools($assessment_id,$assessment_progress_measure_id){
 
+		$this->db->select(array('assessment_verification_tool.assessment_verification_tool_id as assessment_verification_tool_id','verification_tool_name'));
 		$this->db->join('assessment_verification_tool','assessment_verification_tool.verification_tool_id=verification_tool.verification_tool_id');
 		$this->db->join('assessment_progress_measure','assessment_progress_measure.assessment_progress_measure_id=assessment_verification_tool.assessment_progress_measure_id');
 		
@@ -295,7 +293,7 @@ class Leads extends CI_Controller {
 		$cnt = 0;
 		foreach($verification_tools as $tool){
 			extract($tool);
-			$valid_measure_tools[$cnt]['verification_tool_id'] = $verification_tool_id;
+			$valid_measure_tools[$cnt]['verification_tool_id'] = $assessment_verification_tool_id;
 			$valid_measure_tools[$cnt]['verification_tool_name'] = $verification_tool_name;
 			$valid_measure_tools[$cnt]['selected'] = $this->_is_verification_tool_selected($assessment_id, $assessment_verification_tool_id);
 			$cnt++;
@@ -325,6 +323,8 @@ class Leads extends CI_Controller {
 
 	private function _progress_measure_assessment_methods($assessment_id,$assessment_progress_measure_id){
 
+		$this->db->select(array('assessment_method.assessment_method_id as assessment_method_id','method_name'));
+
 		$this->db->join('assessment_method','assessment_method.method_id=method.method_id');
 		$this->db->join('assessment_progress_measure','assessment_progress_measure.assessment_progress_measure_id=assessment_method.assessment_progress_measure_id');
 		
@@ -338,7 +338,7 @@ class Leads extends CI_Controller {
 		$cnt = 0;
 		foreach($methods as $method){
 			extract($method);
-			$valid_methods[$cnt]['assessment_method_id'] = $method_id;
+			$valid_methods[$cnt]['assessment_method_id'] = $assessment_method_id;
 			$valid_methods[$cnt]['assessment_method_name'] = $method_name;
 			$valid_methods[$cnt]['selected'] = $this->_is_method_selected($assessment_id, $assessment_method_id);
 			$cnt++;
@@ -403,6 +403,208 @@ class Leads extends CI_Controller {
 
 		return $assessment_data;
 	}
+
+	/**
+	 * @todo -  to be completed 
+	 */
+	function submit_assessment(){
+		//echo json_encode($this->input->post());
+		$assessment_id = $this->input->post('assessment_id');
+
+		$data['is_completed'] = 1;
+		$this->db->where('assessment_id',$assessment_id);
+		$this->db->update('assessment',$data);
+
+
+		// $current_assessment_milestones_id = $this->_get_current_assessment_milestone($this->uri->segment(3))['assessment_milestones_id'];
+
+		// $next_assement_milestones = $this->db->
+		// select(array('assessment_milestones_id as assessment_milestone_id','milestone_name as assessment_milestone_name','assessment_milestone_initial'))->get_where('assessment_milestones',
+		// array('status'=>1,'assessment_milestones_id > '=>$current_assessment_milestones_id))->first_row();
+
+		$new_assessment['leads_bio_information_id'] = 16;//$this->uri->segment(3);
+		$new_assessment['assessment_milestones_id'] = 26;//$next_assement_milestones->assessment_milestone_id;
+		$new_assessment['is_completed'] = 0;
+		$new_assessment['comment'] = '';
+		$new_assessment['assessment_created_date'] = date('Y-m-d');
+		$new_assessment['assessment_created_by'] = $this->session->login_user_id;
+		$new_assessment['assessment_last_modified_by'] = $this->session->login_user_id;
+		
+		$this->db->insert('assessment',$new_assessment);
+
+		echo 'Assessment has been submitted successfully';
+	}
+
+	private function create_assessment_result_if_not_existing($assessment_id,$progress_measure_id){
+		$assessment_result_obj = $this->db->get_where('assessment_result',
+		array('assessment_id'=>$assessment_id,
+		'assessment_progress_measure_id'=>$progress_measure_id));
+
+		if($assessment_result_obj->num_rows() == 0){
+			
+			$result_data['assessment_id'] = $assessment_id;
+			$result_data['assessment_progress_measure_id'] = $progress_measure_id;
+			$result_data['score'] = 0;
+			$result_data['comment'] = '';
+			$result_data['assessment_result_created_date'] = date('Y-m-d');
+
+			$this->db->insert('assessment_result',$result_data);
+		}
+
+		$assessment_result_id = $this->db->get_where('assessment_result',
+		array('assessment_id'=>$assessment_id,
+		'assessment_progress_measure_id'=>$progress_measure_id))->row()->assessment_result_id;
+
+		return $assessment_result_id;
+	}
+
+	private function _remove_deselected_assessement_method($assessment_result_id,$assessment_method_ids){
+
+		$this->db->where(array('assessment_result_id'=>$assessment_result_id));
+		$assessment_result_methods_obj = $this->db->get('assessment_result_method');
+
+		if($assessment_result_methods_obj->num_rows() > 0){
+			$assessment_result_methods = $assessment_result_methods_obj->result_array();
+			
+			foreach($assessment_result_methods as $assessment_result_method){
+				if(!in_array($assessment_result_method['assessment_method_id'],$assessment_method_ids)){
+					$this->db->where(array('assessment_result_id'=>$assessment_result_id,
+					'assessment_method_id'=>$assessment_result_method['assessment_method_id']));
+					$this->db->delete('assessment_result_method');
+				}
+			}
+		}
+	}
+
+	function post_assessment_method(){
+		$methods_post = $this->input->post();
+
+		$assessment_methods_ids = $methods_post['ids'];
+		$assessment_id = $methods_post['assessment_id'];
+		$progress_measure_id = $methods_post['progress_measure_id'];
+
+		$assessment_result_id = $this->create_assessment_result_if_not_existing($assessment_id,$progress_measure_id);
+		$this->_remove_deselected_assessement_method($assessment_result_id,$assessment_methods_ids);
+
+		foreach($assessment_methods_ids as $assessment_methods_id){
+			
+			$this->db->join('assessment_result',
+			'assessment_result.assessment_result_id=
+			assessment_result_method.assessment_result_id');
+
+			$this->db->join('assessment',
+			'assessment.assessment_id=assessment_result.assessment_id');
+
+			$this->db->where(array('assessment_result.assessment_id'=>$assessment_id,
+			'assessment_result.assessment_progress_measure_id'=>$progress_measure_id,
+			'assessment_result_method.assessment_method_id'=>$assessment_methods_id));
+
+			$method_obj = $this->db->get('assessment_result_method');
+
+			if($method_obj->num_rows() == 0){	
+				$data['assessment_result_id'] = $assessment_result_id;
+				$data['assessment_method_id'] = $assessment_methods_id;
+				$this->db->insert('assessment_result_method',$data);
+			}
+		}		
+	}
+
+	private function _remove_deselected_assessement_verification_tool($assessment_result_id,$assessment_verification_tool_ids){
+
+		$this->db->where(array('assessment_result_id'=>$assessment_result_id));
+		$assessment_result_tools_obj = $this->db->get('assessment_result_tool');
+
+		if($assessment_result_tools_obj->num_rows() > 0){
+			$assessment_result_tools = $assessment_result_tools_obj->result_array();
+			
+			foreach($assessment_result_tools as $assessment_result_tool){
+				if(!in_array($assessment_result_tool['assessment_verification_tool_id'],$assessment_verification_tool_ids)){
+					$this->db->where(array('assessment_result_id'=>$assessment_result_id,
+					'assessment_verification_tool_id'=>$assessment_result_tool['assessment_verification_tool_id']));
+					$this->db->delete('assessment_result_tool');
+				}
+			}
+		}
+	} 
+
+	function post_assessment_verification_tools(){
+		$verification_tools_post = $this->input->post();
+
+		$assessment_verification_tools_ids = $verification_tools_post['ids'];
+		$assessment_id = $verification_tools_post['assessment_id'];
+		$progress_measure_id = $verification_tools_post['progress_measure_id'];
+
+		$assessment_result_id = $this->create_assessment_result_if_not_existing($assessment_id,$progress_measure_id);
+		
+		$this->_remove_deselected_assessement_verification_tool($assessment_result_id,$assessment_verification_tools_ids);
+
+		foreach($assessment_verification_tools_ids as $assessment_verification_tools_id){
+			
+			$this->db->join('assessment_result',
+			'assessment_result.assessment_result_id=
+			assessment_result_tool.assessment_result_id');
+
+			$this->db->join('assessment',
+			'assessment.assessment_id=assessment_result.assessment_id');
+
+			$this->db->where(array('assessment_result.assessment_id'=>$assessment_id,
+			'assessment_result.assessment_progress_measure_id'=>$progress_measure_id,
+			'assessment_result_tool.assessment_verification_tool_id'=>$assessment_verification_tools_id));
+
+			$verification_tools_obj = $this->db->get('assessment_result_tool');
+
+			if($verification_tools_obj->num_rows() == 0){	
+				$data['assessment_result_id'] = $assessment_result_id;
+				$data['assessment_verification_tool_id'] = $assessment_verification_tools_id;
+				$this->db->insert('assessment_result_tool',$data);
+			}
+		}
+
+		//echo json_encode($assessment_verification_tools_ids);
+	}
+
+	function post_assessment_score(){
+		$score_post = $this->input->post();
+
+		$score = $score_post['score'];
+		$assessment_id = $score_post['assessment_id'];
+		$progress_measure_id = $score_post['progress_measure_id'];
+
+		$assessment_result_id = $this->create_assessment_result_if_not_existing($assessment_id,$progress_measure_id);
+		
+		$data['score'] = $score;
+		$this->db->where(array('assessment_id'=>$assessment_id,'assessment_progress_measure_id'=>$progress_measure_id));
+		$this->db->update('assessment_result',$data);
+		
+		//echo json_encode($score_post);
+	}
+
+	function post_assessment_progress_measure_comment(){
+		$comment_post = $this->input->post();
+
+		$comment = $comment_post['comment'];
+		$assessment_id = $comment_post['assessment_id'];
+		$progress_measure_id = $comment_post['progress_measure_id'];
+
+		$assessment_result_id = $this->create_assessment_result_if_not_existing($assessment_id,$progress_measure_id);
+		
+		$data['comment'] = $comment;
+		$this->db->where(array('assessment_id'=>$assessment_id,'assessment_progress_measure_id'=>$progress_measure_id));
+		$this->db->update('assessment_result',$data);
+		
+		//echo json_encode($score_post);
+	}
 	
+	function post_assessment_general_comment(){
+		$comment_post = $this->input->post();
+
+		$comment = $comment_post['comment'];
+		$assessment_id = $comment_post['assessment_id'];
+
+		$data['comment'] = $comment;
+		$this->db->where(array('assessment_id'=>$assessment_id));
+		$this->db->update('assessment',$data);
+
+	}
 
 }

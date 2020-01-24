@@ -14,7 +14,7 @@
 						}
 					
 					?>">
-					<a href="#tab-<?=$assessment_milestone['assessment_milestone_id'];?>" data-toggle="tab"><span><?=$assessment_milestone['assessment_milestone_initial'];?></span><?=$assessment_milestone['assessment_milestone_name'];?></a>
+					<a href="#tab-<?=$assessment_milestone['assessment_milestone_id'];?>" data-toggle="tab"><span><?=$assessment_milestone['assessment_milestone_initial'];?></span><a href="<?=base_url();?>leads/lead_assessment/<?=$this->uri->segment(3);?>/<?=$assessment_milestone['assessment_milestone_id'];?>"><?=$assessment_milestone['assessment_milestone_name'];?></a></a>
 				</li>
 			<?php }?>
 		</ul>
