@@ -1,8 +1,11 @@
 <?php 
-
+//echo $this->uri->segment(3);
 print_r($test); 
 //print_r($assessment_data['lead_assessment_information']['assessment_id']);
+
 extract($assessment_data);
+
+//print_r($lead_assessment_information['next_assessment_milestone_id']);
 
 $disabled = '';
 $completed = '';
@@ -17,7 +20,9 @@ include 'includes/include_styles.php';?>
 	<div class="col-xs-12">
 		<form id="prepartnership_assessment_form" method="post" action="" class="form-wizard validate">
 
+			<!--Form Hidden Fields -->
 			<input type='hidden' id="assessment_id" name='assessment_id' value='<?=$lead_assessment_information['assessment_id'];?>'/>
+			<input type='hidden' id="next_assessment_milestone_id" name='next_assessment_milestone_id' value='<?=$lead_assessment_information['next_assessment_milestone_id'];?>'/>
 
 			<?php include 'includes/include_form_wizard.php';?><hr>
 

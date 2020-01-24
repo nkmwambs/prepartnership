@@ -104,7 +104,7 @@ $autoload['helper'] = array('access_profiling','url','file','form','security','s
 |
 */
 
-$autoload['config'] = array();
+$autoload['config'] = array('assessment_config');
 
 /*
 | -------------------------------------------------------------------

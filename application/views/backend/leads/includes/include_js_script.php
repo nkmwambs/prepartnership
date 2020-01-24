@@ -3,9 +3,11 @@
 
 		$("#btnSubmit").click(function(event){
 			var assessment_id = $("#assessment_id").val();
+			var lead_id = '<?=$this->uri->segment(3);?>';
+			var next_assessment_milestone_id = $("#next_assessment_milestone_id").val();
 
 			var url = '<?=base_url();?>leads/submit_assessment';
-			var data = {'assessment_id':assessment_id};
+			var data = {'assessment_id':assessment_id,'next_assessment_milestone_id':next_assessment_milestone_id,'lead_id':lead_id};
 			
 			var count_of_empty_inputs = 0;
 			$(".form-control").each(function(index,elem){
@@ -25,6 +27,11 @@
 			if(count_of_empty_inputs > 0){
 				alert('Some field are empty!');
 			}else{
+				
+				// $(document).ajaxSuccess(function(event,request,settings){
+				// 	alert(request.responseText);
+				// });
+
 				posting_ajax(url,data,true);
 				location.reload();
 			}
@@ -61,13 +68,17 @@
 		var assessment_id = $("#assessment_id").val();
 		var progress_measure_id = $(this).data('progress_measure');
 		var score = $(this).val();
+		var lead_id = '<?=$this->uri->segment(3);?>';
 
 		var url = '<?=base_url();?>leads/post_assessment_score';
-		var data = {'score':score,'assessment_id':assessment_id,'progress_measure_id':progress_measure_id};
+		var data = {'score':score,'assessment_id':assessment_id,'progress_measure_id':progress_measure_id,'lead_id':lead_id};
 
 		
 		$(document).ajaxSuccess(function(event,request,settings){
-			$('#aggregate_score').html(request.responseText);
+			if(settings.url == url){
+				$('#aggregate_score').html(request.responseText);
+			}
+			
 		});
 
 		posting_ajax(url,data);
