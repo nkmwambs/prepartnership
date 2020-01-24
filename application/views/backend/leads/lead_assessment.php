@@ -1,14 +1,14 @@
 <?php 
 
-//print_r($assessment_data); 
+print_r($test); 
 //print_r($assessment_data['lead_assessment_information']['assessment_id']);
 extract($assessment_data);
 
 $disabled = '';
-$hidden = '';
+$completed = '';
 if($lead_assessment_information['is_completed'] == 1){
 	$disabled = "disabled='disabled'";
-	$hidden = 'hidden';
+	$completed = 'completed';
 }
 
 include 'includes/include_styles.php';?>

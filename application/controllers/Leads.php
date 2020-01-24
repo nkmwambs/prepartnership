@@ -234,6 +234,7 @@ class Leads extends CI_Controller {
 			$lead_assessment_information['milestone_name'] = $milestone_name;
 			$lead_assessment_information['status_label'] = $user_customized_review_status !== ''?$user_customized_review_status:$assessment_review_status;
 			$lead_assessment_information['is_completed'] = $is_completed;
+			$lead_assessment_information['overall_score'] = $this->_compute_aggregate_assessment_score($assessment_id);
 			$lead_assessment_information['completion_date'] = date('jS F Y',strtotime($assessment_last_modified_date));
 			$lead_assessment_information['last_modified_by'] = $firstname.' '.$lastname;
 			$lead_assessment_information['assessment_result'] = $this->_lead_assessment_results($assessment_id);
@@ -245,9 +246,52 @@ class Leads extends CI_Controller {
 		return $lead_assessment_information;
 	}
 
+	private function _compute_aggregate_assessment_score($assessment_id){
+		$this->db->select(array('assessment_result.assessment_progress_measure_id as assessment_progress_measure_id','score','weight'));
+		$this->db->join('assessment_progress_measure','assessment_progress_measure.assessment_progress_measure_id=assessment_result.assessment_progress_measure_id');
+		$this->db->where(array('assessment_id'=>$assessment_id));
+		$results = $this->db->get('assessment_result')->result_array();
+
+		$actual_scored = 0;
+		$highest_possible_score = 0;
+		$aggregate_score = 0;
+
+		foreach($results as $result){
+			if($result['score'] == 1){
+				$actual_scored += $result['score'] * $result['weight'];
+			}
+			
+			$highest_possible_score += $result['weight'];
+		}
+
+		$aggregate_score = number_format(($actual_scored / $highest_possible_score) * 100);
+
+		return $aggregate_score;
+	}
+
 
 	function test($lead_id,$assessment_milestone_id){
-		return [];
+		// $assessment_id = 16;
+		// $this->db->select(array('assessment_result.assessment_progress_measure_id as assessment_progress_measure_id','score','weight'));
+		// $this->db->join('assessment_progress_measure','assessment_progress_measure.assessment_progress_measure_id=assessment_result.assessment_progress_measure_id');
+		// $this->db->where(array('assessment_id'=>$assessment_id));
+		// $results = $this->db->get('assessment_result')->result_array();
+
+		// $actual_scored = 0;
+		// $highest_possible_score = 0;
+		// $aggregate_score = 0;
+
+		// foreach($results as $result){
+		// 	if($result['score'] == 1){
+		// 		$actual_scored += $result['score'] * $result['weight'];
+		// 	}
+			
+		// 	$highest_possible_score += $result['weight'];
+		// }
+
+		// $aggregate_score = number_format(($actual_scored / $highest_possible_score) * 100);
+
+		return '';
 	}
 		
 	private function _lead_assessment_results($assessment_id){
@@ -576,7 +620,7 @@ class Leads extends CI_Controller {
 		$this->db->where(array('assessment_id'=>$assessment_id,'assessment_progress_measure_id'=>$progress_measure_id));
 		$this->db->update('assessment_result',$data);
 		
-		//echo json_encode($score_post);
+		echo $this->_compute_aggregate_assessment_score($assessment_id);
 	}
 
 	function post_assessment_progress_measure_comment(){

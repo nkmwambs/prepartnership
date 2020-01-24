@@ -65,6 +65,11 @@
 		var url = '<?=base_url();?>leads/post_assessment_score';
 		var data = {'score':score,'assessment_id':assessment_id,'progress_measure_id':progress_measure_id};
 
+		
+		$(document).ajaxSuccess(function(event,request,settings){
+			$('#aggregate_score').html(request.responseText);
+		});
+
 		posting_ajax(url,data);
 	});
 
