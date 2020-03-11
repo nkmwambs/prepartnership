@@ -1,11 +1,8 @@
 <?php 
-//echo $this->uri->segment(3);
-print_r($test); 
-//print_r($assessment_data['lead_assessment_information']['assessment_id']);
+
+print_r($assessment_data); 
 
 extract($assessment_data);
-
-//print_r($lead_assessment_information['next_assessment_milestone_id']);
 
 $disabled = '';
 $completed = '';

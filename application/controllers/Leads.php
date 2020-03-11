@@ -260,8 +260,6 @@ class Leads extends CI_Controller {
 			$lead_assessment_information['general_comment'] = $comment;
 			$lead_assessment_information['next_assessment_milestone_id'] = $this->_next_assessment_milestone_id();
 		}
-		
-			
 
 		return $lead_assessment_information;
 	}
@@ -278,6 +276,8 @@ class Leads extends CI_Controller {
 		foreach($results as $result){
 			if($result['score'] == 1){
 				$actual_scored += $result['score'] * $result['progress_measure_weight'];
+			}elseif($result['score'] == -1){
+				$actual_scored += $result['progress_measure_weight'] * $this->config->item('low_score_progress_measure_weight_ratio');
 			}
 		}
 
@@ -458,17 +458,17 @@ class Leads extends CI_Controller {
 	 * @todo -  to be completed 
 	 */
 	function submit_assessment(){
-		//echo json_encode($this->input->post());
+
 		$assessment_id = $this->input->post('assessment_id');
 		$lead_id = $this->input->post('lead_id');
 		$next_assessment_milestone_id = $this->input->post('next_assessment_milestone_id');
 
-		//$this->db->trans_start();
-
+		// Update assessment record as complete
 		$data['is_completed'] = 1;
 		$this->db->where('assessment_id',$assessment_id);
 		$this->db->update('assessment',$data);
 
+		// Create the next assessment record
 		$new_assessment['leads_bio_information_id'] = $lead_id;
 		$new_assessment['assessment_milestones_id'] = $next_assessment_milestone_id;
 		$new_assessment['is_completed'] = 0;
@@ -479,21 +479,21 @@ class Leads extends CI_Controller {
 		
 		$this->db->insert('assessment',$new_assessment);
 
-		// if ($this->db->trans_status() === FALSE)
-		// {
-        // 	echo 'Assessment submission error!' + $next_assessment_milestone_id;
-		// }else{
-		 	echo 'Assessment has been submitted successfully';
-		// }
+		// Update Lead record with the current assessment milestone
+		$leads_data['assessment_milestones_id'] = $next_assessment_milestone_id;
+		$this->db->where(array('leads_bio_information_id'=>$lead_id));
+		$this->db->update('leads_bio_information',$leads_data);
 
-		
+		echo 'Assessment has been submitted successfully';
+
 	}
 
 	private function _next_assessment_milestone_id(){
 		$current_assessment_milestones_id = $this->_get_current_assessment_milestone($this->uri->segment(3))['assessment_milestone_id'];
 
 		$next_assement_milestones = $this->db->
-		select(array('assessment_milestones_id as assessment_milestone_id','milestone_name as assessment_milestone_name','assessment_milestone_initial'))->get_where('assessment_milestones',
+		select(array('assessment_milestones_id as assessment_milestone_id','milestone_name as assessment_milestone_name',
+		'assessment_milestone_initial'))->get_where('assessment_milestones',
 		array('status'=>1,'assessment_milestones_id > '=>$current_assessment_milestones_id))->first_row();
 
 		if($this->_check_if_final_assessment_reached($this->uri->segment(3))){
@@ -657,7 +657,7 @@ class Leads extends CI_Controller {
 		$progress_measure_weight = $this->_get_progress_measure_weight($progress_measure_id);
 
 		$data['score'] = $score;
-		$data['progress_measure_weight'] = $score == -1?$progress_measure_weight*$this->config->item('low_score_progress_measure_weight_ratio'):$progress_measure_weight;
+		$data['progress_measure_weight'] = $score == -1?$progress_measure_weight * $this->config->item('low_score_progress_measure_weight_ratio'):$progress_measure_weight;
 		$this->db->where(array('assessment_id'=>$assessment_id,'assessment_progress_measure_id'=>$progress_measure_id));
 		$this->db->update('assessment_result',$data);
 		

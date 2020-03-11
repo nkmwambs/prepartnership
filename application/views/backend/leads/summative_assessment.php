@@ -1,7 +1,14 @@
 <?php 
-//print_r($assessment_data);
+print_r($assessment_data);
 
 extract($assessment_data);
+
+$disabled = '';
+$completed = '';
+if($lead_assessment_information['is_completed'] == 1){
+	$disabled = "disabled='disabled'";
+	$completed = 'completed';
+}
 
 ?>
 
@@ -21,144 +28,37 @@ extract($assessment_data);
 
                     <div class="row">
                         <div class='col-xs-12'>
-                            <table class='table table-striped datatable'>
-                                <thead>
-                                    <tr>
-                                        <th rowspan='2'>Progress Measures</th>
-                                        <th colspan='4' style='text-align:center;'>Scores</th>
-                                    </tr>
-                                    <tr>
-                                        <th>Initial Assessment</th>
-                                        <th>Mid 1 Assessment</th>
-                                        <th>Mid 2 Assessment</th>
-                                        <th>Mid 3 Assessment</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>Measure 1</td>
-                                        <td>0</td>
-                                        <td>0</td>
-                                        <td>0</td>
-                                        <td>0</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Measure 2</td>
-                                        <td>0</td>
-                                        <td>0</td>
-                                        <td>0</td>
-                                        <td>0</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Measure 3</td>
-                                        <td>0</td>
-                                        <td>0</td>
-                                        <td>0</td>
-                                        <td>0</td>
-                                    </tr>
-                                </tbody>
-                                <tfoot>
-                                    <tr>
-                                        <td>Avarage Score</td>
-                                        <td>0</td>
-                                        <td>0</td>
-                                        <td>0</td>
-                                        <td>0</td>
-                                    </tr>
-                                </tfoot>
-                            </table>    
+                            <?php include 'includes/include_progress_measure_scores.php';?>    
                         </div>
                     </div>
 
                     <div class='row'>
                         <div class='col-xs-12'>
-                              <table class='table table-striped table-bordered'>
-                                <thead>
-                                    <tr>
-                                        <th rowspan='3'>Progress Measure</th>
-                                        <th colspan='10'>Connect Stage</th>
-                                        
-                                    </tr>
-                                    <tr>
-                                        <th colspan='5'>Stage 1</th>
-                                        <th colspan='5'>Stage 2</th>
-                                    </tr>
-                                    <tr>
-                                        <th>Connect Param 1</th>
-                                        <th>Connect Param 1</th>
-                                        <th>Connect Param 1</th>
-                                        <th>Connect Param 1</th>
-                                        <th>Connect Param 1</th>
-
-
-                                        <th>Connect Param 1</th>
-                                        <th>Connect Param 1</th>
-                                        <th>Connect Param 1</th>
-                                        <th>Connect Param 1</th>
-                                        <th>Connect Param 1</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>Measure 1</td>
-                                        <td>0</td>
-                                        <td>0</td>
-                                        <td>0</td>
-                                        <td>0</td>
-                                        <td>0</td>
-                                        <td>0</td>
-                                        <td>0</td>
-                                        <td>0</td>
-                                        <td>0</td>
-                                        <td>0</td>
-                                    </tr>
-
-                                    <tr>
-                                        <td>Measure 1</td>
-                                        <td>0</td>
-                                        <td>0</td>
-                                        <td>0</td>
-                                        <td>0</td>
-                                        <td>0</td>
-                                        <td>0</td>
-                                        <td>0</td>
-                                        <td>0</td>
-                                        <td>0</td>
-                                        <td>0</td>
-                                    </tr>
-
-                                    <tr>
-                                        <td>Measure 1</td>
-                                        <td>0</td>
-                                        <td>0</td>
-                                        <td>0</td>
-                                        <td>0</td>
-                                        <td>0</td>
-                                        <td>0</td>
-                                        <td>0</td>
-                                        <td>0</td>
-                                        <td>0</td>
-                                        <td>0</td>
-                                    </tr>
-                                </tbody>
-                                <tfoot>
-                                     <tr>
-                                        <td>Average Score</td>
-                                        <td>0</td>
-                                        <td>0</td>
-                                        <td>0</td>
-                                        <td>0</td>
-                                        <td>0</td>
-                                        <td>0</td>
-                                        <td>0</td>
-                                        <td>0</td>
-                                        <td>0</td>
-                                        <td>0</td>
-                                    </tr>
-                                </tfoot>
-                              </table>  
+                              <?php include 'includes/include_connect_parameter_score.php';?>  
                         </div>
                     </div>
+
+                    <div class='row'>
+                        <div class='col-xs-12'>
+                            <?=include 'includes/include_comment.php';?>
+                        </div>
+                    </div>
+
+                    <div class='row'>
+						<div class="col-xs-12">
+							<div class="form-group">	
+								<button <?=$disabled;?> class="btn btn-success" name="btnSubmit" id="btnSubmit" >
+									<?=get_phrase('mature');?>
+								</button>
+
+                                <button <?=$disabled;?> class="btn btn-danger" name="btnSubmit" id="btnSubmit" >
+									<?=get_phrase('close');?>
+								</button>
+
+							</div>
+					    </div>						
+                    </div>
+
                     
                 </div>
             </div>    
