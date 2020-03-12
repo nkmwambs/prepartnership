@@ -150,10 +150,226 @@ class Leads extends CI_Controller {
 			$page_data['test'] = $this->test($lead_id,$assessment_milestone_id);
             $page_data['page_name'] = !$this->_check_if_final_assessment_reached($lead_id,$assessment_milestone_id)?'lead_assessment':'summative_assessment';
 			$page_data['view_type'] = "leads";
-			$page_data['assessment_data'] = $this->_assessment_data($lead_id, $assessment_milestone_id);
+			$page_data['assessment_data'] = !$this->_check_if_final_assessment_reached($lead_id,$assessment_milestone_id)?$this->_assessment_data($lead_id, $assessment_milestone_id):$this->_summative_assessment_result($lead_id, $assessment_milestone_id);
             $page_data['page_title'] = get_phrase('lead_assessment');
             $this -> load -> view('backend/index', $page_data);
 		
+	}
+
+	private function _summative_assessment_result($lead_id,$assessment_milestone_id){
+		$assessment_data = [
+			'assessment_milestones'=>$this->_active_assessment_milestones(),
+			'assessment_milestone_id'=> $assessment_milestone_id,
+			'lead_profile_information'=>$this->_lead_profile_information($lead_id),
+			'lead_assessment_information'=>$this->_summative_lead_assessment_report($lead_id),
+			//'compute_aggregate_assessment_score'=>$this->_summative_compute_average_score($lead_id),//['1'=>74,'2'=>70,'3'=>65],
+		];
+
+		return $assessment_data;
+	}
+
+	// private function _summative_compute_average_score($lead_id){
+	// 	$this->db->select(array('assessment_milestones_id','assessment_id'));
+	// 	$result = $this->db->get_where('assessment',array('leads_bio_information_id'=>$lead_id))->result_array();
+
+	// 	$score_array = [];
+	// 	//$count = 1;
+	// 	foreach($result as $lead_milestone_id){
+	// 		$score_array[$lead_milestone_id['assessment_milestones_id']] = $this->_compute_aggregate_assessment_score($lead_id,$lead_milestone_id['assessment_id']);
+	// 		//$score_array[$count] = $this->_compute_aggregate_assessment_score($lead_id,$lead_milestone_id['assessment_id']);
+	// 		//$count++;
+	// 	}
+
+	// 	return $score_array;
+	// }
+
+	private function _summative_lead_assessment_report($lead_id){	
+		
+		$result = [];
+
+		$result['general_comment'] = "";
+		$result['is_completed'] = false;
+		$result['progress_measure_aggregate_score'] = $this->_summative_progress_measure_aggregate_score($lead_id);
+		$result['connect_measures_aggregate_score'] = $this->_summative_connect_measures_aggregate_score($lead_id);
+
+
+		return $result;
+	}
+
+	private function _summative_progress_measure_aggregate_score($lead_id){
+
+		// $db_result = [
+		// 	['milestone_id'=>1,'milestone_name'=>'Milestone  1','progress_measure_id'=>1,'progress_measure_name'=>'Measure 1','score'=>1,'weight'=>6],
+		// 	['milestone_id'=>1,'milestone_name'=>'Milestone  1','progress_measure_id'=>2,'progress_measure_name'=>'Measure 2','score'=>1,'weight'=>4],
+		// 	['milestone_id'=>1,'milestone_name'=>'Milestone  1','progress_measure_id'=>3,'progress_measure_name'=>'Measure 3','score'=>1,'weight'=>6],
+
+		// 	['milestone_id'=>2,'milestone_name'=>'Milestone  2','progress_measure_id'=>1,'progress_measure_name'=>'Measure 1','score'=>-1,'weight'=>6],
+		// 	['milestone_id'=>2,'milestone_name'=>'Milestone  2','progress_measure_id'=>2,'progress_measure_name'=>'Measure 2','score'=>1,'weight'=>4],
+		// 	['milestone_id'=>2,'milestone_name'=>'Milestone  2','progress_measure_id'=>3,'progress_measure_name'=>'Measure 3','score'=>1,'weight'=>6],
+
+		// 	['milestone_id'=>3,'milestone_name'=>'Milestone  3','progress_measure_id'=>1,'progress_measure_name'=>'Measure 1','score'=>1,'weight'=>6],
+		// 	['milestone_id'=>3,'milestone_name'=>'Milestone  3','progress_measure_id'=>2,'progress_measure_name'=>'Measure 2','score'=>1,'weight'=>4],
+		// 	['milestone_id'=>3,'milestone_name'=>'Milestone  3','progress_measure_id'=>3,'progress_measure_name'=>'Measure 3','score'=>-1,'weight'=>6],
+		// 	['milestone_id'=>3,'milestone_name'=>'Milestone  3','progress_measure_id'=>4,'progress_measure_name'=>'Measure 4','score'=>1,'weight'=>8],
+
+		// ];
+
+		$this->db->select(array('assessment_milestones.assessment_milestones_id as milestone_id',
+		'assessment_milestones.milestone_name as milestone_name',
+		'assessment_progress_measure.assessment_progress_measure_id as progress_measure_id',
+		'assessment_progress_measure.progress_measure_title as progress_measure_name',
+		'assessment_result.score as score',
+		'assessment_result.progress_measure_weight as weight'));
+		$this->db->join('assessment','assessment.assessment_id=assessment_result.assessment_id');
+		$this->db->join('assessment_progress_measure','assessment_progress_measure.assessment_progress_measure_id=assessment_result.assessment_progress_measure_id');
+		$this->db->join('assessment_milestones','assessment_milestones.assessment_milestones_id=assessment.assessment_milestones_id');
+		$db_result = $this->db->get_where('assessment_result',array('leads_bio_information_id'=>$lead_id))->result_array();
+
+
+		$result = [];
+
+		foreach($db_result as $row){
+			$result[$row['progress_measure_id']][$row['milestone_id']]['milestone_name'] = $row['milestone_name'];
+			$result[$row['progress_measure_id']][$row['milestone_id']]['progress_measure_name'] = $row['progress_measure_name'];
+			$result[$row['progress_measure_id']][$row['milestone_id']]['weighted_score'] = ($this->_progress_measure_weighted_score($row['score'],$row['weight']) / $row['weight']) * 100;
+		}
+
+		// $progress_measure_id = 1; // One loop interation
+
+		// //Milestone 1
+		// $result['m1']['milestone_name'] = $this->_milestone_name($assessment_milestone_id);
+		
+		// $result['m1']['progress_measures']['p1']['progress_measure_name'] = $this->_progress_measure_name($lead_id,$progress_measure_id);
+		// $result['m1']['progress_measures']['p1']['score'] = $this->_progress_measure_score($lead_id,$assessment_milestone_id);
+
+		// $result['m1']['progress_measures']['p2']['progress_measure_name'] = $this->_progress_measure_name($lead_id,$progress_measure_id);
+		// $result['m1']['progress_measures']['p2']['score'] = $this->_progress_measure_score($lead_id,$assessment_milestone_id);
+
+		// $result['m1']['progress_measures']['p3']['progress_measure_name'] = $this->_progress_measure_name($lead_id,$progress_measure_id);
+		// $result['m1']['progress_measures']['p3']['score'] = $this->_progress_measure_score($lead_id,$assessment_milestone_id);
+
+		// //Milestone 2
+		// $result['m2']['milestone_name'] = $this->_milestone_name($assessment_milestone_id);
+		
+		// $result['m2']['progress_measures']['p1']['progress_measure_name'] = $this->_progress_measure_name($lead_id,$progress_measure_id);
+		// $result['m2']['progress_measures']['p1']['score'] = $this->_progress_measure_score($lead_id,$assessment_milestone_id);
+
+		// $result['m2']['progress_measures']['p2']['progress_measure_name'] = $this->_progress_measure_name($lead_id,$progress_measure_id);
+		// $result['m2']['progress_measures']['p2']['score'] = $this->_progress_measure_score($lead_id,$assessment_milestone_id);
+
+		// $result['m2']['progress_measures']['p3']['progress_measure_name'] = $this->_progress_measure_name($lead_id,$progress_measure_id);
+		// $result['m2']['progress_measures']['p3']['score'] = $this->_progress_measure_score($lead_id,$assessment_milestone_id);
+
+		// $result['m2']['progress_measures']['p4']['progress_measure_name'] = $this->_progress_measure_name($lead_id,$progress_measure_id);
+		// $result['m2']['progress_measures']['p4']['score'] = $this->_progress_measure_score($lead_id,$assessment_milestone_id);
+
+
+		return $result;
+	}
+
+	// private function _milestone_name($assessment_milestone_id){
+	// 	return "Milestone 1";
+	// }
+
+	// private function _progress_measure_name(){
+	// 	return "Measure 1";
+	// }
+
+	private function _progress_measure_weighted_score($score,$weight){
+		$actual_scored = 0;
+
+			if($score == 1){
+				$actual_scored += $score * $weight;
+			}elseif($score == -1){
+				$actual_scored += $weight * $this->config->item('low_score_progress_measure_weight_ratio');
+			}
+		
+		return $actual_scored;
+	}
+
+	private function _summative_connect_measures_aggregate_score($lead_id){
+		
+		// $db_result = [
+		// 	['connect_stage_id'=>1,'connect_stage_name'=>'Connect Stage 1','progress_measure_id'=>1,'progress_measure_name'=>'Measure 1','connect_parameter_id'=>1,'connect_parameter_name'=>'Connect Parameter 1','progress_measure_score'=>1,'weight'=>6],
+		// 	['connect_stage_id'=>1,'connect_stage_name'=>'Connect Stage 1','progress_measure_id'=>2,'progress_measure_name'=>'Measure 2','connect_parameter_id'=>1,'connect_parameter_name'=>'Connect Parameter 1','progress_measure_score'=>1,'weight'=>4],
+		// 	['connect_stage_id'=>1,'connect_stage_name'=>'Connect Stage 1','progress_measure_id'=>3,'progress_measure_name'=>'Measure 3','connect_parameter_id'=>2,'connect_parameter_name'=>'Connect Parameter 2','progress_measure_score'=>-1,'weight'=>8],
+		// 	['connect_stage_id'=>2,'connect_stage_name'=>'Connect Stage 2','progress_measure_id'=>4,'progress_measure_name'=>'Measure 4','connect_parameter_id'=>3,'connect_parameter_name'=>'Connect Parameter 3','progress_measure_score'=>-1,'weight'=>10],
+		// 	['connect_stage_id'=>2,'connect_stage_name'=>'Connect Stage 2','progress_measure_id'=>5,'progress_measure_name'=>'Measure 5','connect_parameter_id'=>4,'connect_parameter_name'=>'Connect Parameter 4','progress_measure_score'=>1,'weight'=>4],
+		// ];
+
+		$this->db->select(array('connect_stage.connect_stage_id as connect_stage_id',
+			'connect_stage.connect_stage_name as connect_stage_name',
+			'assessment_progress_measure.assessment_progress_measure_id as progress_measure_id',
+			'assessment_progress_measure.progress_measure_title as progress_measure_name',
+			'compassion_connect_mapping.compassion_connect_mapping_id as connect_parameter_id',
+			'compassion_connect_mapping.connect_lead_stage_parameter as connect_parameter_name',
+			'assessment_result.score as progress_measure_score',
+			'assessment_result.progress_measure_weight as weight'	
+		));
+		$this->db->join('assessment','assessment.assessment_id=assessment_result.assessment_id');
+		$this->db->join('assessment_progress_measure','assessment_progress_measure.assessment_progress_measure_id=assessment_result.assessment_progress_measure_id');
+		$this->db->join('compassion_connect_mapping','compassion_connect_mapping.compassion_connect_mapping_id=assessment_progress_measure.compassion_connect_mapping_id');
+		$this->db->join('connect_stage','connect_stage.connect_stage_id=compassion_connect_mapping.connect_stage_id');
+		$db_result = $this->db->get_where('assessment_result',array('assessment.leads_bio_information_id'=>$lead_id))->result_array();
+
+		$result = [];
+
+		foreach($db_result as $assessment_result){
+			$result[$assessment_result['progress_measure_id']][$assessment_result['connect_stage_id']]['connect_stage_name'] = $assessment_result['connect_stage_name'];
+			$result[$assessment_result['progress_measure_id']][$assessment_result['connect_stage_id']]['progress_measure_name'] = $assessment_result['progress_measure_name'];
+			$result[$assessment_result['progress_measure_id']][$assessment_result['connect_stage_id']]['connect_stage_parameters'][$assessment_result['connect_parameter_id']]['connect_parameter_name'] = $assessment_result['connect_parameter_name'];
+			$result[$assessment_result['progress_measure_id']][$assessment_result['connect_stage_id']]['connect_stage_parameters'][$assessment_result['connect_parameter_id']]['progress_measure_score'] = $this->_sum_of_progress_scores_in_connect_paramter($lead_id,$assessment_result['progress_measure_id'],$assessment_result['connect_parameter_id']);
+		}
+		
+		// $result['p1']['cs1']['connect_stage_name'] = "Connect Stage 1";
+		// $result['p1']['cs1']['progress_measure_name'] = "Measure 1";
+		// $result['p1']['cs1']['connect_stage_parameters']['ps1']['connect_parameter_name'] = "Connect Parameter 1";
+		// $result['p1']['cs1']['connect_stage_parameters']['ps1']['progress_measure_score'] = $this->_progress_measure_weighted_score(1,6);
+
+		// $result['p2']['cs1']['connect_stage_name'] = "Connect Stage 1";
+		// $result['p2']['cs1']['progress_measure_name'] = "Measure 2";
+		// $result['p2']['cs1']['connect_stage_parameters']['ps1']['connect_parameter_name'] = "Connect Parameter 1";
+		// $result['p2']['cs1']['connect_stage_parameters']['ps1']['progress_measure_score'] = $this->_progress_measure_weighted_score(1,4);
+
+		// $result['p3']['cs1']['connect_stage_name'] = "Connect Stage 1";
+		// $result['p3']['cs1']['progress_measure_name'] = "Measure 3";
+		// $result['p3']['cs1']['connect_stage_parameters']['ps2']['connect_parameter_name'] = "Connect Parameter 2";
+		// $result['p3']['cs1']['connect_stage_parameters']['ps2']['progress_measure_score'] = $this->_progress_measure_weighted_score(-1,8);
+
+		// $result['p4']['cs2']['connect_stage_name'] = "Connect Stage 2";
+		// $result['p4']['cs2']['progress_measure_name'] = "Measure 4";
+		// $result['p4']['cs2']['connect_stage_parameters']['ps3']['connect_parameter_name'] = "Connect Parameter 3";
+		// $result['p4']['cs2']['connect_stage_parameters']['ps3']['progress_measure_score'] = $this->_progress_measure_weighted_score(-1,10);
+
+		// $result['p5']['cs2']['connect_stage_name'] = "Connect Stage 2";
+		// $result['p5']['cs2']['progress_measure_name'] = "Measure 5";
+		// $result['p5']['cs2']['connect_stage_parameters']['ps4']['connect_parameter_name'] = "Connect Parameter 4";
+		// $result['p5']['cs2']['connect_stage_parameters']['ps4']['progress_measure_score'] = $this->_progress_measure_weighted_score(1,4);
+
+
+
+		return $result;
+	}
+
+	private function _sum_of_progress_scores_in_connect_paramter($lead_id,$progress_measure_id,$connect_parameter_id){
+		
+		$this->db->select(array('progress_measure_weight as weight','score'));
+		$this->db->join('assessment','assessment.assessment_id=assessment_result.assessment_id');
+		$this->db->join('assessment_progress_measure','assessment_progress_measure.assessment_progress_measure_id=assessment_result.assessment_progress_measure_id');
+		$this->db->join('compassion_connect_mapping','compassion_connect_mapping.compassion_connect_mapping_id=assessment_progress_measure.compassion_connect_mapping_id');
+		$result  = $this->db->get_where('assessment_result',
+		array('assessment.leads_bio_information_id'=>$lead_id,
+		'assessment_result.assessment_progress_measure_id'=>$progress_measure_id,
+		'compassion_connect_mapping.compassion_connect_mapping_id'=>$connect_parameter_id))->result_array();
+		
+		$weighted_scores = 0;
+		$count = 0;
+		foreach($result as $progress_measure_score_and_weight){
+			$weighted_scores += $this->_progress_measure_weighted_score($progress_measure_score_and_weight['score'],$progress_measure_score_and_weight['weight']);
+			$count++;
+		}
+
+		return number_format(($weighted_scores/array_sum(array_column($result,'weight'))) * 100,2);
 	}
 
 	private function _check_if_final_assessment_reached($lead_id,$passed_milestone_id = ''){
@@ -274,11 +490,12 @@ class Leads extends CI_Controller {
 		$highest_possible_score = $this->_compute_max_possible_milestone_weight($this->_get_current_assessment_milestone($lead_id)['assessment_milestone_id']);
 
 		foreach($results as $result){
-			if($result['score'] == 1){
-				$actual_scored += $result['score'] * $result['progress_measure_weight'];
-			}elseif($result['score'] == -1){
-				$actual_scored += $result['progress_measure_weight'] * $this->config->item('low_score_progress_measure_weight_ratio');
-			}
+			// if($result['score'] == 1){
+			// 	$actual_scored += $result['score'] * $result['progress_measure_weight'];
+			// }elseif($result['score'] == -1){
+			// 	$actual_scored += $result['progress_measure_weight'] * $this->config->item('low_score_progress_measure_weight_ratio');
+			// }
+			$actual_scored += $this->_progress_measure_weighted_score($result['score'],$result['progress_measure_weight']);
 		}
 
 		$aggregate_score = number_format(($actual_scored / $highest_possible_score) * 100);

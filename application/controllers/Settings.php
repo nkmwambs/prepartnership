@@ -291,7 +291,7 @@ class Settings extends CI_Controller {
 		$crud->field_type('status', 'dropdown',array(get_phrase('suspended'),get_phrase('active')));
 		
 		//Set relationship to CC mapping
-		$crud->set_relation('compassion_connect_mapping', 'compassion_connect_mapping', 'lead_score_parameter');		
+		$crud->set_relation('compassion_connect_mapping_id', 'compassion_connect_mapping', 'connect_lead_stage_parameter');		
 		
 		//Prevented actions
 		$crud->unset_delete();

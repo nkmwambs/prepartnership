@@ -218,7 +218,7 @@ public function edit_assessment_progress_measure($table_name,$record_id){
 		$build_form = $this->load_library();
 		
 		$selected_columns = array("Progress Measure"=>"Progress_Measure_title",
-		'Tools Of Verification'=>"verification_tool","Progress Measure Weight"=>"weight","CC Mapping"=>"compassion_connect_mapping");
+		'Tools Of Verification'=>"verification_tool","Progress Measure Weight"=>"weight","CC Mapping"=>"compassion_connect_mapping_id");
 	
 		$build_form->set_selected_fields($selected_columns,"assessment_progress_measure_id");
 		
@@ -325,7 +325,7 @@ public function view_progress_measures()
 	$build_list = $this->load_library();
 	
 	$selected_columns = array("Progress Measure"=>"Progress_Measure_title",
-	'Tools Of Verification'=>"verification_tool","Progress Measure Weight"=>"weight","CC Mapping"=>"compassion_connect_mapping");
+	'Tools Of Verification'=>"verification_tool","Progress Measure Weight"=>"weight","CC Mapping"=>"compassion_connect_mapping_id");
 
 	$build_list->set_selected_fields($selected_columns,"assessment_progress_measure_id");		
 
@@ -360,7 +360,7 @@ public function view_single_assessment_progress_measure($table_name,$record_id)
 	
 	
 	$selected_columns = array("Progress Measure"=>"Progress_Measure_title",
-		'Tools Of Verification'=>"verification_tool","Progress Measure Weight"=>"weight","CC Mapping"=>"compassion_connect_mapping");
+		'Tools Of Verification'=>"verification_tool","Progress Measure Weight"=>"weight","CC Mapping"=>"compassion_connect_mapping_id");
 
 	$build_form->set_selected_fields($selected_columns,"assessment_progress_measure_id");
 	

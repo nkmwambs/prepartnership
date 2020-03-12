@@ -1,6 +1,6 @@
 <?php 
 
-print_r($assessment_data); 
+//print_r($assessment_data); 
 
 extract($assessment_data);
 
