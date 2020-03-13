@@ -16,7 +16,7 @@
                                             foreach($connect_stage_names as $connect_stage_id=>$connect_stage_name){
                                                 foreach($array_of_connect_stage_parameters[$connect_stage_id] as $connect_stage_parameter){
                                         ?>  
-                                                <th><?=$connect_stage_parameter;?></th>
+                                                <th><?=$connect_stage_parameter;?> (%)</th>
                                         <?php 
                                                 }
                                             }
@@ -44,40 +44,34 @@
                                         }
                                     }
                                 ?>
-                                    <!-- <tr>
-                                        <td>Measure 1</td>
-                                        <td>0</td>
-                                        <td>0</td>
-                                        <td>0</td>
-                                        <td>0</td>
-
-                                    </tr>
-
-                                    <tr>
-                                        <td>Measure 2</td>
-                                        <td>0</td>
-                                        <td>0</td>
-                                        <td>0</td>
-                                        <td>0</td>
-                                 
-                                    </tr>
-
-                                    <tr>
-                                        <td>Measure 3</td>
-                                        <td>0</td>
-                                        <td>0</td>
-                                        <td>0</td>
-                                        <td>0</td>
-                               
-                                    </tr> -->
+                                    
                                 </tbody>
                                 <tfoot>
                                      <tr>
-                                        <td>Average Score</td>
-                                        <td>0</td>
-                                        <td>0</td>
-                                        <td>0</td>
-                                        <td>0</td>
+                                        <td><?=get_phrase('average_score');?> (%)</td>
+                                        <?php 
+                                            foreach($connect_stage_names as $connect_stage_id=>$connect_stage_name){
+                                                foreach($array_of_connect_stage_parameters[$connect_stage_id] as $connect_parameter_id=>$connect_stage_parameter){
+                                        ?>  
+                                                <td>
+                                                    <?php 
+                                                        $array_of_connect_stage_and_connect_parameter = array_column($lead_assessment_information['connect_measures_aggregate_score'],$connect_stage_id);
+                                                        $array_of_connect_parameter_and_score = array_column($array_of_connect_stage_and_connect_parameter,'connect_stage_parameters');
+                                                        $connect_parameters_array = array_column($array_of_connect_parameter_and_score,$connect_parameter_id);
+                                                        $progress_measure_weighted_scores = array_column($connect_parameters_array,'progress_measure_score');
+                                                        
+                                                        $sum_of_scores = array_sum($progress_measure_weighted_scores);
+                                                        $size_of_scores = sizeof($progress_measure_weighted_scores);
+                                                        
+                                                        $avg_score = $sum_of_scores > 0 ? $sum_of_scores/ $size_of_scores : 0;
+
+                                                        echo number_format($avg_score,2);
+                                                    ?>
+                                                </td>
+                                        <?php 
+                                                }
+                                            }
+                                        ?>
                                       
                                     </tr>
                                 </tfoot>

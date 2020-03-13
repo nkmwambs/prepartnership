@@ -1,5 +1,5 @@
 <?php 
-print_r($assessment_data['lead_assessment_information']['connect_measures_aggregate_score']);
+//print_r($assessment_data['lead_assessment_information']);
 
 extract($assessment_data);
 
@@ -47,7 +47,7 @@ if($lead_assessment_information['is_completed'] == 1){
 
 <div class='row'>
     <div class='col-xs-12'>
-        <form id="prepartnership_assessment_form" method="post" action="" class="form-wizard validate">
+        <form id="prepartnership_assessment_form" method="post" action="<?=base_url();?>leads/complete_summative_assessment/<?=$lead_assessment_information['lead_id']?>" class="form-wizard validate">
             <?php include 'includes/include_form_wizard.php';?><hr>
 
             <div class="tab-content">
@@ -88,11 +88,11 @@ if($lead_assessment_information['is_completed'] == 1){
                     <div class='row'>
 						<div class="col-xs-12">
 							<div class="form-group">	
-								<button <?=$disabled;?> class="btn btn-success" name="btnSubmit" id="btnSubmit" >
+								<button type='submit' <?=$disabled;?> class="btn btn-success" name="btn_mature" value="btn_mature" id="btn_mature" >
 									<?=get_phrase('mature');?>
 								</button>
 
-                                <button <?=$disabled;?> class="btn btn-danger" name="btnSubmit" id="btnSubmit" >
+                                <button type='submit' <?=$disabled;?> class="btn btn-danger" name="btn_close" value="btn_mature" id="btn_close" >
 									<?=get_phrase('close');?>
 								</button>
 

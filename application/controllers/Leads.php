@@ -184,11 +184,16 @@ class Leads extends CI_Controller {
 	// }
 
 	private function _summative_lead_assessment_report($lead_id){	
+		$assessment_milestones_id = $this->_get_current_assessment_milestone($lead_id)['assessment_milestone_id'];
+		
+		$this->db->select(array('comment','is_completed'));
+		$assessment_record = $this->db->get_where('assessment',array('leads_bio_information_id'=>$lead_id,'assessment_milestones_id'=>$assessment_milestones_id))->row();
 		
 		$result = [];
 
-		$result['general_comment'] = "";
-		$result['is_completed'] = false;
+		$result['general_comment'] = $assessment_record->comment;
+		$result['is_completed'] = $assessment_record->is_completed;
+		$result['lead_id'] = $lead_id;
 		$result['progress_measure_aggregate_score'] = $this->_summative_progress_measure_aggregate_score($lead_id);
 		$result['connect_measures_aggregate_score'] = $this->_summative_connect_measures_aggregate_score($lead_id);
 
@@ -349,6 +354,46 @@ class Leads extends CI_Controller {
 
 
 		return $result;
+	}
+
+	function complete_summative_assessment($lead_id){
+
+		$current_assessment_milestones_id = $this->_get_current_assessment_milestone($lead_id)['assessment_milestone_id'];
+		
+		if($this->_check_if_final_assessment_reached($lead_id)){
+			
+			$this->db->trans_start();
+
+			$closure_status = $this->input->post('btn_mature');
+
+			$this->db->where(array('assessment_milestones_id'=>$current_assessment_milestones_id,'leads_bio_information_id'=>$lead_id));
+			
+			$data['is_completed'] =  1;
+			$data['comment'] = $this->input->post('general_comment');
+			
+			$data['closure_status'] = isset($closure_status) ? 1 : 2;
+			$data['assessment_last_modified_by'] = $this->session->login_user_id;
+
+			$this->db->update('assessment',$data);
+
+			// Update leads status
+			$this->db->where(array('leads_bio_information_id'=>$lead_id));
+			$info['lead_status'] = isset($closure_status) ? "Mature" : "Closed";
+			$this->db->update('leads_bio_information',$info);
+
+			
+			$this->db->trans_complete();
+
+			if($this->db->trans_status() == false){
+				$this->session->set_flashdata('flash_message', 'Update failure');
+			}else{
+				$this->session->set_flashdata('flash_message', 'Update success');
+			}
+
+
+		}
+
+		redirect(base_url().'leads/lead_assessment/'.$lead_id.'/'.$current_assessment_milestones_id,'refresh');
 	}
 
 	private function _sum_of_progress_scores_in_connect_paramter($lead_id,$progress_measure_id,$connect_parameter_id){
