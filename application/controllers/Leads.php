@@ -123,6 +123,46 @@ class Leads extends CI_Controller {
 		
 		//Display in Human Readable
 		$crud->display_as('assessment_id',get_phrase('assessment'));
+
+		$crud->add_action(get_phrase('view_assessment'), '', 'leads/lead_assessment', 'fa-book');
+		
+		//Unset delete and Edit
+		$crud -> unset_delete();
+		$crud->unset_add();
+		$crud->unset_edit();
+		
+		$output = $crud -> render();
+		$page_data['page_name'] = 'leads_information';
+		$page_data['view_type'] = 'leads';
+		$page_data['page_title'] = get_phrase('leads_bio_information')." : ".get_phrase($status);
+		$output = array_merge($page_data, (array)$output);
+
+		$this -> load -> view('backend/index', $output);
+	}
+
+	function mature_leads_information() {
+		if ($this -> session -> userdata('user_login') != 1)
+			redirect(base_url() . 'index.php?login', 'refresh');
+
+		$crud = new grocery_CRUD();
+		$crud -> set_theme('tablestrap');
+		$crud -> set_table('leads_bio_information');
+		
+		$status = 'Mature';
+		
+		//Status filter
+		$crud->where(array('lead_status'=>$status));
+		
+		//Dropdown Status
+		$crud->field_type('lead_status', 'dropdown',array('Active'=>'Active','Closed'=>'Closed', 'Mature'=>'Mature'));
+		
+		//Relationship
+		$crud->set_relation('assessment_milestones_id', 'assessment_milestones', 'milestone_name');
+		
+		//Display in Human Readable
+		$crud->display_as('assessment_id',get_phrase('assessment'));
+
+		$crud->add_action(get_phrase('view_assessment'), '', 'leads/lead_assessment', 'fa-book');
 		
 		//Unset delete and Edit
 		$crud -> unset_delete();

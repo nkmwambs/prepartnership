@@ -46,6 +46,14 @@
             			<span> <?=get_phrase('closed_leads');?></span>
             		</a>
             	</li>
+
+                <li class="<?=get_access('mature_leads','leads');?>">
+            		<a href="<?php echo base_url();?>leads/mature_leads_information">
+            			<i class='entypo-graduation-cap'></i>
+            			<span> <?=get_phrase('mature_leads');?></span>
+            		</a>
+            	</li>
+
             </ul>
         </li>
         <!-- SETTINGS -->
