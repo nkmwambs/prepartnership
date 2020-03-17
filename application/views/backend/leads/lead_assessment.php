@@ -2,11 +2,12 @@
 
 //print_r($assessment_data); 
 
+
 extract($assessment_data);
 
 $disabled = '';
 $completed = '';
-if($lead_assessment_information['is_completed'] == 1){
+if(isset($lead_assessment_information['is_completed']) && $lead_assessment_information['is_completed']== 1){
 	$disabled = "disabled='disabled'";
 	$completed = 'completed';
 }
