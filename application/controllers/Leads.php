@@ -582,8 +582,9 @@ class Leads extends CI_Controller {
 			// }
 			$actual_scored += $this->_progress_measure_weighted_score($result['score'],$result['progress_measure_weight']);
 		}
-
-		$aggregate_score = number_format(($actual_scored / $highest_possible_score) * 100);
+		$sub_aggregate_score=$highest_possible_score>0?$actual_scored / $highest_possible_score:0;
+		
+		$aggregate_score = number_format(($sub_aggregate_score) * 100);
 
 		return $aggregate_score;
 	}
