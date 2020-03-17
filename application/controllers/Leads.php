@@ -276,7 +276,12 @@ class Leads extends CI_Controller {
 		foreach($db_result as $row){
 			$result[$row['progress_measure_id']][$row['milestone_id']]['milestone_name'] = $row['milestone_name'];
 			$result[$row['progress_measure_id']][$row['milestone_id']]['progress_measure_name'] = $row['progress_measure_name'];
-			$result[$row['progress_measure_id']][$row['milestone_id']]['weighted_score'] = ($this->_progress_measure_weighted_score($row['score'],$row['weight']) / $row['weight']) * 100;
+
+			$avoid_divide_weight_by_zero= $row['weight']>0?($this->_progress_measure_weighted_score($row['score'],$row['weight']) / $row['weight']) * 100:0;
+
+			$result[$row['progress_measure_id']][$row['milestone_id']]['weighted_score'] = $avoid_divide_weight_by_zero;
+
+			//$result[$row['progress_measure_id']][$row['milestone_id']]['weighted_score'] = ($this->_progress_measure_weighted_score($row['score'],$row['weight']) / $row['weight']) * 100;
 		}
 
 		// $progress_measure_id = 1; // One loop interation
@@ -453,8 +458,13 @@ class Leads extends CI_Controller {
 			$weighted_scores += $this->_progress_measure_weighted_score($progress_measure_score_and_weight['score'],$progress_measure_score_and_weight['weight']);
 			$count++;
 		}
+		$some_of_possible_weight=array_sum(array_column($result,'weight'));
+		
+		$calculated_weighted_score=$some_of_possible_weight>0?($weighted_scores/$some_of_possible_weight):0;
+		
+		return number_format($calculated_weighted_score * 100,2);
 
-		return number_format(($weighted_scores/array_sum(array_column($result,'weight'))) * 100,2);
+		//return number_format(($weighted_scores/array_sum(array_column($result,'weight'))) * 100,2);
 	}
 
 	private function _check_if_final_assessment_reached($lead_id,$passed_milestone_id = ''){
