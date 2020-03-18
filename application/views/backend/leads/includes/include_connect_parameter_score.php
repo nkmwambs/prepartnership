@@ -65,7 +65,7 @@
                                                         
                                                         $avg_score = $sum_of_scores > 0 ? $sum_of_scores/ $size_of_scores : 0;
 
-                                                        echo number_format($avg_score,2);
+                                                        echo round($avg_score);
                                                     ?>
                                                 </td>
                                         <?php 

@@ -81,7 +81,7 @@ if($lead_assessment_information['is_completed'] == 1){
 
                     <div class='row'>
                         <div class='col-xs-12'>
-                            <?=include 'includes/include_comment.php';?>
+                            <?php include 'includes/include_comment.php';?>
                         </div>
                     </div>
 
