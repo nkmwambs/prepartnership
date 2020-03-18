@@ -5,10 +5,11 @@
                                         <th colspan='4' style='text-align:center;'>Scores</th>
                                     </tr>
                                     <tr>
-                                        <!--Table header-->
-                                        <?php foreach($milestone_names as $milestone_name){?>
-                                        <th><?=$milestone_name;?> (%)</th> 
-                                        <?php }?>
+                                        <!--Table header-->                                                
+                                        <?=print_r($assessment_milestones);?>
+                                        <?php foreach($assessment_milestones as $milestone_name){ if($milestone_name['is_final_milestone']!=1){?>
+                                        <th><?=$milestone_name['assessment_milestone_name'];?> (%)</th> 
+                                        <?php }}?>
                                     </tr>
                                 </thead>
                                 <tbody>
