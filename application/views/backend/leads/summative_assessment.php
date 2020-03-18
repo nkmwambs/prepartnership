@@ -89,7 +89,7 @@ if($lead_assessment_information['is_completed'] == 1){
 						<div class="col-xs-12">
 							<div class="form-group">	
 								<button type='submit' <?=$disabled;?> class="btn btn-success" name="btn_mature" value="btn_mature" id="btn_mature" >
-									<?=get_phrase('mature');?>
+									<?=get_phrase('ready_for_conversion');?>
 								</button>
 
                                 <button type='submit' <?=$disabled;?> class="btn btn-danger" name="btn_close" value="btn_mature" id="btn_close" >
