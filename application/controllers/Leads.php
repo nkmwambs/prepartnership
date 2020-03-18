@@ -749,7 +749,7 @@ class Leads extends CI_Controller {
 	private function _active_assessment_milestones(){
 
 		$assement_milestones = $this->db->
-		select(array('assessment_milestones_id as assessment_milestone_id','milestone_name as assessment_milestone_name','assessment_milestone_initial','is_final_milestone'))->get_where('assessment_milestones',
+		select(array('assessment_milestones_id as assessment_milestone_id','milestone_name as assessment_milestone_name','assessment_milestone_initial'))->get_where('assessment_milestones',
 		array('status'=>1,'assessment_milestones_id > '=>1))->result_array();
 
 		return $assement_milestones;

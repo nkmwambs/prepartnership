@@ -8,7 +8,7 @@
                                         <!--Table header
                                         Sort the array of milestones to ensure they arranged as IA , M1 M2 ,M3 and summative
                                         -->                                                
-                                        <?ksort($milestone_names);?>
+                                        <?=ksort($milestone_names);?>
                                         <?php foreach($milestone_names as $milestone_name){?>
                                         <th><?=$milestone_name;?> (%)</th> 
                                         <?php }?>
@@ -48,7 +48,7 @@
 
                                                     //echo $assessment_data['compute_aggregate_assessment_score'][$milestone_id];
 
-                                                    echo $avg_of_milestone;
+                                                    echo round($avg_of_milestone);
                                                 ?>
                                             </td>
                                         <?php }?>
