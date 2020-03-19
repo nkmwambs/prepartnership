@@ -8,7 +8,7 @@
                                         <!--Table header
                                         Sort the array of milestones to ensure they arranged as IA , M1 M2 ,M3 and summative
                                         -->                                                
-                                        <?=ksort($milestone_names);?>
+                                        <?php echo('<font color="white">'.ksort($milestone_names).'</font>');?>
                                         <?php foreach($milestone_names as $milestone_name){?>
                                         <th><?=$milestone_name;?> (%)</th> 
                                         <?php }?>

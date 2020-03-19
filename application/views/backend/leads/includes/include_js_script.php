@@ -33,7 +33,11 @@
 				// });
 
 				posting_ajax(url,data,true);
-				location.reload();
+
+                //Redirect to the next milestone
+				window.location.href='<?=base_url();?>leads/lead_assessment/'+lead_id+'/'+next_assessment_milestone_id;
+
+				//location.reload();
 			}
 
 			event.preventDefault();

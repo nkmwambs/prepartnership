@@ -48,7 +48,8 @@ if($lead_assessment_information['is_completed'] == 1){
 <div class='row'>
     <div class='col-xs-12'>
         <form id="prepartnership_assessment_form" method="post" action="<?=base_url();?>leads/complete_summative_assessment/<?=$lead_assessment_information['lead_id']?>" class="form-wizard validate">
-            <?php include 'includes/include_form_wizard.php';?><hr>
+       
+        <?php include 'includes/include_form_wizard.php';?><hr>
 
             <div class="tab-content">
 				<div class="tab-pane active" id="tab-<?=$assessment_milestone_id;?>">
@@ -92,7 +93,7 @@ if($lead_assessment_information['is_completed'] == 1){
 									<?=get_phrase('ready_for_conversion');?>
 								</button>
 
-                                <button type='submit' <?=$disabled;?> class="btn btn-danger" name="btn_close" value="btn_mature" id="btn_close" >
+                                <button type='submit' <?=$disabled;?> class="btn btn-danger" name="btn_close" value="btn_close" id="btn_close" >
 									<?=get_phrase('close');?>
 								</button>
 
