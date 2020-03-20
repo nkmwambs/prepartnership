@@ -11,7 +11,8 @@
 			<?php foreach($assessment_milestones as $assessment_milestone){?>
 				<li class="<?php
 
-                  $check_if_final_milestone_and_completed=$assessment_data['lead_assessment_information']['is_completed'];
+				  $check_if_final_milestone_and_completed=isset($assessment_data['lead_assessment_information']['is_completed'])?$assessment_data['lead_assessment_information']['is_completed']:null;
+				  
 				  if(($is_final_milestone==1 && $check_if_final_milestone_and_completed==1)||($assessment_milestone_id > $assessment_milestone['assessment_milestone_id']))
 				  {
 
