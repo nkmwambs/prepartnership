@@ -57,7 +57,7 @@
             </ul>
         </li>
         <!-- SETTINGS -->
-        <li class="<?php echo get_access('settings');?> ">
+        <!-- <li class="<?php echo get_access('settings');?> ">
             <a href="#">
                 <i class="entypo-cog"></i>
                 <span><?php echo get_phrase('settings'); ?></span>
@@ -122,9 +122,9 @@
                     </a>
                 </li>
             </ul>
-        </li>
+        </li> -->
         <!-- Accounts -->
-        <li class="<?php echo get_access('account');?>">
+        <!-- <li class="<?php echo get_access('account');?>">
             <a href="#">
                 <i class="entypo-lifebuoy"></i>
                 <span><?php echo get_phrase('account'); ?></span>
@@ -147,9 +147,9 @@
 				</ul>
 				
 				
-			</li>
+			</li> -->
 				<!-- Language Selector--> 			
-           <li class="<?php echo get_access('language','account');?>">
+           <!-- <li class="<?php echo get_access('language','account');?>">
                     <a href="#">
                         <i class="entypo-globe"></i> <?php echo get_phrase('language');?>
                     </a>
@@ -175,7 +175,7 @@
 				
 			</li>
             </ul>
-          </li> 
+          </li>  -->
     </ul>
     <ul class="nav navbar-right pull-right">
        <li class="has-sub">
