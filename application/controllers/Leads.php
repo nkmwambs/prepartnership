@@ -188,8 +188,9 @@ class Leads extends CI_Controller {
 			}	
 			
 			$page_data['test'] = $this->test($lead_id,$assessment_milestone_id);
-			//$page_data['lead_id']=$lead_id;
-            //$page_data['milestone']=$assessment_milestone_id;
+			$page_data['lead_id']=$lead_id;
+			$page_data['milestone']=$assessment_milestone_id;
+			$page_data['is_final_milestone']=$this->_check_if_final_assessment_reached($lead_id,$assessment_milestone_id);
             $page_data['page_name'] = !$this->_check_if_final_assessment_reached($lead_id,$assessment_milestone_id)?'lead_assessment':'summative_assessment';
 			$page_data['view_type'] = "leads";
 			$page_data['assessment_data'] = !$this->_check_if_final_assessment_reached($lead_id,$assessment_milestone_id)?$this->_assessment_data($lead_id, $assessment_milestone_id):$this->_summative_assessment_result($lead_id, $assessment_milestone_id);
