@@ -56,7 +56,7 @@ class Leads extends CI_Controller {
 			
 			$crud->unset_columns($columns);			
 		}
-		
+		//
 		//Status filter
 		$crud->where(array('lead_status'=>$status));
 		
