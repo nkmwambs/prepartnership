@@ -33,7 +33,7 @@
 						<?php echo $this->l('list_view');?>
 					</a>
 				<?php }?>
-
+<!-- Check if clone is set -->
                 <?php if(isset($unset_clone)){?>
                     <a href="<?php echo $row->clone_url?>" class="edit_button btn btn-xs btn-info hidden-xs" role="button">
                         <span class="glyphicon glyphicon-duplicate"></span>
